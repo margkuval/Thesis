@@ -1,5 +1,7 @@
 from __future__ import division
 import numpy as np
+import matplotlib.pyplot as plt
+
 from matplotlib import *
 
 #Triangle FEM
@@ -69,3 +71,6 @@ print(u)
 #jakym smerem pusobi sily
 #jsou vysledky v metrech
 
+plt.plot(nodes)
+plt.ylabel('some numbers')
+plt.show()

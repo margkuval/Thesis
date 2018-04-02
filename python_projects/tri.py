@@ -5,14 +5,13 @@ import matplotlib.pyplot as plt
 #Triangle FEM
 
 #define nodes coord and connections between them
-
 nodes = np.array([[0,0], [2,0], [1,2]])
 edges = np.array([[0,1], [1,2], [2,0]])
 
 numElem = edges.shape[0]
 numNodes = nodes.shape[0]
 
-#show all x or y coordinates in a mat
+#show all x or y coordinates in a MAT
 xx = nodes[:, 0]
 yy = nodes[:, 1]
 
@@ -38,9 +37,9 @@ presDof=np.array([0, 1])  # CO TO DELA?
 for e in range(numElem):  #numElem = 3
     indice = edges[e, :]
     elemDof = np.array([indice[0]*2, indice[0]*2+1, indice[1]*2, indice[1]*2+1])
-    xa = xx[indice[1]] - xx[indice[0]]  #pocita vzdalenost x-ovych souradnic
+    xa = xx[indice[1]] - xx[indice[0]]  #distance calc of x coords
     ya = yy[indice[1]] - yy[indice[0]]  #same with y
-    elemLen = np.sqrt(pow(xa/2, 2) + pow(ya, 2))  #delka nakloneneho elementu
+    elemLen = np.sqrt(pow(xa/2, 2) + pow(ya, 2))  #length of the tilted element
                 # jak prepsat tak, aby se mohl menit pri pouziti GA
     c = xa/elemLen
     s = ya/elemLen

@@ -13,8 +13,8 @@ numElem = edges.shape[0]
 numNodes = nodes.shape[0]
 
 #show all x or y coordinates in a mat
-xx = nodes[:, 0].flatten()
-yy = nodes[:, 1].flatten()
+xx = nodes[:, 0]
+yy = nodes[:, 1]
 
 #material characteristics
 modE = 40000  #MPa
@@ -30,8 +30,8 @@ sigma = np.zeros((numElem, 1))  #mat for streses
 stiffness = np.zeros((tdof, tdof))  #shape of big MAT
 
 #define outside forces
-F[1] = 300  #N
-F[2] = 150  #N
+F[1] = 300 #N
+F[2] = -1000  #N
 
 presDof=np.array([0, 1])  # CO TO DELA?
 
@@ -61,13 +61,19 @@ print(u)
 #jakym smerem pusobi sily
 #jsou vysledky v metrech
 
-plt.plot(xx[edges], yy[edges], '-o')
-plt.show()
+plt.plot(xx[edges], yy[edges], linestyle='-', color='black',
+        markerfacecolor='black', marker='o')
 
-newnodes = (nodes.flatten()+u.flatten()).reshape(3, 2)  #original nodes + deformation, reshaping into 3x2 MAT
+newnodes = np.array(nodes.flatten()+u.flatten()).reshape(3, 2)  #original nodes + deformation, reshaping into 3x2 MAT
+
+xxnew = newnodes[:, 0]
+yynew = newnodes[:, 1]
 
 print(newnodes)
 
+plt.plot(xxnew[edges.T], yynew[edges.T], linestyle='--', color='r',
+        markerfacecolor='red', marker='o')
+plt.show()
 
 points = np.array([[1,2],[4,5],[2,7],[3,9],[9,2]])
 edges = np.array([[0,1],[3,4],[3,2],[2,4]])
@@ -77,5 +83,3 @@ y = points[:,1].flatten()
 
 plt.plot(x[edges.T], y[edges.T], linestyle='-', color='y',
         markerfacecolor='red', marker='o')
-
-plt.show()

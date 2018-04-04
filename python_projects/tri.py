@@ -81,11 +81,7 @@ rolled_xx = np.roll(xx, -1)
 print(rolled_xx - xx)
 
 """Calculate l and dl (Pythagoras), rolled function moves x --> x+1 in MATs"""
-l = np.sqrt((pow(np.roll(xx, -1)-(xx), 2)+ pow(np.roll(yy, -1)-(yy), 2)))  #transpose at some point...
-dl = np.sqrt((pow(np.roll(xxnew, -1)-(xxnew), 2)+ pow(np.roll(yynew, -1)-(yynew), 2)))
-print(l)
-print(dl)
-
-
-
-
+len = np.sqrt((pow(np.roll(xx, -1)-(xx), 2)+ pow(np.roll(yy, -1)-(yy), 2)))  #transpose at some point...
+newlen = np.sqrt((pow(np.roll(xxnew, -1)-(xxnew), 2)+ pow(np.roll(yynew, -1)-(yynew), 2)))
+stress = ((newlen-len)/len)*modE
+print(stress)

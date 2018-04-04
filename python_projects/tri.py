@@ -75,18 +75,17 @@ plt.plot(xx[edges], yy[edges], linestyle='-', color='black',
 plt.plot(xxnew[edges.T], yynew[edges.T], linestyle='--', color='r',
         markerfacecolor='red', marker='o')
 
+r = [3, 6, 2]
+
+rolled_xx = np.roll(xx, -1)
+print(rolled_xx - xx)
+
+"""Calculate l and dl (Pythagoras), rolled function moves x --> x+1 in MATs"""
+l = np.sqrt((pow(np.roll(xx, -1)-(xx), 2)+ pow(np.roll(yy, -1)-(yy), 2)))  #transpose at some point...
+dl = np.sqrt((pow(np.roll(xxnew, -1)-(xxnew), 2)+ pow(np.roll(yynew, -1)-(yynew), 2)))
+print(l)
+print(dl)
 
 
-#finding membrs length - make him automatically calculate differences between x and z+u, y and y+u
 
-for i in range(numElem):
-    p = np.array(xx[i, :]) - np.array(xx[i+1, :])
 
-print(p)
-
-"""Calc of delta l aka e"""
-ux = u[::2]  #take
-uy = u[1::2]
-e = np.sqrt(pow(ux, 2) + pow(uy, 2))
-
-l = np.sqrt(pow(xa, 2) + pow(ya, 2))

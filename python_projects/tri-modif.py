@@ -3,13 +3,17 @@ import matplotlib.pyplot as plt
 
 """Members characteristics"""
 ##when changing nodes numbering, change x and ycoord as well!!
-iEdge = np.array([0, 1, 2])  #beginning of an edge
-jEdge = np.array([1, 2, 0])  #end of an edge
+
 xcoord = np.array([0, 3, 1])
 ycoord = np.array([0, 0, 5])
+iEdge = np.array([0, 1, 2])  #beginning of an edge
+jEdge = np.array([1, 2, 0])  #end of an edge
+"Linking xcoord with iEdge"
+xi = xcoord[np.ix_(iEdge)]
+xj = xcoord[np.ix_(jEdge)]  #take jEdge #s and replace them with corresponding xcoord
 
-xi = iEdge[1, 2, 3]
-xj = np.stack([])
+print(xi)
+print(xj)
 
 numnode = xcoord.shape[0]  #all nodes must be used
 numelem = iEdge.shape[0]  #count # of beginnings
@@ -27,7 +31,7 @@ A = np.array([0.01, .02, 0.02])  #area - each member
 u = np.zeros((tdof, 1))  #deflectionsMAT
 F = np.zeros((tdof, 1))  #ForcesMAT
 "Fix"
-u[1] = 0  #deflections in particular nodes equal to zero
+u[1] = 0  #fixed nodes, deflections = 0
 u[2] = 0
 u[4] = 0
 "Forces [N]"
@@ -35,7 +39,7 @@ F[0] = 50
 F[3] = 60
 
 "Basic stiffness MAT"
-gsMAT = np.zeros((tdof, tdof))  #Global Stiffness MAT
+gsMAT = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
 
 for m in range(numelem):
     i = iEdge[m]

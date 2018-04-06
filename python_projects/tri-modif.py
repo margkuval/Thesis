@@ -3,14 +3,17 @@ import matplotlib.pyplot as plt
 
 """Members characteristics"""
 ##when changing nodes numbering, change x and ycoord as well!!
-
+##wonder if true... try to make a square, flip nodes :)
 xcoord = np.array([0, 3, 1])
 ycoord = np.array([0, 0, 5])
 iEdge = np.array([0, 1, 2])  #beginning of an edge
 jEdge = np.array([1, 2, 0])  #end of an edge
+
 "Linking xcoord with iEdge"
 xi = xcoord[np.ix_(iEdge)]
 xj = xcoord[np.ix_(jEdge)]  #take jEdge #s and replace them with corresponding xcoord
+yi = ycoord[np.ix_(iEdge)]
+yj = ycoord[np.ix_(jEdge)]
 
 print(xi)
 print(xj)
@@ -31,9 +34,10 @@ A = np.array([0.01, .02, 0.02])  #area - each member
 u = np.zeros((tdof, 1))  #deflectionsMAT
 F = np.zeros((tdof, 1))  #ForcesMAT
 "Fix"
-u[1] = 0  #fixed nodes, deflections = 0
-u[2] = 0
-u[4] = 0
+u[0] = 0  #fixed nodes, deflections = 0
+u[1] = 0
+u[3] = 0
+print(u)
 "Forces [N]"
 F[0] = 50
 F[3] = 60
@@ -41,14 +45,10 @@ F[3] = 60
 "Basic stiffness MAT"
 gsMAT = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
 
-for m in range(numelem):
-    i = iEdge[m]
-    j = jEdge[m]
-    n = ij[m]
-    xj = np.array([3, 1, 0]).transpose()
-    xi = np.array([0, 3, 1]).transpose()
-    yj = np.array([0, 5, 0]).transpose()
-    yi = np.array([0, 0, 5]).transpose()
+for mat in range(numelem):
+    i = iEdge[mat]
+    j = jEdge[mat]
+    n = ij[mat]
     length = np.array(np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2)))
     c = (xj - xi)/length
     s = (yj - yi)/length
@@ -56,13 +56,18 @@ for m in range(numelem):
                                [c * s, s * s, -c * s, -s * s],
                                [-c * c, -c * s, c * c, c * s],
                                [-c * s, -s * s, c * s, s * s]])
+    print(k1)
     gsMAT[np.ix_(n, n)] += k1
 
 actDof = np.setdiff1d(np.arange(tdof), u)  #Return the sorted, unique values in ar1 that are not in ar2.
 u1 = np.linalg.solve(gsMAT[np.ix_(actDof, actDof)], F[np.ix_(actDof)])
 u[np.ix_(actDof)] = u1
 
-print(u1)
 
-#missing xi, yi, same with j
+##jak zablokuju/fixuju nodes? u = 0 asi nestaci...
+##ceho se snazim docilit s mat?
+##jak ma vypadat k1?
+##co znamena gsMAT[np.ix_(n, n)] += k1
+##bude potreba actDof, nebo to muzu udelat bez toho? Pokud bez, jak to dat do solvu?
+#jak velkou mas globalni a lokalni MATs? draw, calc on paper ...
 

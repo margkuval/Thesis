@@ -47,6 +47,7 @@ for e in range(numElem):  #numElem = 3
                                  [c * s, s * s, -c * s, -s * s],
                                  [-c * c, -c * s, c * c, c * s],
                                  [-c * s, -s * s, c * s, s * s]])
+    print(k1)
     stiffness[np.ix_(elemDof, elemDof)] += k1
 
 actDof = np.setdiff1d(np.arange(tdof), presDof)
@@ -56,10 +57,8 @@ u[np.ix_(actDof)] = u1
 
 print(u)
 
-#jak vytisknout puvodni a novy zaroven?
 #jakym smerem pusobi sily
 #jsou vysledky v metrech
-
 
 """calc location of new nodes"""
 newnodes = np.array(nodes.flatten()+u.flatten()).reshape(3, 2)  #original nodes + deformation, reshaping into 3x2 MAT

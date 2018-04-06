@@ -49,7 +49,8 @@ for e in range(numElem):  #numElem = 3
                                  [-c * s, -s * s, c * s, s * s]])
     stiffness[np.ix_(elemDof, elemDof)] += k1
 
-actDof = np.setdiff1d(np.arange(tdof), presDof)  #Return the sorted, unique values in ar1 that are not in ar2.
+actDof = np.setdiff1d(np.arange(tdof), presDof)
+print(actDof)#Return the sorted, unique values in ar1 that are not in ar2.
 u1 = np.linalg.solve(stiffness[np.ix_(actDof, actDof)], F[np.ix_(actDof)])
 u[np.ix_(actDof)] = u1
 

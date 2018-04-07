@@ -32,7 +32,7 @@ stiffness = np.zeros((tdof, tdof))  #shape of big MAT
 F[1] = 300 #N
 F[2] = -1000  #N
 
-presDof=np.array([0, 1])  # CO TO DELA?
+presDof=np.array([0, 1])  # CO TO DELA? zablokuje to 0 a 1 node
 
 for e in range(numElem):  #numElem = 3
     indice = edges[e, :]
@@ -73,8 +73,10 @@ plt.plot(xx[edges], yy[edges], linestyle='-', color='black',
 
 plt.plot(xxnew[edges.T], yynew[edges.T], linestyle='--', color='r',
         markerfacecolor='red', marker='o')
+plt.show()
 
 r = [3, 6, 2]
+
 
 rolled_xx = np.roll(xx, -1)
 print(rolled_xx - xx)
@@ -84,3 +86,5 @@ len = np.sqrt((pow(np.roll(xx, -1)-(xx), 2)+ pow(np.roll(yy, -1)-(yy), 2)))  #tr
 newlen = np.sqrt((pow(np.roll(xxnew, -1)-(xxnew), 2)+ pow(np.roll(yynew, -1)-(yynew), 2)))
 stress = ((newlen-len)/len)*modE
 print(stress)
+
+print(actDof)

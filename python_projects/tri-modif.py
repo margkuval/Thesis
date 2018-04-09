@@ -33,17 +33,18 @@ A = np.array([0.01, .02, 0.02])  #area - each member
 "Basic stiffness MAT"
 gsMAT = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
 print(gsMAT)
-for mat in range(numelem):
-    i = iEdge[mat]
-    j = jEdge[mat]
-    n = ij[mat].tran
-    length = np.array(np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2)))
-    c = (xj - xi)/length
-    s = (yj - yi)/length
+
+for p in range(numelem):
+    i = iEdge[p]
+    j = jEdge[p]
+    n = ij[p]
+    length = np.sqrt(pow((xj[p] - xi[p]), 2) + pow((yj[p] - yi[p]), 2))
+    c = (xj[p] - xi[p])/length
+    s = (yj[p] - yi[p])/length
     cc = c * c
     cs = c * s
     ss = s * s
-    k1 = (E*A/length) * np.array([[cc, cs, -cc, -cs],
+    k1 = E[p]*A[p]/length * np.array([[cc, cs, -cc, -cs],
                                   [cs, ss, -cs, -ss],
                                   [-cc, -cs, cc, cs],
                                   [-cs, -ss, cs, ss]])

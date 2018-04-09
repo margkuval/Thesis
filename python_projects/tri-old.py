@@ -37,6 +37,7 @@ presDof=np.array([0, 1])  # CO TO DELA? zablokuje to 0 a 1 node
 for e in range(numElem):  #numElem = 3
     indice = edges[e, :]
     elemDof = np.array([indice[0]*2, indice[0]*2+1, indice[1]*2, indice[1]*2+1])
+    print(elemDof)
     xa = xx[indice[1]] - xx[indice[0]]  #distance calc of x coords
     ya = yy[indice[1]] - yy[indice[0]]  #same with y
     elemLen = np.sqrt(pow(xa/2, 2) + pow(ya, 2))  #length of the tilted element

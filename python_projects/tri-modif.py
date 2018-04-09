@@ -50,9 +50,7 @@ for p in range(numelem):
                                       [-cs, -ss, cs, ss]])
     print(k1)
     gStif[np.ix_(n, n)] += k1
-
 print(gStif)
-
 
 """Forces and deflections"""
 u = np.zeros((tdof, 1))  #deflectionsMAT, 1 = # of columns
@@ -62,11 +60,22 @@ F = np.zeros((tdof, 1))  #ForcesMAT
 F[4] = 100
 F[2] = 60
 
-"Fixed and active DOFs"
+"""Fixed and active DOFs"""
 fixedDof = np.array([0, 1, 3])  #fixed dof
 actDof = np.setdiff1d(np.arange(tdof), fixedDof) #Return sorted,unique values from tdof that are not in fixedDof
 
 """Solve deflections"""
-u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])
+u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  #zaznamenaji se tam i naklony prutu?
 u[np.ix_(actDof)] = u1
 print(u)
+
+"""Reactions"""
+#Reac = gStif*u
+Reac = gStif*u
+print(Reac)
+
+"""Inner forces"""
+
+
+#calc forces in global  or local system for each member
+#graphs

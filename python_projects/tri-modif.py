@@ -33,18 +33,18 @@ A = np.array([0.01, .02, 0.02])  #area - each member
 """"Global stiffness MAT"""
 gStif = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
 print(gStif)
+length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))
+c = (xj - xi)/length
+s = (yj - yi)/length
 
 for p in range(numelem):
     i = iEdge[p]
     j = jEdge[p]
     n = ij[p]
-    length = np.sqrt(pow((xj[p] - xi[p]), 2) + pow((yj[p] - yi[p]), 2))
-    c = (xj[p] - xi[p])/length
-    s = (yj[p] - yi[p])/length
-    cc = c * c
-    cs = c * s
-    ss = s * s
-    k1 = E[p]*A[p]/length * np.array([[cc, cs, -cc, -cs],
+    cc = c[p] * c[p]
+    cs = c[p] * s[p]
+    ss = s[p] * s[p]
+    k1 = E[p]*A[p]/length[p] * np.array([[cc, cs, -cc, -cs],
                                       [cs, ss, -cs, -ss],
                                       [-cc, -cs, cc, cs],
                                       [-cs, -ss, cs, ss]])
@@ -53,18 +53,18 @@ for p in range(numelem):
 print(gStif)
 
 """Forces and deflections"""
-u = np.zeros((tdof, 1))  #deflectionsMAT, 1 = # of columns
 F = np.zeros((tdof, 1))  #ForcesMAT
+u = np.zeros((tdof, 1))  #deflectionsMAT, 1 = # of columns
 
 "Forces [N]"
 F[4] = 100
 F[2] = 60
 
-"""Fixed and active DOFs"""
+"Fixed and active DOFs"
 fixedDof = np.array([0, 1, 3])  #fixed dof
-actDof = np.setdiff1d(np.arange(tdof), fixedDof) #Return sorted,unique values from tdof that are not in fixedDof
+actDof = np.setdiff1d(np.arange(tdof), fixedDof)  #Return sorted,unique values from tdof that are not in fixedDof
 
-"""Solve deflections"""
+"Solve deflections"
 u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  #zaznamenaji se tam i naklony prutu?
 u[np.ix_(actDof)] = u1
 print(u)
@@ -72,10 +72,22 @@ print(u)
 """Reactions"""
 #Reac = gStif*u
 Reac = gStif*u
-print(Reac)
 
 """Inner forces"""
+k = E*A/length
+uxi = u[np.ix_(2*iEdge)]
+uxj = u[np.ix_(2*jEdge)]
+uyi = u[np.ix_(2*iEdge + 1)]
+uyj = u[np.ix_(2*jEdge + 1)]
 
+for z in range(numelem):
+    Flocal = k[z]*((uxj[z] - uxi[z])*c[z] + (uyj[z] - uyi[z])*s[z])
+    print(Flocal)
 
-#calc forces in global  or local system for each member
+Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
+print(Flocal)
+#calc forces in local system for each member
 #graphs
+
+sigma = Flocal/A
+print(sigma)

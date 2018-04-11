@@ -83,3 +83,13 @@ sigma = Flocal/A
 print(sigma)
 
 ##graphs
+
+plt.plot(xi, yi)
+plt.plot(xj, yj)
+plt.show()
+
+for r in range(numelem):
+    x = (xi[r], xj[r])
+    y = (yi[r], yj[r])
+    plt.plot(x, y)
+plt.show()

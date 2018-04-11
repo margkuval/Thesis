@@ -30,9 +30,9 @@ stiffness = np.zeros((tdof, tdof))  #shape of big MAT
 
 """define outside forces"""
 F[0] = 50  #N
-F[2] = 60  #N
+F[2] = 100  #N
 
-presDof=np.array([0, 1])  # CO TO DELA? zablokuje to 0 a 1 node
+presDof=np.array([0, 1])  #zablokuje 0 a 1 node
 
 for e in range(numElem):  #numElem = 3
     indice = edges[e, :]

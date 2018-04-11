@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 """Members characteristics"""
 ##when changing nodes numbering, change x and ycoord as well!!
 ##wonder if true... try to make a square, flip nodes :)
-xcoord = np.array([0, 3, 1])
-ycoord = np.array([0, 0, 5])
+xcoord = np.array([0., 3., 1.])
+ycoord = np.array([0., 0., 5.])
 iEdge = np.array([0, 1, 2])  #beginning of an edge
 jEdge = np.array([1, 2, 0])  #end of an edge
 
@@ -51,7 +51,7 @@ F = np.zeros((tdof, 1))  #ForcesMAT
 u = np.zeros((tdof, 1))  #deflectionsMAT, 1 = # of columns
 
 "Outside Forces [N]"
-F[4] = 100
+F[4] = 10
 F[2] = 60
 
 "Fixed and active DOFs"
@@ -66,7 +66,7 @@ print(u)
 """Reactions"""
 #Reac = gStif*u    #NOT FINISHED
 F = gStif*u + F
-print(F)
+
 
 """Inner forces"""
 k = E*A/length
@@ -74,6 +74,8 @@ uxi = u[np.ix_(2*iEdge)].transpose()
 uxj = u[np.ix_(2*jEdge)].transpose()
 uyi = u[np.ix_(2*iEdge + 1)].transpose()
 uyj = u[np.ix_(2*jEdge + 1)].transpose()
+
+print(uxi)
 
 Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
 print(Flocal)
@@ -84,12 +86,26 @@ print(sigma)
 
 ##graphs
 
-plt.plot(xi, yi)
-plt.plot(xj, yj)
-plt.show()
+xinew = xi + uxi[0]  #BUG there is a [[ in u array, if changing, need clean whole code, now solved by taking "list 1"from the MAT
+xjnew = xj + uxj[0]
+yinew = yi + uyi[0]
+yjnew = yj + uyj[0]
 
+
+"""Plot designed structure"""
+"""plt.plot(xi, yi)###withoutFORfun
+plt.plot(xj, yj)"""
+##withForFun
 for r in range(numelem):
     x = (xi[r], xj[r])
     y = (yi[r], yj[r])
-    plt.plot(x, y)
+    plt.plot(x, y, linestyle='-', color='black', markerfacecolor='black', marker='o', lw='0.1' )
+
+"""Plot changed structure"""
+
+for r in range(numelem):
+    x = (xinew[r], xjnew[r])
+    y = (yinew[r], yjnew[r])
+    plt.plot(x, y, linestyle='-', color='black', markerfacecolor='red', marker='o', lw='0.2' )
+
 plt.show()

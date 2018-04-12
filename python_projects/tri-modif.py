@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
 import datetime
 
 """Members characteristics"""
@@ -76,14 +77,12 @@ uxj = u[np.ix_(2*jEdge)].transpose()
 uyi = u[np.ix_(2*iEdge + 1)].transpose()
 uyj = u[np.ix_(2*jEdge + 1)].transpose()
 
-print(uxi)
-
 Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
 print(Flocal)
 
-"""Stress"""
-sigma = Flocal[0]/A
-print(s)
+"""Stress (sigma)"""
+stress = Flocal[0]/A
+stress_normed = [i/sum(abs(stress)) for i in abs(stress)]
 
 xinew = xi + uxi[0]  #BUG-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 1"from the MAT
 xjnew = xj + uxj[0]
@@ -99,7 +98,7 @@ for r in range(numelem):
     x = (xi[r], xj[r])
     y = (yi[r], yj[r])
     line = plt.plot(x,y)
-    plt.setp(line, label='orig', ls='-', c='black', lw='0.1' )
+    plt.setp(line, label='orig', ls='-', c='black', lw='1' )
 
 """Plot modif structure"""
 
@@ -107,9 +106,7 @@ for r in range(numelem):
     xnew = (xinew[r], xjnew[r])
     ynew = (yinew[r], yjnew[r])
     linenew = plt.plot(xnew, ynew)
-    linewt = abs(sigma/abs(min(sigma)))
-    print(linewt)
-    plt.setp(linenew, label='Modif', ls='-', c='red', lw=linewt[r])
+    plt.setp(linenew, label='strain' if stress[r] > 0 else 'stress', ls='-', c='crimson' if stress[r] > 0 else 'c', lw=1+6*stress_normed[r])
 
 plt.xlabel('meters')
 plt.ylabel('meters')

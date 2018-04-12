@@ -55,8 +55,6 @@ u = np.zeros((tdof, 1))  #deflectionsMAT, 1 = # of columns
 "Outside Forces [N]"
 F[4] = 10
 F[2] = 60
-F_3x2 = F.reshape(3, 2)
-print(F_3x2)
 
 "Fixed and active DOFs"
 fixedDof = np.array([0, 1, 3])  #fixed dof
@@ -101,11 +99,6 @@ for r in range(numelem):
     y = (yi[r], yj[r])
     line = plt.plot(x,y)
     plt.setp(line, label='orig', ls='-', c='black', lw='1' )
-    plt.annotate(F_3x2[r],
-                 xy=(xi[r], yi[r]), xycoords='data',
-                 xytext=(np.sign(F_3x2[r])*-100), textcoords='offset pixels',
-                 arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                 horizontalalignment='right', verticalalignment='bottom')
 
 """Plot modif structure"""
 
@@ -115,11 +108,9 @@ for r in range(numelem):
     linenew = plt.plot(xnew, ynew)
     plt.setp(linenew, label='strain' if stress[r] > 0 else 'stress', ls='-', c='crimson' if stress[r] > 0 else 'c', lw=1+6*stress_normed[r])
 
-
 plt.xlabel('meters')
 plt.ylabel('meters')
 plt.title('Magic Triangle')
 plt.grid(True)
 plt.legend()
-
 plt.show()

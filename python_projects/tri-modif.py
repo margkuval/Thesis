@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 """Members characteristics"""
 ##when changing nodes numbering, change x and ycoord as well!!
@@ -81,31 +82,38 @@ Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
 print(Flocal)
 
 """Stress"""
-sigma = Flocal/A
-print(sigma)
+sigma = Flocal[0]/A
+print(s)
 
-##graphs
-
-xinew = xi + uxi[0]  #BUG there is a [[ in u array, if changing, need clean whole code, now solved by taking "list 1"from the MAT
+xinew = xi + uxi[0]  #BUG-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 1"from the MAT
 xjnew = xj + uxj[0]
 yinew = yi + uyi[0]
 yjnew = yj + uyj[0]
 
+"""Plot original structure"""
 
-"""Plot designed structure"""
 """plt.plot(xi, yi)###withoutFORfun
 plt.plot(xj, yj)"""
-##withForFun
+
 for r in range(numelem):
     x = (xi[r], xj[r])
     y = (yi[r], yj[r])
-    plt.plot(x, y, linestyle='-', color='black', markerfacecolor='black', marker='o', lw='0.1' )
+    line = plt.plot(x,y)
+    plt.setp(line, label='orig', ls='-', c='black', lw='0.1' )
 
-"""Plot changed structure"""
+"""Plot modif structure"""
 
 for r in range(numelem):
-    x = (xinew[r], xjnew[r])
-    y = (yinew[r], yjnew[r])
-    plt.plot(x, y, linestyle='-', color='black', markerfacecolor='red', marker='o', lw='0.2' )
+    xnew = (xinew[r], xjnew[r])
+    ynew = (yinew[r], yjnew[r])
+    linenew = plt.plot(xnew, ynew)
+    linewt = abs(sigma/abs(min(sigma)))
+    print(linewt)
+    plt.setp(linenew, label='Modif', ls='-', c='red', lw=linewt[r])
 
+plt.xlabel('meters')
+plt.ylabel('meters')
+plt.title('Magic Triangle')
+plt.grid(True)
+plt.legend()
 plt.show()

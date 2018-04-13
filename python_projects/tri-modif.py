@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 import datetime
 
-"""Members characteristics"""
+"""Members characteristics x,ycoord=(m)"""
 ##when changing nodes numbering, change x and ycoord as well!!
 ##wonder if true... try to make a square, flip nodes :)
 xcoord = np.array([0., 3., 1.])
@@ -25,9 +25,9 @@ tdof = 2*numelem  #total degrees of freedom
 ij = np.vstack([[2*iEdge, 2*iEdge+1], [2*jEdge, 2*jEdge+1]]).transpose()
 print(ij)
 
-"""Material characteristics"""
+"""Material characteristics E=(MPa), A=(m2)"""
 E = np.array([40000, 40000, 40000])  #modulus of elasticity for each member
-A = np.array([0.01, .02, 0.02])  #area - each member
+A = np.array([0.02, .02, 0.02])  #area - each member
 
 """"Global stiffness MAT"""
 gStif = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
@@ -52,7 +52,7 @@ for p in range(numelem):
 F = np.zeros((tdof, 1))  #ForcesMAT
 u = np.zeros((tdof, 1))  #deflectionsMAT, 1 = # of columns
 
-"Outside Forces [N]"
+"Outside Forces [kN]"
 F[4] = 10
 F[2] = 60
 F_3x2 = F.reshape(3, 2)
@@ -82,9 +82,10 @@ uyj = u[np.ix_(2*jEdge + 1)].transpose()
 Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
 print(Flocal)
 
-"""Stress (sigma)"""
+"""Stress (sigma)=(kPa)"""
 stress = Flocal[0]/A
 stress_normed = [i/sum(abs(stress)) for i in abs(stress)]
+print(stress)
 
 xinew = xi + uxi[0]  #BUG-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 1"from the MAT
 xjnew = xj + uxj[0]
@@ -106,16 +107,12 @@ for r in range(numelem):
                  xytext=(np.sign(F_3x2[r])*-100), textcoords='offset pixels',
                  arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                  horizontalalignment='right', verticalalignment='bottom')
-
-"""Plot modif structure"""
-
-for r in range(numelem):
     xnew = (xinew[r], xjnew[r])
     ynew = (yinew[r], yjnew[r])
     linenew = plt.plot(xnew, ynew)
     plt.setp(linenew, label='strain' if stress[r] > 0 else 'stress', ls='-', c='crimson' if stress[r] > 0 else 'c', lw=1+6*stress_normed[r])
 
-
+plt.axis('equal')
 plt.xlabel('meters')
 plt.ylabel('meters')
 plt.title('Magic Triangle')

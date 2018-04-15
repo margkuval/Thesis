@@ -4,8 +4,6 @@ from sklearn import preprocessing
 import datetime
 
 """Members characteristics x,ycoord=(m)"""
-##when changing nodes numbering, change x and ycoord as well!!
-##wonder if true... try to make a square, flip nodes :)
 xcoord = np.array([0., 3., 1.])
 ycoord = np.array([0., 0., 5.])
 iEdge = np.array([0, 1, 2])  #beginning of an edge

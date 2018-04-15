@@ -97,24 +97,26 @@ for r in range(numelem):
     x = (xi[r], xj[r])
     y = (yi[r], yj[r])
     line = plt.plot(x,y)
-    plt.setp(line, label='orig', ls='-', c='black', lw='1' )
+    plt.setp(line, ls='-', c='black', lw='1', label='orig')
+
     xnew = (xinew[r], xjnew[r])
     ynew = (yinew[r], yjnew[r])
     linenew = plt.plot(xnew, ynew)
-    plt.setp(linenew, label='strain' if stress[r] > 0 else 'stress', ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1+20*stress_normed[r])
+    plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1+20*stress_normed[r], label='strain' if stress[r] > 0 else 'stress')
 
 for r in range(numnode):
     plt.annotate(F_numnodex2[r],
                  xy=(xi[r], yi[r]), xycoords='data',
-                 xytext=(np.sign(F_numnodex2[r])*-100), textcoords='offset pixels',
+                 xytext=(np.sign(F_numnodex2[r])*-50), textcoords='offset pixels',
                  arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                  horizontalalignment='right', verticalalignment='bottom')
+    # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
 
 plt.axis('equal')
 plt.xlabel('meters')
 plt.ylabel('meters')
-plt.title('Magic Triangle')
+plt.title('Happy truss')
 plt.grid(True)
-plt.legend()
+plt.legend(bbox_to_anchor=[1.005,1],loc=2,borderaxespad=0)
 
 plt.show()

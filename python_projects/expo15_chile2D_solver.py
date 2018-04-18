@@ -79,7 +79,7 @@ uxj = u[np.ix_(2*jEdge)].transpose()
 uyi = u[np.ix_(2*iEdge + 1)].transpose()
 uyj = u[np.ix_(2*jEdge + 1)].transpose()
 
-Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
+Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)  #c=cos,s=sin 
 print(Flocal)
 
 """Stress (sigma)=(kPa)"""
@@ -87,7 +87,7 @@ stress = Flocal[0]/A
 stress_normed = [i/sum(abs(stress)) for i in abs(stress)]
 print(stress)
 
-xinew = xi + uxi[0]  #BUG-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 0"from the MAT
+xinew = xi + uxi[0]  #BUG-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 0" from the MAT
 xjnew = xj + uxj[0]
 yinew = yi + uyi[0]
 yjnew = yj + uyj[0]

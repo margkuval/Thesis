@@ -33,8 +33,6 @@ c = (xj - xi)/length
 s = (yj - yi)/length
 
 for p in range(numelem):
-    i = iEdge[p]
-    j = jEdge[p]
     n = ij[p]
     cc = c[p] * c[p]
     cs = c[p] * s[p]

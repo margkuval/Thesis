@@ -6,8 +6,20 @@ import expo15_chile2D_solver as slv
 
 class Individual:
     def __init__(self):
-        x = slv.xcoord
-        y = slv.ycoord
+        # structure is made from triangles with same side value a = 2.5m
+        # to define precise coordinates, hight will be used as h
+        a = 2.5
+        h = np.sqrt(pow((a), 2) - pow((a / 2), 2))
+
+        xcoord = np.array([0, a / 2, 0., a, 2 * a, a + a / 2, 2 * a, a])
+        ycoord = np.array([2 * h, h, 0., 0., 0., h, 2 * h, 2 * h])
+        iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
+        jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
+        print(xcoord)
+
+        ## prehodit sem vse, co je potreba menit. Solver bych chtela zanechat jako proste programek, co je schopen pocitat, ale data se sypou sem
+        x = xcoord
+        y = ycoord
         a = rnd.randrange(x - 1, x + 1) / 10
         b = rnd.randrange(y - 1, y + 1) / 10  ###snazim se dostat. Chci aby nodes 1 a 5 (prozatim) si nasly svoje misto, dle zatizeni.
         #chci, aby se jejich poloha odvijela od polohy stavajici a byla v rozmezi +- 0.5 metr od stavajici

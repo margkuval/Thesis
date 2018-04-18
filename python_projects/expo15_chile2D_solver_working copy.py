@@ -14,8 +14,6 @@ iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  #beginning of an edge
 jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  #end of an edge
 tdof = 2 * xcoord.shape[0]  # total degrees of freedom
 
-print(xcoord)
-
 """Material characteristics E=(kPa), A=(m2)"""
 E = np.array(iEdge.shape[0] * [40000])   # modulus of elasticity for each member
 A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15    ##can you find a way how to not have iEdge in fun?
@@ -30,7 +28,7 @@ F[13] = 15
 fixedDof = np.array([0, 1, 7])
 
 
-def stress(xcoord, ycoord, iEdge, jEdge, E, A, fixedDof):  #jak se spravne zadefinuje stress?
+def stress(xcoord, ycoord, iEdge, jEdge, E, A, F, fixedDof):  #jak se spravne zadefinuje stress?
     "Linking x, ycoord with i,jEdge"
     xi = xcoord[np.ix_(iEdge)]
     xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
@@ -47,11 +45,13 @@ def stress(xcoord, ycoord, iEdge, jEdge, E, A, fixedDof):  #jak se spravne zadef
 
     """"Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
-    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))
-    c = (xj - xi) / length
-    s = (yj - yi) / length
+    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  #members (edges) length
+    c = (xj - xi) / length  #cos
+    s = (yj - yi) / length  #sin
 
     for p in range(numelem):
+        #takes p from the range of numelem 1 by 1 and creates multiple k1 (local) matricies
+        #at the end maps ll k1 MATs on right places in gStiff
         n = ij[p]
         cc = c[p] * c[p]
         cs = c[p] * s[p]
@@ -65,22 +65,18 @@ def stress(xcoord, ycoord, iEdge, jEdge, E, A, fixedDof):  #jak se spravne zadef
     print(gStif)
 
     """Forces and deflections"""
-    Fdef = np.zeros((tdof, 1))  # ForcesMAT
-    u = np.zeros((tdof, 1))  # deflectionsMAT, 1 = # of columns
 
     "Outside Forces [kN]"
-    F[2] = 15
-    F[13] = -10
-    F_numnodex2 = F.reshape(numnode, 2)
+    Fdef = F  # ForcesMAT
+    F_numnodex2 = Fdef.reshape(numnode, 2)
 
     "Fixed and active DOFs"
     actDof = np.setdiff1d(np.arange(tdof), fixedDof)  # Return sorted,unique values from tdof that are not in fixedDof
 
-    print(actDof)
-
     "Solve deflections"
-    u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], Fdef[np.ix_(actDof)])
-    u[np.ix_(actDof)] = u1
+    u = np.zeros((tdof, 1))  #empty deflections MAT; 1 = # of columns
+    u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], Fdef[np.ix_(actDof)])  #solve equation gStiff*u = F
+    u[np.ix_(actDof)] = u1  #map back to the empty def MAT
     print(u)
 
     """Inner forces"""
@@ -98,7 +94,7 @@ def stress(xcoord, ycoord, iEdge, jEdge, E, A, fixedDof):  #jak se spravne zadef
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
     print(stress)
 
-    xinew = xi + uxi[0]  # BUG-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 0" from the MAT
+    xinew = xi + uxi[0]  #notCLEARed-there is an [[ in u array, if changing, need clean whole code, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]
     yinew = yi + uyi[0]
     yjnew = yj + uyj[0]

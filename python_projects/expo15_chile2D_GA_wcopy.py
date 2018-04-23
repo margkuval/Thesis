@@ -1,7 +1,7 @@
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
-import expo15_chile2D_solver as slv
+import expo15_chile2D_solver_wcopy as slv
 
 
 class Individual:
@@ -20,17 +20,17 @@ class Individual:
         ycoord = np.array([2*h, y1GA, 0., 0., 0., h, 2*h, 2*h])  # can use np.ix_?
 
         self._nodes = np.array([xcoord, ycoord]).transpose()
-        self._u = 1
+        self._stress = 1
         self._fitness = 1  # zmeni to hodnotu spravneho fitnessu? u Stani je nejlepsi jednec 0, ja bych ho chtela mit jako 1
         self._probability = 1
 
     @property
-    def u(self):
-        return self._u
+    def stress(self):
+        return self._stress
 
-    @u.setter
-    def u(self, new):
-        self._u = new
+    @stress.setter
+    def stress(self, new):
+        self._stress = new
 
     @property
     def fitness(self):
@@ -83,16 +83,16 @@ class GA:
         print("calculation")
 
         for i in range(self._popsize):
-            self._pool[i]._u = slv.stress(self._pool[i]._nodes, iEdge, jEdge, ij, E, A, F, fixedDof)
+            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes, iEdge, jEdge, ij, E, A, F, fixedDof)
             self._pool[i]._probability = 1  #Stana mel 0
-            print("nodes : {}  u_max : {}".format(np.round(self._pool[i]._nodes[1, :], 3), self._pool[i]._u))
+            print("nodes : {}  stress_max : {}".format(np.round(self._pool[i]._nodes[1, :], 3), self._pool[i]._stress))
         print("......................")
         # def posuny(XZ, spoj, EA, F):
 
     def fitness(self):
         print("fitness")
         for i in range(self._popsize):
-            self._pool[i]._fitness = self._pool[i]._u / max(self._pool, key=lambda x: x._u)._u
+            self._pool[i]._fitness = self._pool[i]._stress / max(self._pool, key=lambda x: x._stress)._stress
         self._pool.sort(key=lambda x: x._fitness)
         sum_fit = sum(map(lambda x: x._fitness, self._pool))
         ###### urceni pravdepodobnosti #####

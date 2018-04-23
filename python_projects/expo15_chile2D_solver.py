@@ -21,8 +21,8 @@ xj = xcoord[np.ix_(jEdge)]  #take jEdge #s and replace them with corresponding x
 yi = ycoord[np.ix_(iEdge)]
 yj = ycoord[np.ix_(jEdge)]
 
-x1GA = rnd.randrange(xcoord[1] - 0.5, xcoord[1] + 0.5)
-x1GA = xcoord[1] - 0.5
+x1GA = np.zeros((len(np.unique(iEdge)), 1))
+
 print(x1GA)
 
 numnode = xcoord.shape[0]  #all nodes must be used

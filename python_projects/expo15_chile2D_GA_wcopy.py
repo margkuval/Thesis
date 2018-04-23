@@ -12,9 +12,9 @@ class Individual:
         xcoord = np.array([0, a/2, 0., a, 2*a, a + a/2, 2*a, a])
         ycoord = np.array([2 * h, h, 0., 0., 0., h, 2 * h, 2 * h])
 
-        x1GA = rnd.randrange(xcoord[1] - 0.5, xcoord[1] + 0.5)
-        y1GA = rnd.randrange(ycoord[1] - 0.5, ycoord[1] + 0.5)
-        # node #1 location adjustment, radius 0.5m from current location
+        x1GA = rnd.randrange(np.round((xcoord[1] - 2)*10), np.round((xcoord[1] + 2)*10))/10
+        y1GA = rnd.randrange(np.round((ycoord[1] - 2)*10), np.round((ycoord[1] + 2)*10))/10
+        # take random # from a range xcoord-2 to xcoord+2
 
         xcoord = np.array([0, x1GA, 0., a, 2*a, a + a/2, 2*a, a])
         ycoord = np.array([2*h, y1GA, 0., 0., 0., h, 2*h, 2*h])  # can use np.ix_?
@@ -73,7 +73,7 @@ class GA:
         A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15m
 
         "Outside Forces [kN]"  # forces vector
-        F = np.zeros(len(np.unique(iEdge)), 1)
+        F = np.zeros((2*len(np.unique(iEdge)), 1))
         F[0] = 0
         F[4] = 0
         F[13] = 15

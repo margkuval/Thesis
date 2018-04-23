@@ -2,8 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def stress(xcoord, ycoord, tdof, numelem, xi, xj, yi,yj, iEdge, jEdge, ij, E, A, F, fixedDof):
+def stress(xcoord, ycoord, iEdge, jEdge, ij, E, A, F, fixedDof):
     "Linking x, ycoord with i,jEdge"
+
+    xi = xcoord[np.ix_(iEdge)]
+    xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
+    yi = ycoord[np.ix_(iEdge)]
+    yj = ycoord[np.ix_(jEdge)]
+
+    numnode = xcoord.shape[0]  # all nodes must be used
+    numelem = iEdge.shape[0]  # count # of beginnings
+    tdof = 2 * numnode  # total degrees of freedom
+
+
 
     """"Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT

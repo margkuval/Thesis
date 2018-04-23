@@ -12,15 +12,24 @@ class Individual:
         xcoord = np.array([0, a/2, 0., a, 2*a, a + a/2, 2*a, a])
         ycoord = np.array([2 * h, h, 0., 0., 0., h, 2 * h, 2 * h])
 
-        x = xcoord
-        y = ycoord
-
-        x1GA = rnd.randrange(x[1] - 0.5, x[1] + 0.5)
-        y1GA = rnd.randrange(y[1] - 0.5, y[1] + 0.5)  # nodes 1 a 5 (prozatim) si nasly svoje misto, dle zatizeni
+        x1GA = rnd.randrange(xcoord[1] - 0.5, xcoord[1] + 0.5)
+        y1GA = rnd.randrange(ycoord[1] - 0.5, ycoord[1] + 0.5)  # nodes 1 a 5 (prozatim) si nasly svoje misto, dle zatizeni
         # poloha odviji od polohy stavajici. v rozmezi +- 0.5 metr od stavajici
 
-        x = np.array([0, x1GA, 0., a, 2*a, a + a/2, 2*a, a])
-        y = np.array([2*h, y1GA, 0., 0., 0., h, 2*h, 2*h])
+        xcoord = np.array([0, x1GA, 0., a, 2*a, a + a/2, 2*a, a])
+        ycoord = np.array([2*h, y1GA, 0., 0., 0., h, 2*h, 2*h])
+
+        iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
+        jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])
+
+        xi = xcoord[np.ix_(iEdge)]
+        xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
+        yi = ycoord[np.ix_(iEdge)]
+        yj = ycoord[np.ix_(jEdge)]
+
+
+
+
 
         self._nodes = np.array([[0, 0], [x1GA, y1GA], [5, 0]])  ## da se to udelat tak, aby to bralo nodes ze solveru, nebo je mozna potreba to sem pretahnout..
         self._u = 1
@@ -59,28 +68,53 @@ class GA:
 
     def initial(self):
         for i in range(self._popsize):
-            self._pool.append(individual())
-            print("body : {}".format(np.round(self._pool[i]._body[1, :], 3)))
+            self._pool.append(Individual())
+            print("nodes : {}".format(np.round(self._pool[i]._nodes[1, :], 3)))
         print("......................")
 
     def vypocet(self):
-        E = 2.1 * 10 ** 11  ##210GPa - odpovida oceli
-        A = np.pi * 0.04 ** 2 - np.pi * (0.04 - 0.002) ** 2
+
+        """Members characteristics x,ycoord=(m)"""
+
+
+
+
+        iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
+        jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
+
+        numnode = xcoord.shape[0]  # all nodes must be used
+        numelem = iEdge.shape[0]  # count # of beginnings
+        tdof = 2 * numnode  # total degrees of freedom
+
+        "Connectivity MAT computation"
+        ij = np.vstack([[2 * iEdge, 2 * iEdge + 1], [2 * jEdge, 2 * jEdge + 1]]).transpose()
+
+        """Material characteristics E=(kPa), A=(m2)"""
+        E = np.array(iEdge.shape[0] * [40000])  # modulus of elasticity for each member
+        A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15m
         EA = E * A
-        spoj = np.array([[0, 1], [1, 2], [0, 2]])  # pořadí napojení prutů#
-        print("vypocet")
-        F = 15000
+
+        "Outside Forces [kN]"  # forces vector
+        F = np.zeros((tdof, 1))
+        F[0] = 0
+        F[4] = 0
+        F[13] = 15
+
+        "Fixed nodes"
+        fixedDof = np.array([0, 1, 7])
+        print("calc")
+
         for i in range(self._popsize):
-            self._pool[i]._posun = solve.posuny(self._pool[i]._body, spoj, EA, F)
-            self._pool[i]._probability = 0
-            print("body : {}  u_max : {}".format(np.round(self._pool[i]._body[1, :], 3), self._pool[i]._posun))
+            self._pool[i]._u = slv.stress(self._pool[i]._nodes, iEdge, jEdge, ij, E, A, F, fixedDof)
+            self._pool[i]._probability = 1  #Stana mel 0
+            print("nodes : {}  u_max : {}".format(np.round(self._pool[i]._nodes[1, :], 3), self._pool[i]._u))
         print("......................")
         # def posuny(XZ, spoj, EA, F):
 
     def fitness(self):
         print("fitness")
         for i in range(self._popsize):
-            self._pool[i]._fitness = self._pool[i]._posun / max(self._pool, key=lambda x: x._posun)._posun
+            self._pool[i]._fitness = self._pool[i]._u / max(self._pool, key=lambda x: x._u)._u
         self._pool.sort(key=lambda x: x._fitness)
         sum_fit = sum(map(lambda x: x._fitness, self._pool))
         ###### urceni pravdepodobnosti #####
@@ -91,7 +125,7 @@ class GA:
         ###### zapsani pravdepodobnosti #####
         for i in range(self._popsize):
             self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
-            print("body : {}  fit : {}  prob : {} ".format(np.round(self._pool[i]._body[1, :], 3),
+            print("nodes : {}  fit : {}  prob : {} ".format(np.round(self._pool[i]._nodes[1, :], 3),
                                                            np.round(self._pool[i]._fitness, 3),
                                                            np.round(self._pool[i]._probability, 3)))
         print("..............")
@@ -102,15 +136,15 @@ class GA:
         for i in range(select_num):
             a = np.random.uniform(0, 1)
             print(round(a, 3))
-            select_ind = self._pool[0]._body[1, :]
+            select_ind = self._pool[0]._nodes[1, :]
             for individual in self._pool:
                 if individual._probability > a:
-                    select_ind = individual._body[1, :]
+                    select_ind = individual._nodes[1, :]
                     selected_pool.append(select_ind)
                     break
         # print(selected_pool)
         for i in range(3):
-            self._pool[i]._body[1, :] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
+            self._pool[i]._nodes[1, :] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
         for i in range(self._popsize):
-            print(self._pool[i]._body[1, :])
+            print(self._pool[i]._nodes[1, :])
         print("___________________________________")

@@ -1,46 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-"""Members characteristics x,ycoord=(m)"""
 
-# structure is made from triangles with same side a = 2.5m
-# to define precise coordinates, height will be used as h in coordinates
-a = 2.5
-h = np.sqrt(pow(a, 2) - pow(a/2, 2))
-
-xcoord = np.array([0, a/2, 0., a, 2*a, a+a/2, 2*a, a])
-ycoord = np.array([2*h, h, 0., 0., 0., h, 2*h, 2*h])
-iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
-jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
-tdof = 2 * xcoord.shape[0]  # total degrees of freedom
-
-"""Material characteristics E=(kPa), A=(m2)"""
-E = np.array(iEdge.shape[0] * [40000])   # modulus of elasticity for each member
-A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15m
-
-"Outside Forces [kN]"  # forces vector
-F = np.zeros((tdof, 1))
-F[0] = 0
-F[4] = 0
-F[13] = 15
-
-"Fixed nodes"
-fixedDof = np.array([0, 1, 7])
-
-
-def stress(xcoord, ycoord, iEdge, jEdge, E, A, F, fixedDof):
+def stress(xcoord, ycoord, tdof, numelem, xi, xj, yi,yj, iEdge, jEdge, ij, E, A, F, fixedDof):
     "Linking x, ycoord with i,jEdge"
-    xi = xcoord[np.ix_(iEdge)]
-    xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
-    yi = ycoord[np.ix_(iEdge)]
-    yj = ycoord[np.ix_(jEdge)]
-
-    numnode = xcoord.shape[0]  # all nodes must be used
-    numelem = iEdge.shape[0]  # count # of beginnings
-    tdof = 2 * numnode  # total degrees of freedom
-
-    "Connectivity MAT computation"
-    ij = np.vstack([[2 * iEdge, 2 * iEdge + 1], [2 * jEdge, 2 * jEdge + 1]]).transpose()
 
     """"Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT

@@ -30,7 +30,7 @@ print(ij)
 
 """Material characteristics E=(kPa), A=(m2)"""
 E = np.array(numelem*[40000])  #modulus of elasticity for each member
-A = np.array(numelem*[0.0225])  #area - each member 0.15x0.15
+A = np.array(numelem*[0.0225])  #area - each member 0.15x0.15m
 
 """"Global stiffness MAT"""
 gStif = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
@@ -39,8 +39,6 @@ c = (xj - xi)/length
 s = (yj - yi)/length
 
 for p in range(numelem):
-    i = iEdge[p]
-    j = jEdge[p]
     n = ij[p]
     cc = c[p] * c[p]
     cs = c[p] * s[p]

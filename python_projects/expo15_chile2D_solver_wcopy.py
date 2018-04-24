@@ -94,5 +94,6 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F):
                      horizontalalignment='right', verticalalignment='bottom')
         # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
 
+
     stress_max = np.round(np.max(stress), 3)  # 3 decimal nums
     return stress_max

@@ -57,7 +57,7 @@ class GA:
     def initial(self):
         for i in range(self._popsize):
             self._pool.append(Individual())
-            print("nodes : {}".format(np.round(self._pool[i]._nodes[1, :], 3)))  # one or zero?
+            print("nodes : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3)))  # one or zero?
         print("......................")
 
     def calc(self):
@@ -82,7 +82,7 @@ class GA:
         for i in range(self._popsize):
             self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, numelem, E, A, F)
             self._pool[i]._probability = 0  #Stana mel 0
-            print("nodes : {}  stress_max : {}".format(np.round(self._pool[i]._nodes[1, :], 3), self._pool[i]._stress))
+            print("nodes : {}  stress_max : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3), self._pool[i]._stress))
         print("......................")
         # def posuny(XZ, spoj, EA, F):
 
@@ -100,7 +100,7 @@ class GA:
         ###### zapsani pravdepodobnosti #####
         for i in range(self._popsize):
             self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
-            print("nodes : {}  fit : {}  prob : {} ".format(np.round(self._pool[i]._nodes[1, :], 3),
+            print("nodes : {}  fit : {}  prob : {} ".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
                                                            np.round(self._pool[i]._fitness, 3),
                                                            np.round(self._pool[i]._probability, 3)))
         print("..............")
@@ -110,16 +110,18 @@ class GA:
         select_num = 6
         for i in range(select_num):
             a = np.random.uniform(0, 1)
-            print(round(a, 3))
-            select_ind = self._pool[0]._nodes[1, :]
             for individual in self._pool:
                 if individual._probability > a:
-                    select_ind = individual._nodes[1, :]
+                    select_ind = individual._nodes[0, 1]
                     selected_pool.append(select_ind)
                     break
+                if individual._probability > a:
+                    select_ind1 = individual._nodes[1, 1]
+                    selected_pool.append(select_ind1)
+                    break
         # print(selected_pool)
-        for i in range(3):
-            self._pool[i]._nodes[1, :] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
-        for i in range(self._popsize):
-            print(self._pool[i]._nodes[1, :])
+        #for i in range(3):
+         #   self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
+        #for i in range(self._popsize):
+         #   print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
         print("___________________________________")

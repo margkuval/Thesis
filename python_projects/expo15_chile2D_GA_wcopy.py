@@ -19,10 +19,10 @@ class Individual:
         xcoord = np.array([0, x1GA, 0., a, 2*a, a + a/2, 2*a, a])
         ycoord = np.array([2*h, y1GA, 0., 0., 0., h, 2*h, 2*h])  # can use np.ix_?
 
-        self._nodes = np.array([xcoord, ycoord]).transpose()
-        self._stress = 1
-        self._fitness = 1  # zmeni to hodnotu spravneho fitnessu? u Stani je nejlepsi jednec 0, ja bych ho chtela mit jako 1
-        self._probability = 1
+        self._nodes = np.array([xcoord, ycoord])
+        self._stress = 0
+        self._fitness = 0  # zmeni to hodnotu spravneho fitnessu? u Stani je nejlepsi jednec 0, ja bych ho chtela mit jako 1
+        self._probability = 0
 
     @property
     def stress(self):
@@ -57,7 +57,7 @@ class GA:
     def initial(self):
         for i in range(self._popsize):
             self._pool.append(Individual())
-            print("nodes : {}".format(np.round(self._pool[i]._nodes[1, :], 3)))
+            print("nodes : {}".format(np.round(self._pool[i]._nodes[1, :], 3)))  # one or zero?
         print("......................")
 
     def calc(self):
@@ -65,26 +65,23 @@ class GA:
         iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
         jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
 
-        "Connectivity MAT computation"
-        ij = np.vstack([[2 * iEdge, 2 * iEdge + 1], [2 * jEdge, 2 * jEdge + 1]]).transpose()
+        numelem = iEdge.shape[0]  # count # of beginnings
 
         """Material characteristics E=(kPa), A=(m2)"""
         E = np.array(iEdge.shape[0] * [40000])  # modulus of elasticity for each member
         A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15m
 
-        "Outside Forces [kN]"  # forces vector
-        F = np.zeros((2*len(np.unique(iEdge)), 1))
+        "Outside Forces [kN]"
+        F = np.zeros((2*len(np.unique(iEdge)), 1))  # forces vector
         F[0] = 0
         F[4] = 0
         F[13] = 15
 
-        "Fixed nodes"
-        fixedDof = np.array([0, 1, 7])
         print("calculation")
 
         for i in range(self._popsize):
-            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes, iEdge, jEdge, ij, E, A, F, fixedDof)
-            self._pool[i]._probability = 1  #Stana mel 0
+            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, numelem, E, A, F)
+            self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  stress_max : {}".format(np.round(self._pool[i]._nodes[1, :], 3), self._pool[i]._stress))
         print("......................")
         # def posuny(XZ, spoj, EA, F):

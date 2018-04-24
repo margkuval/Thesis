@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def Stress(xcoord, ycoord, iEdge, jEdge, ij, E, A, F, fixedDof):
+def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F):
     "Linking x, ycoord with i,jEdge"
 
     xi = xcoord[np.ix_(iEdge)]
@@ -10,8 +10,11 @@ def Stress(xcoord, ycoord, iEdge, jEdge, ij, E, A, F, fixedDof):
     yi = ycoord[np.ix_(iEdge)]
     yj = ycoord[np.ix_(jEdge)]
 
+    "Connectivity MAT computation"
+    ij = np.vstack([[2 * iEdge, 2 * iEdge + 1], [2 * jEdge, 2 * jEdge + 1]]).transpose()
+
+    "Other information"
     numnode = xcoord.shape[0]  # all nodes must be used
-    numelem = iEdge.shape[0]  # count # of beginnings
     tdof = 2 * numnode  # total degrees of freedom
 
     """"Global stiffness MAT"""
@@ -36,15 +39,19 @@ def Stress(xcoord, ycoord, iEdge, jEdge, ij, E, A, F, fixedDof):
     """Forces and deflections"""
 
     "Outside Forces [kN]"
-    Fdef = F  # ForcesMAT
-    F_numnodex2 = Fdef.reshape(numnode, 2)
+    F_numnodex2 = F.reshape(numnode, 2)
 
     "Fixed and active DOFs"
+
+    "Fixed nodes"
+    fixedDof = np.array([0, 1, 7])
+
     actDof = np.setdiff1d(np.arange(tdof), fixedDof)  # Return sorted,unique values from tdof that are not in fixedDof
+
 
     "Solve deflections"
     u = np.zeros((tdof, 1))  # empty deflections MAT; 1 = # of columns
-    u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], Fdef[np.ix_(actDof)])  # solve equation gStiff*u = F
+    u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  # solve equation gStiff*u = F
     u[np.ix_(actDof)] = u1  # map back to the empty def MAT
 
     """Inner forces"""

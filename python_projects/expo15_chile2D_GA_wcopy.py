@@ -107,21 +107,22 @@ class GA:
 
     def crossover(self):
         selected_pool = list()
+        selected_pool1 = list()
         select_num = 6
         for i in range(select_num):
             a = np.random.uniform(0, 1)
+            print(round(a,3))
             for individual in self._pool:
                 if individual._probability > a:
-                    select_ind = individual._nodes[0, 1]
+                    select_ind = individual._nodes[0, 1], individual._nodes[1, 1]
                     selected_pool.append(select_ind)
                     break
-                if individual._probability > a:
-                    select_ind1 = individual._nodes[1, 1]
-                    selected_pool.append(select_ind1)
-                    break
-        # print(selected_pool)
-        #for i in range(3):
-         #   self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
-        #for i in range(self._popsize):
-         #   print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
+                print(individual._nodes)
+                print(selected_pool)
+        for i in range(3):
+            self._pool[i]._nodes[0, 1] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
+            self._pool[i]._nodes[1, 1] = (selected_pool[2 * i] + selected_pool[2 * (i + 1) - 1]) / 2
+        for i in range(self._popsize):
+            print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
         print("___________________________________")
+# chyba - mam list a snazim se ho dat dohromady s jednim cislem. Kde mam ten list?

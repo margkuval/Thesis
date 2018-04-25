@@ -101,13 +101,12 @@ class GA:
         for i in range(self._popsize):
             self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
             print("nodes : {}  fit : {}  prob : {} ".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
-                                                           np.round(self._pool[i]._fitness, 3),
-                                                           np.round(self._pool[i]._probability, 3)))
+                                                            np.round(self._pool[i]._fitness, 3),
+                                                            np.round(self._pool[i]._probability, 3)))
         print("..............")
 
     def crossover(self):
         selected_pool = list()
-        selected_pool1 = list()
         select_num = 6
         for i in range(select_num):
             a = np.random.uniform(0, 1)
@@ -126,5 +125,57 @@ class GA:
             self._pool[i]._nodes[1, 1] = (selected_pool[2 * (i + 1) - 1]) / 2
         for i in range(self._popsize):
             print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
+            print(self._pool[i]._nodes[0, 1])
         print("___________________________________")
-# chyba - mam list a snazim se ho dat dohromady s jednim cislem. Kde mam ten list?
+
+
+
+        z = (self._pool[i]._nodes[1, 1])
+        line = plt.plot(o, z)
+        plt.setp(line, ls='-', c='black', lw='1', label='orig')
+
+        for r in range(3):
+            xc = xcoord
+
+
+
+            xcoord = np.array([0, x1GA, 0., a, 2 * a, a + a / 2, 2 * a, a])
+            ycoord = np.array([2 * h, y1GA, 0., 0., 0., h, 2 * h, 2 * h])
+
+# example from StackOverflow
+    def plot_cont(fun, xmax):
+        y = []
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        def update(i):
+            yi = fun()
+            y.append(yi)
+            x = range(len(y))
+            ax.clear()
+            ax.plot(x, y)
+            print
+            i, ': ', yi
+
+        a = anim.FuncAnimation(fig, update, frames=xmax, repeat=False)
+        plt.show()
+
+# another example from git https://github.com/NicolleLouis/geneticAlgorithm/blob/master/KnapsackProblem_Mutation.py
+    def print_graph(number_of_child, number_of_sample, time_limit, item_set):
+        plt.title("Algorithm effenciency with population size")
+        plt.ylabel('Algorithm result')
+        plt.xlabel('Population size')
+        graphX = []
+        graphY = []
+        for i in range(19):
+            size_of_population = 5 * (i + 1)
+            print(size_of_population)
+            mutationRate = 0
+            graphX.append(size_of_population)
+            graphY.append(
+                mean_result_evolve(item_set, size_of_population, number_of_child, number_of_sample, mutationRate,
+                                   time_limit))
+        plt.plot(graphX, graphY)
+        plt.show()
+
+# next steps: plot your 3 generation or sth at least :D

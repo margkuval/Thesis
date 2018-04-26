@@ -12,8 +12,8 @@ class Individual:
         xcoord = np.array([0, a/2, 0., a, 2*a, a + a/2, 2*a, a])
         ycoord = np.array([2 * h, h, 0., 0., 0., h, 2 * h, 2 * h])
 
-        x1GA = rnd.randrange(np.round((xcoord[1] - 2)*10), np.round((xcoord[1] + 2)*10))/10
-        y1GA = rnd.randrange(np.round((ycoord[1] - 2)*10), np.round((ycoord[1] + 2)*10))/10
+        x1GA = rnd.randrange(np.round((xcoord[1] - 1)*10), np.round((xcoord[1] + 1)*10))/10
+        y1GA = rnd.randrange(np.round((ycoord[1] - 1)*10), np.round((ycoord[1] + 1)*10))/10
         # take random # from a range xcoord-2 to xcoord+2
 
         xcoord = np.array([0, x1GA, 0., a, 2*a, a + a/2, 2*a, a])
@@ -74,9 +74,11 @@ class GA:
         "Outside Forces [kN]"
         F = np.zeros((2*len(np.unique(iEdge)), 1))  # forces vector
         F[0] = 0
-        F[4] = 0
-        F[13] = 15
+        F[2] = 10
+        F[13] = -15
 
+        "Fixed dof"
+        # in solver ...
         print("calculation")
 
         for i in range(self._popsize):
@@ -125,19 +127,15 @@ class GA:
             self._pool[i]._nodes[1, 1] = (selected_pool[2 * (i + 1) - 1]) / 2
         for i in range(self._popsize):
             print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
-            print(self._pool[i]._nodes[0, 1])
         print("___________________________________")
 
 
-# example from StackOverflow
     def plot(self):
-        plt.title("Sense you no make")
-        plt.ylabel('Algorithm result')
-        plt.xlabel('Population size')
-        plt.axis('equal')
-        plt.grid(True)
-        for i in range(7):
-            o = self._pool[i]._nodes
-            line = plt.plot(o)
-            plt.setp(line, ls='-', c='black', lw='1', label='orig')
+        fig = plt.figure()
+        for i in range(3):
+            ax = fig.add_subplot(2, 3, i+1)
+            fig.subplots_adjust(wspace=0.3, hspace=0.3)
+            ax.set_title("Plot #%i" % 1)
+            fig.axes[i].plot(self._pool[i]._nodes)
+        plt.figure()
         plt.show()

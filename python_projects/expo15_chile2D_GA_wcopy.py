@@ -129,53 +129,15 @@ class GA:
         print("___________________________________")
 
 
-
-        z = (self._pool[i]._nodes[1, 1])
-        line = plt.plot(o, z)
-        plt.setp(line, ls='-', c='black', lw='1', label='orig')
-
-        for r in range(3):
-            xc = xcoord
-
-
-
-            xcoord = np.array([0, x1GA, 0., a, 2 * a, a + a / 2, 2 * a, a])
-            ycoord = np.array([2 * h, y1GA, 0., 0., 0., h, 2 * h, 2 * h])
-
 # example from StackOverflow
-    def plot_cont(fun, xmax):
-        y = []
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-        def update(i):
-            yi = fun()
-            y.append(yi)
-            x = range(len(y))
-            ax.clear()
-            ax.plot(x, y)
-            print
-            i, ': ', yi
-
-        a = anim.FuncAnimation(fig, update, frames=xmax, repeat=False)
-        plt.show()
-
-# another example from git https://github.com/NicolleLouis/geneticAlgorithm/blob/master/KnapsackProblem_Mutation.py
-    def print_graph(number_of_child, number_of_sample, time_limit, item_set):
-        plt.title("Algorithm effenciency with population size")
+    def plot(self):
+        plt.title("Sense you no make")
         plt.ylabel('Algorithm result')
         plt.xlabel('Population size')
-        graphX = []
-        graphY = []
-        for i in range(19):
-            size_of_population = 5 * (i + 1)
-            print(size_of_population)
-            mutationRate = 0
-            graphX.append(size_of_population)
-            graphY.append(
-                mean_result_evolve(item_set, size_of_population, number_of_child, number_of_sample, mutationRate,
-                                   time_limit))
-        plt.plot(graphX, graphY)
+        plt.axis('equal')
+        plt.grid(True)
+        for i in range(7):
+            o = self._pool[i]._nodes
+            line = plt.plot(o)
+            plt.setp(line, ls='-', c='black', lw='1', label='orig')
         plt.show()
-
-# next steps: plot your 3 generation or sth at least :D

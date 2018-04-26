@@ -6,3 +6,4 @@ for i in range(3):
     task.calc()
     task.fitness()
     task.crossover()
+    task.plot()

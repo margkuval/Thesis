@@ -9,16 +9,19 @@ class Individual:
         a = 2.5
         h = np.sqrt(pow(a, 2) - pow(a/2, 2))
 
-        xcoord = np.array([0, a/2, 0., a, 2*a, a + a/2, 2*a, a])
-        ycoord = np.array([2 * h, h, 0., 0., 0., h, 2 * h, 2 * h])
+        xcoord0 = np.array([0, a/2, 0., a, 2*a, a + a/2, 2*a, a])
+        ycoord0 = np.array([2 * h, h, 0., 0., 0., h, 2 * h, 2 * h])
 
-        x1GA = rnd.randrange(np.round((xcoord[1] - 1)*10), np.round((xcoord[1] + 1)*10))/10
-        y1GA = rnd.randrange(np.round((ycoord[1] - 1)*10), np.round((ycoord[1] + 1)*10))/10
+        x1GA = rnd.randrange(np.round((xcoord0[1] - 1)*10), np.round((xcoord0[1] + 1)*10))/10
+        y1GA = rnd.randrange(np.round((ycoord0[1] - 1)*10), np.round((ycoord0[1] + 1)*10))/10
         # take random # from a range xcoord-2 to xcoord+2
 
         xcoord = np.array([0, x1GA, 0., a, 2*a, a + a/2, 2*a, a])
         ycoord = np.array([2*h, y1GA, 0., 0., 0., h, 2*h, 2*h])  # can use np.ix_?
 
+        self._xcoord0 = xcoord0
+        self._ycoord0 = ycoord0
+        self._nodes0 = np.array([xcoord0, ycoord0])
         self._nodes = np.array([xcoord, ycoord])
         self._stress = 0
         self._fitness = 0  # zmeni to hodnotu spravneho fitnessu? u Stani je nejlepsi jednec 0, ja bych ho chtela mit jako 1
@@ -65,6 +68,9 @@ class GA:
         iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
         jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
 
+        self._iEdge = iEdge
+        self._jEdge = jEdge
+
         numelem = iEdge.shape[0]  # count # of beginnings
 
         """Material characteristics E=(kPa), A=(m2)"""
@@ -78,11 +84,14 @@ class GA:
         F[13] = -15
 
         "Fixed dof"
-        # in solver ...
+        fixedDof = np.array([0, 1, 7])
+
         print("calculation")
 
         for i in range(self._popsize):
-            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, numelem, E, A, F)
+            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1],
+                                               self._pool[i]._nodes0[0], self._pool[i]._nodes0[1],
+                                               iEdge, jEdge, numelem, E, A, F, fixedDof)
             self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  stress_max : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3), self._pool[i]._stress))
         print("......................")
@@ -129,13 +138,22 @@ class GA:
             print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
         print("___________________________________")
 
-
     def plot(self):
         fig = plt.figure()
-        for i in range(3):
-            ax = fig.add_subplot(2, 3, i+1)
-            fig.subplots_adjust(wspace=0.3, hspace=0.3)
-            ax.set_title("Plot #%i" % 1)
-            fig.axes[i].plot(self._pool[i]._nodes)
-        plt.figure()
+        for i in range(6):
+            ax = fig.add_subplot(2, 3, i + 1)
+            ax.set_title("Plot #%i" % i)
+
+            for r in range(7):
+                xi0 = self._xcoord0[np.ix_(self._iEdge)]
+                xj0 = self._xcoord0[np.ix_(self._jEdge)]  # take jEdge #s and replace them with corresponding xcoord
+                yi0 = self._ycoord0[np.ix_(self._iEdge)]
+                yj0 = self._ycoord0[np.ix_(self._jEdge)]
+
+
+
+                x0 = (xi0[r], xj0[r])
+                y0 = (yi0[r], yj0[r])
+                fig.axes[i].plot(x0, y0)
         plt.show()
+

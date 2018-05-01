@@ -2,8 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F):
+def Stress(xcoord0, ycoord0, xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     "Linking x, ycoord with i,jEdge"
+
+    xi0 = xcoord0[np.ix_(iEdge)]
+    xj0 = xcoord0[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
+    yi0 = ycoord0[np.ix_(iEdge)]
+    yj0 = ycoord0[np.ix_(jEdge)]
 
     xi = xcoord[np.ix_(iEdge)]
     xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
@@ -41,13 +46,8 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F):
     "Outside Forces [kN]"
     F_numnodex2 = F.reshape(numnode, 2)
 
-    "Fixed and active DOFs"
-
-    "Fixed nodes"
-    fixedDof = np.array([0, 1, 7])
-
+    "Active degrees of freedom (DOFs)"
     actDof = np.setdiff1d(np.arange(tdof), fixedDof)  # Return sorted,unique values from tdof that are not in fixedDof
-
 
     "Solve deflections"
     u = np.zeros((tdof, 1))  # empty deflections MAT; 1 = # of columns
@@ -73,27 +73,14 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F):
     yjnew = yj + uyj[0]
 
     """Plot structure"""
+    fig = plt.figure()
+    for i in range(6):
+        ax = fig.add_subplot(2, 3, i + 1)
+        ax.set_title("Plot #%i" % i)
 
-    for r in range(numelem):
-        x = (xi[r], xj[r])
-        y = (yi[r], yj[r])
-        line = plt.plot(x, y)
-        plt.setp(line, ls='-', c='black', lw='1', label='orig')
+        for r in range(numelem):
+            x0 = (xi0[r], xj0[r])
+            y0 = (yi0[r], yj0[r])
+            fig.axes[i].plot(x0, y0)
+    plt.show()
 
-        xnew = (xinew[r], xjnew[r])
-        ynew = (yinew[r], yjnew[r])
-        linenew = plt.plot(xnew, ynew)
-        plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
-                 label='strain' if stress[r] > 0 else 'stress')
-
-    for r in range(numnode):
-        plt.annotate(F_numnodex2[r],
-                     xy=(xi[r], yi[r]), xycoords='data',
-                     xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
-                     arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                     horizontalalignment='right', verticalalignment='bottom')
-        # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
-
-
-    stress_max = np.round(np.max(stress), 3)  # 3 decimal nums
-    return stress_max

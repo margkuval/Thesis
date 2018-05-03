@@ -17,6 +17,7 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     numnode = xcoord.shape[0]  # all nodes must be used
     tdof = 2 * numnode  # total degrees of freedom
 
+
     """"Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members (edges) length
@@ -69,27 +70,8 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     yjnew = yj + uyj[0]
 
     """Plot structure"""
-###
-    fig = plt.figure()
 
-    for i in range(6):
-        ax = fig.add_subplot(2, 3, i + 1)
-        ax.set_title("Plot #%i" % 1)
-
-        for r in range(numelem):
-            x = (xi[r], xj[r])
-            y = (yi[r], yj[r])
-            fig.axes[i].plot(x, y)
-    fig.subplots_adjust(wspace=0.3, hspace=0.3)
-
-    plt.setp(fig, ls='-', c='black', lw='1', label='orig')
-###
-    plt.plot()
-
-    fig = plt.figure()
-    for i in range(6):
-        ax = fig.add_subplot(2, 3, i + 1)
-        ax.set_title("Plot #%i" % 1)
+    def plot(stress):
         for r in range(numelem):
             x = (xi[r], xj[r])
             y = (yi[r], yj[r])
@@ -109,9 +91,8 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
                          arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                          horizontalalignment='right', verticalalignment='bottom')
             # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
-    fig.subplots_adjust(wspace=0.3, hspace=0.3)
-
-    plt.plot()
+        plt.axis('equal')
+        return plot
 
     stress_max = np.round(np.max(stress), 3)  # 3 decimal nums
     return stress_max

@@ -65,6 +65,9 @@ class GA:
         iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
         jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
 
+        self._iEdge = iEdge
+        self._jEdge = jEdge
+
         numelem = iEdge.shape[0]  # count # of beginnings
 
         """Material characteristics E=(kPa), A=(m2)"""
@@ -87,7 +90,6 @@ class GA:
             self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  stress_max : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3), self._pool[i]._stress))
         print("......................")
-        # def posuny(XZ, spoj, EA, F):
 
     def fitness(self):
         print("fitness")
@@ -95,12 +97,13 @@ class GA:
             self._pool[i]._fitness = self._pool[i]._stress / max(self._pool, key=lambda x: x._stress)._stress
         self._pool.sort(key=lambda x: x._fitness)
         sum_fit = sum(map(lambda x: x._fitness, self._pool))
-        ###### urceni pravdepodobnosti #####
+
+        """Define probability"""
         probab = []
         for i in range(self._popsize):
             probab.append(sum_fit / self._pool[i]._fitness)
         sum_prob = sum(probab)
-        ###### zapsani pravdepodobnosti #####
+        """Probability record"""
         for i in range(self._popsize):
             self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
             print("nodes : {}  fit : {}  prob : {} ".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
@@ -130,13 +133,26 @@ class GA:
             print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
         print("___________________________________")
 
+    def plot(Stress, numnode, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, stress, stress_normed, F_numnodex2):
+        for r in range(7):
+            x = (xi[r], xj[r])
+            y = (yi[r], yj[r])
+            line = plt.plot(x, y)
+            plt.setp(line, ls='-', c='black', lw='1', label='orig')
 
-    def plot(self):
-        fig = plt.figure()
-        for i in range(3):
-            ax = fig.add_subplot(2, 3, i+1)
-            fig.subplots_adjust(wspace=0.3, hspace=0.3)
-            ax.set_title("Plot #%i" % 1)
-            fig.axes[i].plot(self._pool[i]._nodes)
-        plt.figure()
+            xnew = (xinew[r], xjnew[r])
+            ynew = (yinew[r], yjnew[r])
+            linenew = plt.plot(xnew, ynew)
+            plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
+                 label='strain' if stress[r] > 0 else 'stress')
+
+        for r in range(numnode):
+            plt.annotate(F_numnodex2[r],
+                         xy=(xi[r], yi[r]), xycoords='data',
+                         xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
+                         arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                         horizontalalignment='right', verticalalignment='bottom')
+            # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
+        plt.axis('equal')
+
         plt.show()

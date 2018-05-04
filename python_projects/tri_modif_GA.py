@@ -1,7 +1,7 @@
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
-import expo15_chile2D_solver_wcopy as slv
+import tri_modif_solver as slv
 
 
 class Individual:
@@ -88,6 +88,12 @@ class GA:
             self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, numelem, E, A, F, fixedDof)
             self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  stress_max : {}".format(np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3), self._pool[i]._stress))
+        print("...")
+
+        for i in range(self._popsize):
+            self._pool[i]._weight = slv.weight(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, A)
+            self._pool[i]._probability = 0  #Stana mel 0
+            print("nodes : {}  weight_sum : {}".format(np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3), self._pool[i]._weight))
         print("......................")
 
     def fitness(self):
@@ -133,16 +139,20 @@ class GA:
         print("___________________________________")
 
     def plot(self):
-        plt.title("Sense you no make")
+        plt.title("Sense you make")
         plt.ylabel('Algorithm result')
         plt.xlabel('Population size')
         plt.axis('equal')
         plt.grid(True)
-        for i in range(1):  # from how many pools im taking the information
-            o = self._pool[i]._nodes
-            line = plt.plot(o)
-            plt.setp(line, ls='-', c='black', lw='1', label='orig')
-        plt.show()
+        for i in range(2):  # from how many pools im taking the information
+            for j in range(1):
+                for l in range(2):
+                    o = (self._pool[i]._nodes[0, l], self._pool[i]._nodes[0, l+1])
+                    p = (self._pool[i]._nodes[1, l], self._pool[i]._nodes[1, l+1])
+                    # chybi tam provazanost s ij matici, nevi to, kde to zacina a kde konci
+                    line = plt.plot(o, p)
+                    plt.setp(line, ls='-', c='black', lw='1', label='orig')
+
 
 
 # change nodes from [0, 2] and [1, 2] to relevant ones that are moving

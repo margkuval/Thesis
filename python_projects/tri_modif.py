@@ -83,6 +83,19 @@ xjnew = xj + uxj[0]
 yinew = yi + uyi[0]
 yjnew = yj + uyj[0]
 
+ro = 2400  #kg/m3
+
+
+weight = length*A*ro
+weight_max = np.round(np.max(weight), 3)
+weight_sum = weight.sum()
+print(weight)
+print("........")
+print(weight_max)
+print(weight_sum)
+
+
+
 """Plot structure"""
 
 """plt.plot(xi, yi)###withoutFORfun
@@ -109,5 +122,3 @@ plt.ylabel('meters')
 plt.title('Magic Triangle')
 plt.grid(True)
 plt.legend()
-
-plt.show()

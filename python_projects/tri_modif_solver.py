@@ -17,7 +17,6 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     numnode = xcoord.shape[0]  # all nodes must be used
     tdof = 2 * numnode  # total degrees of freedom
 
-
     """"Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members (edges) length
@@ -69,28 +68,32 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     yinew = yi + uyi[0]
     yjnew = yj + uyj[0]
 
-    """Plot structure"""
+    """Plot structure""" ## nic nefunguje <3
+    def plot(xi, xj, yi, yj):
+        for r in range(numelem):
+            x = (xi[r], xj[r])
+            y = (yi[r], yj[r])
+            line = plt.plot(x, y)
+            plt.setp(line, ls='-', c='black', lw='1', label='orig')
 
-    for r in range(numelem):
-        x = (xi[r], xj[r])
-        y = (yi[r], yj[r])
-        line = plt.plot(x, y)
-        plt.setp(line, ls='-', c='black', lw='1', label='orig')
-
-        xnew = (xinew[r], xjnew[r])
-        ynew = (yinew[r], yjnew[r])
-        linenew = plt.plot(xnew, ynew)
-        plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
-                 label='strain' if stress[r] > 0 else 'stress')
-
-    for r in range(numnode):
-        plt.annotate(F_numnodex2[r],
-                     xy=(xi[r], yi[r]), xycoords='data',
-                     xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
-                     arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                     horizontalalignment='right', verticalalignment='bottom')
-    plt.axis('equal')
-    plt.show()
+        plt.axis('equal')
+        plt.show()
 
     stress_max = np.round(np.max(stress), 3)  # 3 decimal nums
     return stress_max
+
+
+def weight(xcoord, ycoord, iEdge, jEdge, A):
+    ro = 2400  # kg/m3
+
+    xi = xcoord[np.ix_(iEdge)]
+    xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
+    yi = ycoord[np.ix_(iEdge)]
+    yj = ycoord[np.ix_(jEdge)]
+
+    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members (edges) length
+    weight = length * A * ro
+    weight_max = np.round(np.max(weight), 3)
+    weight_sum = np.round(weight.sum(), 3)
+
+    return weight_sum

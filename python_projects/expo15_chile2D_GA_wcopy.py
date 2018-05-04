@@ -133,26 +133,14 @@ class GA:
             print([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]])
         print("___________________________________")
 
-    def plot(Stress, numnode, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, stress, stress_normed, F_numnodex2):
-        for r in range(7):
-            x = (xi[r], xj[r])
-            y = (yi[r], yj[r])
-            line = plt.plot(x, y)
-            plt.setp(line, ls='-', c='black', lw='1', label='orig')
-
-            xnew = (xinew[r], xjnew[r])
-            ynew = (yinew[r], yjnew[r])
-            linenew = plt.plot(xnew, ynew)
-            plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
-                 label='strain' if stress[r] > 0 else 'stress')
-
-        for r in range(numnode):
-            plt.annotate(F_numnodex2[r],
-                         xy=(xi[r], yi[r]), xycoords='data',
-                         xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
-                         arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                         horizontalalignment='right', verticalalignment='bottom')
-            # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
-        plt.axis('equal')
+    def plot(self):
+        fig = plt.figure()
+        for i in range(3):
+            ax = fig.add_subplot(2, 3, i+1)
+            fig.subplots_adjust(wspace=0.3, hspace=0.3)
+            ax.set_title("Plot #%i" % 1)
+            fig.axes[i].plot(self._pool[i]._nodes)
+        plt.figure()
+        plt.show()
 
         plt.show()

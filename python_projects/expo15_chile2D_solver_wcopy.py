@@ -71,28 +71,29 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
 
     """Plot structure"""
 
-    def plot(stress):
-        for r in range(numelem):
-            x = (xi[r], xj[r])
-            y = (yi[r], yj[r])
-            line = plt.plot(x, y)
-            plt.setp(line, ls='-', c='black', lw='1', label='orig')
+    for r in range(numelem):
+        x = (xi[r], xj[r])
+        y = (yi[r], yj[r])
+        line = plt.plot(x, y)
+        plt.setp(line, ls='-', c='black', lw='1', label='orig')
 
-            xnew = (xinew[r], xjnew[r])
-            ynew = (yinew[r], yjnew[r])
-            linenew = plt.plot(xnew, ynew)
-            plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
-                 label='strain' if stress[r] > 0 else 'stress')
+        xnew = (xinew[r], xjnew[r])
+        ynew = (yinew[r], yjnew[r])
+        linenew = plt.plot(xnew, ynew)
+        plt.setp(linenew,
+                 ls='-',
+                 c='c' if stress[r] > 0.5 else 'crimson',
+                 lw=1 + 20 * stress_normed[r],
+                 label='strain' if stress[r] > 0.5 else 'stress')
 
-        for r in range(numnode):
-            plt.annotate(F_numnodex2[r],
-                         xy=(xi[r], yi[r]), xycoords='data',
-                         xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
-                         arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                         horizontalalignment='right', verticalalignment='bottom')
-            # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
-        plt.axis('equal')
-        return plot
+    for r in range(numnode):
+        plt.annotate(F_numnodex2[r],
+                     xy=(xi[r], yi[r]), xycoords='data',
+                     xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
+                     arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                     horizontalalignment='right', verticalalignment='bottom')
+    plt.axis('equal')
+    plt.grid(True)
 
     stress_max = np.round(np.max(stress), 3)  # 3 decimal nums
     return stress_max

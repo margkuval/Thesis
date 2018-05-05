@@ -1,8 +1,8 @@
 import tri_modif_GA as triGA
 
-task = triGA.GA(40)  # num of different results
+task = triGA.GA(20)  # num of different results
 task.initial()
-for i in range(1000):  # num of cycles
+for i in range(20):  # num of cycles
     task.calc()
     task.fitness()
     task.crossover()

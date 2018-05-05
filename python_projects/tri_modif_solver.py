@@ -44,7 +44,6 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     "Fixed and active DOFs"
     actDof = np.setdiff1d(np.arange(tdof), fixedDof)  # Return sorted,unique values from tdof that are not in fixedDof
 
-
     "Solve deflections"
     u = np.zeros((tdof, 1))  # empty deflections MAT; 1 = # of columns
     u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  # solve equation gStiff*u = F
@@ -63,7 +62,7 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
 
-    xinew = xi + uxi[0]  # notCLEARed-[[ in u array, now solved by taking "list 0" from the MAT
+    xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]
     yinew = yi + uyi[0]
     yjnew = yj + uyj[0]

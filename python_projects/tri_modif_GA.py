@@ -100,7 +100,7 @@ class GA:
         print("fitness")
         for i in range(self._popsize):
             self._pool[i]._fitness = self._pool[i]._stress / max(self._pool, key=lambda x: x._stress)._stress
-        self._pool.sort(key=lambda x: x._fitness)
+        self._pool.sort(key=lambda x: -x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
         sum_fit = sum(map(lambda x: x._fitness, self._pool))
 
         """Define probability"""
@@ -110,33 +110,62 @@ class GA:
         sum_prob = sum(probab)
         """Probability record"""
         for i in range(self._popsize):
-            self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
+            self._pool[i]._probability = self._pool[i]._probability + probab[i] / sum_prob
             print("nodes : {}  fit : {}  prob : {} ".format(np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3),
                                                             np.round(self._pool[i]._fitness, 3),
                                                             np.round(self._pool[i]._probability, 3)))
         print("..............")
 
     def crossover(self):
-        selected_pool = list()
-        select_num = 6
+        selected_pool_x = list()
+        selected_pool_y = list()
+        select_num = 6  # 6x se vybere pravdepodobnost - projde se vsemi ind - pokud tri ma vetsi prob nez co se vybraly,
+        #  tak se oba pridaji do selected pool
+        possible_x = []
+        possible_y = []
+        print(len(self._pool))
+        #  vybereme vsechna mozna x a y ze vsech bodu
+        for individual in self._pool:
+            possible_x.append(individual._nodes[0, 2])
+            possible_y.append(individual._nodes[1, 2])
+        #  z teech x a y vybereme nahodne 3 x a 3 y
+        selected_pool_x = np.random.choice(possible_x, 3)
+        selected_pool_y = np.random.choice(possible_y, 3)
+        '''
         for i in range(select_num):
-            a = np.random.uniform(0, 1)
-            print(round(a,3))
+            x_probability = np.random.uniform(0, 1)
+            y_probability = np.random.uniform(0, 1)
+            print(round(x_probability,3))
             for individual in self._pool:
-                if individual._probability > a:
+                if individual._probability > x_probability:  # mam select_num
                     select_ind = individual._nodes[0, 2]
-                    selected_pool.append(select_ind)
+                    selected_pool_x.append(select_ind)
                     break
-                if individual._probability > a:
+            for individual in self._pool:
+                if individual._probability > y_probability:
                     select_ind1 = individual._nodes[1, 2]
-                    selected_pool.append(select_ind1)
+                    selected_pool_y.append(select_ind1)
                     break
+        '''
+        #  Do prvnich tri (tedy nejhorsich) ulozime nove x a nove y
         for i in range(3):
-            self._pool[i]._nodes[0, 2] = (selected_pool[2 * i]) / 2
-            self._pool[i]._nodes[1, 2] = (selected_pool[2 * (i + 1) - 1]) / 2
+            self._pool[i]._nodes[0, 2] = selected_pool_x[i] #  / 2
+            self._pool[i]._nodes[1, 2] = selected_pool_y[i] #  / 2
         for i in range(self._popsize):
             print([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]])
         print("___________________________________")
+
+    def mutate(self):
+        probs = []  #  bude pole pravdepodobnosti
+        for individual in self._pool:
+            probs.append(individual._probability)
+        mutation_candidate = np.random.choice(self._pool, p=probs)
+        possible_coefficients = [0.9, 0.9, 0.9, 1.1, 0.5, 1.2,1.5, 0.8, 0.75, 1.3, 1.2, 1.1]
+        x_coefficient = np.random.choice(possible_coefficients, 1)
+        y_coefficient = np.random.choice(possible_coefficients, 1)
+        #  mutate x
+        mutation_candidate._nodes[0, 2] = mutation_candidate._nodes[0, 2] * x_coefficient
+        mutation_candidate._nodes[1, 2] = mutation_candidate._nodes[1, 2] * y_coefficient
 
     def plot(self):
         plt.title("Sense you make")

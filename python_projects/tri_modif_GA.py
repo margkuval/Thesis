@@ -18,6 +18,7 @@ class Individual:
 
         xcoord = np.array([0, a, x1GA])    # CH
         ycoord = np.array([0, 0, y1GA])  # can use np.ix_?    # CH
+        self.A = np.array(3 * [0.0225])  # area - each member 0.15x0.15m TROJUHELNIK  # CH
 
         self._nodes = np.array([xcoord, ycoord])
         self._stress = 0
@@ -51,6 +52,9 @@ class Individual:
 
 class GA:
     def __init__(self, pop):
+        self.iEdge = np.array([0, 1, 2])  # beginning of an edge   # CH
+        self.jEdge = np.array([1, 2, 0])  # end of an edge         # CH
+
         self._pool = list()
         self._popsize = pop
 
@@ -61,21 +65,13 @@ class GA:
         print("......................")
 
     def calc(self):
-
-        iEdge = np.array([0, 1, 2])  # beginning of an edge   # CH
-        jEdge = np.array([1, 2, 0])  # end of an edge         # CH
-
-        self._iEdge = iEdge
-        self._jEdge = jEdge
-
-        numelem = iEdge.shape[0]  # count # of beginnings
+        numelem = self.iEdge.shape[0]  # count # of beginnings
 
         """Material characteristics E=(kPa), A=(m2)"""
-        E = np.array(iEdge.shape[0] * [40000])  # modulus of elasticity for each member
-        A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15m
+        E = np.array(self.iEdge.shape[0] * [40000])  # modulus of elasticity for each member
 
         "Outside Forces [kN]"
-        F = np.zeros((2*len(np.unique(iEdge)), 1))  # forces vector
+        F = np.zeros((2*len(np.unique(self.iEdge)), 1))  # forces vector
         F[2] = 10
         F[5] = 10
 
@@ -85,13 +81,15 @@ class GA:
         print("calculation")
 
         for i in range(self._popsize):
-            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, numelem, E, A, F, fixedDof)
+            node = self._pool[i]
+            self._pool[i]._stress = slv.Stress(node._nodes[0], node._nodes[1], self.iEdge, self.jEdge, numelem, E, node.A, F, fixedDof)
             self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  stress_max : {}".format(np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3), self._pool[i]._stress))
         print("...")
 
         for i in range(self._popsize):
-            self._pool[i]._weight = slv.weight(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, A)
+            node = self._pool[i]
+            self._pool[i]._weight = slv.weight(node._nodes[0], node._nodes[1], self.iEdge, self.jEdge, node.A)
             self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  weight_sum : {}".format(np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3), self._pool[i]._weight))
         print("......................")
@@ -100,7 +98,7 @@ class GA:
         print("fitness")
         for i in range(self._popsize):
             self._pool[i]._fitness = self._pool[i]._stress / max(self._pool, key=lambda x: x._stress)._stress
-        self._pool.sort(key=lambda x: -x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
+        self._pool.sort(key=lambda x: x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
         sum_fit = sum(map(lambda x: x._fitness, self._pool))
 
         """Define probability"""
@@ -116,7 +114,7 @@ class GA:
                                                             np.round(self._pool[i]._probability, 3)))
         print("..............")
 
-    def crossover(self):
+    def crossover_top_3(self):
         selected_pool_x = list()
         selected_pool_y = list()
         select_num = 6  # 6x se vybere pravdepodobnost - projde se vsemi ind - pokud tri ma vetsi prob nez co se vybraly,
@@ -131,22 +129,7 @@ class GA:
         #  z teech x a y vybereme nahodne 3 x a 3 y
         selected_pool_x = np.random.choice(possible_x, 3)
         selected_pool_y = np.random.choice(possible_y, 3)
-        '''
-        for i in range(select_num):
-            x_probability = np.random.uniform(0, 1)
-            y_probability = np.random.uniform(0, 1)
-            print(round(x_probability,3))
-            for individual in self._pool:
-                if individual._probability > x_probability:  # mam select_num
-                    select_ind = individual._nodes[0, 2]
-                    selected_pool_x.append(select_ind)
-                    break
-            for individual in self._pool:
-                if individual._probability > y_probability:
-                    select_ind1 = individual._nodes[1, 2]
-                    selected_pool_y.append(select_ind1)
-                    break
-        '''
+
         #  Do prvnich tri (tedy nejhorsich) ulozime nove x a nove y
         for i in range(3):
             self._pool[i]._nodes[0, 2] = selected_pool_x[i] #  / 2
@@ -155,17 +138,60 @@ class GA:
             print([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]])
         print("___________________________________")
 
-    def mutate(self):
+    def _switch(self, individual_pair, axis=0):
+        # prohod hodnoty mezi 2 individualy
+        # axis 0 -> prohod x
+        # axis 1 -> prohod y
+        first = individual_pair[0]
+        second = individual_pair[1]
+        tmp = first._nodes[axis, 2]
+        first._nodes[axis, 2] = second._nodes[axis, 2]
+        second._nodes[axis, 2] = tmp
+
+
+
+    def crossover(self):
+        # vyber individualy co se prohodi
+        # TODO: zakomponovat pravdepodobnost do np.random.choice
+        probs = [x._probability for x in self._pool]
+        vymena_x = np.random.choice(self._pool, 2, replace=False, p=probs)  #vyber dvojice
+        vymena_y = np.random.choice(self._pool, 2, replace=False, p=probs)
+        #  vybereme dvojici na prohozeni A
+        vymena_a =  np.random.choice(self._pool, 2, replace=False, p=probs)
+        prvni_A = vymena_a[0]
+        druhe_A = vymena_a[1]
+        # prohodime A
+        tmp = prvni_A.A
+        prvni_A = druhe_A.A
+        druhe_A = tmp
+
+        self._switch(vymena_x, 0)
+        self._switch(vymena_y, 1)
+
+    def mutate(self, mutation_type):
         probs = []  #  bude pole pravdepodobnosti
         for individual in self._pool:
             probs.append(individual._probability)
-        mutation_candidate = np.random.choice(self._pool, p=probs)
-        possible_coefficients = [0.9, 0.9, 0.9, 1.1, 0.5, 1.2,1.5, 0.8, 0.75, 1.3, 1.2, 1.1]
+        mutation_candidate = np.random.choice(self._pool, 1,p=probs)[0]
+        possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2, 1.1]
+        coefficient = np.random.choice(possible_coefficients, 1)
+        if mutation_type == "x":
+            mutation_candidate._nodes[0, 2] = mutation_candidate._nodes[0, 2] * coefficient
+        if mutation_type == "y":
+            mutation_candidate._nodes[1, 2] = mutation_candidate._nodes[1, 2] * coefficient
+        if mutation_type == "a":
+            # TODO: mutovat kazdou osu zvlast
+            # TODO: dat maximalni a minimalni hodnoty A, x, y
+            mutation_candidate.A = mutation_candidate.A * coefficient
+
+
+    def mutate_worst(self):
+        possible_coefficients = [ 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
         x_coefficient = np.random.choice(possible_coefficients, 1)
         y_coefficient = np.random.choice(possible_coefficients, 1)
-        #  mutate x
-        mutation_candidate._nodes[0, 2] = mutation_candidate._nodes[0, 2] * x_coefficient
-        mutation_candidate._nodes[1, 2] = mutation_candidate._nodes[1, 2] * y_coefficient
+        choice = np.random.randint(0, 3)
+        self._pool[choice]._nodes[0, 2] *= x_coefficient
+        self._pool[choice]._nodes[1, 2] *= y_coefficient
 
     def plot(self):
         plt.title("Sense you make")

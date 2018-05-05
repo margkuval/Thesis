@@ -82,9 +82,12 @@ class GA:
 
         for i in range(self._popsize):
             pool = self._pool[i]
-            pool._stress = slv.Stress(pool._nodes[0], pool._nodes[1], self.iEdge, self.jEdge, numelem, E, pool.A, F, fixedDof)
+            pool._stress = slv.stress(pool._nodes[0], pool._nodes[1], self.iEdge, self.jEdge, numelem, E, pool.A, F, fixedDof)
+            pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0  #Stana mel 0
-            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._stress))
+            print(pool._stress)
+            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._stress_max))
+
         print("...")
 
         for i in range(self._popsize):
@@ -97,7 +100,7 @@ class GA:
     def fitness(self):
         print("fitness")
         for i in range(self._popsize):
-            self._pool[i]._fitness = self._pool[i]._stress / max(self._pool, key=lambda x: x._stress)._stress
+            self._pool[i]._fitness = self._pool[i]._stress_max / max(self._pool, key=lambda x: x._stress_max)._stress_max
         self._pool.sort(key=lambda x: x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
         sum_fit = sum(map(lambda x: x._fitness, self._pool))
 
@@ -122,7 +125,6 @@ class GA:
         #  tak se oba pridaji do selected pool
         possible_x = []
         possible_y = []
-        print(len(self._pool))
         #  vybereme vsechna mozna x a y ze vsech bodu
         for individual in self._pool:
             possible_x.append(individual._nodes[0, 2])
@@ -182,9 +184,12 @@ class GA:
         if mutation_type == "a":
             # TODO: mutovat kazdou osu zvlast, cim vetsi napeti v ose, tim vetsi prurez
             # TODO: dat maximalni a minimalni hodnoty A, x, y
-            Arnd = np.random.choice(3, 1)
-            mutation_candidate.A[Arnd] = mutation_candidate.A[Arnd] * coefficient
-            print(mutation_candidate.A)
+            for i in range(self._popsize):
+                se = np.argmin(self._pool[i]._stress)
+                mutation_candidate.A[se] = mutation_candidate.A[se] * 0.93  # vem prurez s mmin stress a zmensi ho o 7%
+                print(mutation_candidate.A)
+    ## not sue if completely correct logic with A... Check the results,
+
 
     def mutate_worst(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]

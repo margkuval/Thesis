@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
+def stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     "Linking x, ycoord with i,jEdge"
 
     xi = xcoord[np.ix_(iEdge)]
@@ -62,24 +62,7 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
 
-    xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
-    xjnew = xj + uxj[0]
-    yinew = yi + uyi[0]
-    yjnew = yj + uyj[0]
-
-    """Plot structure""" ## nic nefunguje <3
-    def plot(xi, xj, yi, yj):
-        for r in range(numelem):
-            x = (xi[r], xj[r])
-            y = (yi[r], yj[r])
-            line = plt.plot(x, y)
-            plt.setp(line, ls='-', c='black', lw='1', label='orig')
-
-        plt.axis('equal')
-        plt.show()
-
-    stress_max = np.round(np.max(stress), 3)  # 3 decimal nums
-    return stress_max
+    return stress
 
 
 def weight(xcoord, ycoord, iEdge, jEdge, A):
@@ -96,3 +79,21 @@ def weight(xcoord, ycoord, iEdge, jEdge, A):
     weight_sum = np.round(weight.sum(), 3)
 
     return weight_sum
+def plot():
+    xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
+    xjnew = xj + uxj[0]
+    yinew = yi + uyi[0]
+    yjnew = yj + uyj[0]
+
+    """Plot structure""" ## nic nefunguje <3
+    def plot(xi, xj, yi, yj):
+        for r in range(numelem):
+            x = (xi[r], xj[r])
+            y = (yi[r], yj[r])
+            line = plt.plot(x, y)
+            plt.setp(line, ls='-', c='black', lw='1', label='orig')
+
+        plt.axis('equal')
+        plt.show()
+
+

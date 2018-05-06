@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
+def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
     "Linking x, ycoord with i,mem_end"
 
     xi = xcoord[np.ix_(mem_begin)]
@@ -15,18 +15,18 @@ def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
 
     "Other information"
     numnode = xcoord.shape[0]  # all nodes must be used
-    tdof = 2 * numnode  # total degrees of freedom
+    dof_tot = 2 * numnode  # total degrees of freedom
 
 
     """"Global stiffness MAT"""
-    gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
+    glob_stif = np.zeros((dof_tot, dof_tot))  # empty Global Stiffness MAT
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
     c = (xj - xi) / length  # cos
     s = (yj - yi) / length  # sin
 
     for p in range(numelem):
         # takes p from the range of numelem 1 by 1 and creates multiple k1 (local) matrices
-        # at the end maps k1 MATs on right places in gStiff MAT
+        # at the end maps k1 MATs on right places in glob_stiff MAT
         n = ij[p]
         cc = c[p] * c[p]
         cs = c[p] * s[p]
@@ -35,7 +35,7 @@ def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
                                                  [cs, ss, -cs, -ss],
                                                  [-cc, -cs, cc, cs],
                                                  [-cs, -ss, cs, ss]])
-        gStif[np.ix_(n, n)] += k1
+        glob_stif[np.ix_(n, n)] += k1
 
     """Forces and deflections"""
 
@@ -43,13 +43,13 @@ def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
     F_numnodex2 = F.reshape(numnode, 2)
 
     "Fixed and active DOFs"
-    actDof = np.setdiff1d(np.arange(tdof), fixedDof)  # Return sorted,unique values from tdof that are not in fixedDof
+    acdof_tot = np.setdiff1d(np.arange(dof_tot), dof_fixed)  # Return sorted,unique values from dof_tot that are not in dof_fixed
 
 
     "Solve deflections"
-    u = np.zeros((tdof, 1))  # empty deflections MAT; 1 = # of columns
-    u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  # solve equation gStiff*u = F
-    u[np.ix_(actDof)] = u1  # map back to the empty def MAT
+    u = np.zeros((dof_tot, 1))  # empty deflections MAT; 1 = # of columns
+    u1 = np.linalg.solve(glob_stif[np.ix_(acdof_tot, acdof_tot)], F[np.ix_(acdof_tot)])  # solve equation glob_stiff*u = F
+    u[np.ix_(acdof_tot)] = u1  # map back to the empty def MAT
 
     """Inner forces"""
     k = E * A / length

@@ -76,13 +76,13 @@ class GA:
         F[5] = 10
 
         "Fixed dof"
-        fixedDof = np.array([0, 1, 3])
+        dof_fixed = np.array([0, 1, 3])
 
         print("calculation")
 
         for i in range(self._popsize):
             pool = self._pool[i]
-            pool._stress = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, fixedDof)
+            pool._stress = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof_fixed)
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0  #Stana mel 0
             print(pool._stress)

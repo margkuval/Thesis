@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
-    "Linking x, ycoord with i,mem_end"
+def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
 
+    "Link x, ycoord with member begin and end"""
     xi = xcoord[np.ix_(mem_begin)]
-    xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord
+    xj = xcoord[np.ix_(mem_end)]  # take mem_end numbers and replace them with corresponding xcoord
     yi = ycoord[np.ix_(mem_begin)]
     yj = ycoord[np.ix_(mem_end)]
 
@@ -14,18 +14,18 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
     ij = np.vstack([[2 * mem_begin, 2 * mem_begin + 1], [2 * mem_end, 2 * mem_end + 1]]).transpose()
 
     "Other information"
-    numnode = xcoord.shape[0]  # all nodes must be used
-    tdof = 2 * numnode  # total degrees of freedom
+    numnode = xcoord.shape[0]  # number of nodes, xcoord b/c all nodes must be used
+    dof_tot = 2 * numnode  # total degrees of freedom
 
     """Global stiffness MAT"""
-    gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
+    glob_stif = np.zeros((dof_tot, dof_tot))  # empty Global Stiffness MAT
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
     c = (xj - xi) / length  # cos
     s = (yj - yi) / length  # sin
 
     for p in range(numelem):
         # takes p from the range of numelem 1 by 1 and creates multiple k1 (local) matrices
-        # at the end maps k1 MATs on right places in gStiff MAT
+        # at the end maps k1 MATs on right places in glob_stiff MAT
         n = ij[p]
         cc = c[p] * c[p]
         cs = c[p] * s[p]
@@ -34,7 +34,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
                                                  [cs, ss, -cs, -ss],
                                                  [-cc, -cs, cc, cs],
                                                  [-cs, -ss, cs, ss]])
-        gStif[np.ix_(n, n)] += k1
+        glob_stif[np.ix_(n, n)] += k1
 
     """Forces and deflections"""
 
@@ -42,12 +42,12 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
     F_numnodex2 = F.reshape(numnode, 2)
 
     "Fixed and active DOFs"
-    actDof = np.setdiff1d(np.arange(tdof), fixedDof)  # Return sorted,unique values from tdof that are not in fixedDof
+    dof_active = np.setdiff1d(np.arange(dof_tot), dof_fixed)  # Return sorted,unique values from dof_tot that are not in dof_fixed
 
     "Solve deflections"
-    u = np.zeros((tdof, 1))  # empty deflections MAT; 1 = # of columns
-    u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  # solve equation gStiff*u = F
-    u[np.ix_(actDof)] = u1  # map back to the empty def MAT
+    u = np.zeros((dof_tot, 1))  # empty deflections MAT; 1 = # of columns
+    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)], F[np.ix_(dof_active)])  # solve equation glob_stiff*u = F
+    u[np.ix_(dof_active)] = u1  # map back to the empty def MAT
 
     "Deflections calculation"
     # for each node in both directions
@@ -82,6 +82,8 @@ def weight(xcoord, ycoord, mem_begin, mem_end, A):
     weight_sum = np.round(weight.sum(), 3)
 
     return weight_sum
+
+
 def plot():
     xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]

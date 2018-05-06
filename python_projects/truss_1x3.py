@@ -1,30 +1,30 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-"""Members characteristics x,ycoord=(m)"""
+"""mems characteristics x,ycoord=(m)"""
 
 xcoord = np.array([0., 2., 3.5, 5.5, 2., 3.5])
 ycoord = np.array([0., 0., 0., 0, 2.5, 2.5])
-iEdge = np.array([0, 1, 2, 0, 4, 5, 1, 2, 2])  #beginning of an edge
-jEdge = np.array([1, 2, 3, 4, 5, 3, 4, 4, 5])  #end of an edge
+mem_begin = np.array([0, 1, 2, 0, 4, 5, 1, 2, 2])  #beginning of an edge
+mem_end = np.array([1, 2, 3, 4, 5, 3, 4, 4, 5])  #end of an edge
 
-"Linking x, ycoord with i,jEdge"
-xi = xcoord[np.ix_(iEdge)]
-xj = xcoord[np.ix_(jEdge)]  #take jEdge #s and replace them with corresponding xcoord
-yi = ycoord[np.ix_(iEdge)]
-yj = ycoord[np.ix_(jEdge)]
+"Linking x, ycoord with i,mem_end"
+xi = xcoord[np.ix_(mem_begin)]
+xj = xcoord[np.ix_(mem_end)]  #take mem_end #s and replace them with corresponding xcoord
+yi = ycoord[np.ix_(mem_begin)]
+yj = ycoord[np.ix_(mem_end)]
 
 numnode = xcoord.shape[0]  #all nodes must be used
-numelem = iEdge.shape[0]  #count # of beginnings
+numelem = mem_begin.shape[0]  #count # of beginnings
 tdof = 2*numnode  #total degrees of freedom
 
 "Connectivity MAT computation"
-ij = np.vstack([[2*iEdge, 2*iEdge+1], [2*jEdge, 2*jEdge+1]]).transpose()
+ij = np.vstack([[2*mem_begin, 2*mem_begin+1], [2*mem_end, 2*mem_end+1]]).transpose()
 print(ij)
 
 """Material characteristics E=(kPa), A=(m2)"""
-E = np.array(numelem*[40000])  #modulus of elasticity for each member
-A = np.array(numelem*[0.0225])  #area - each member 0.15x0.15
+E = np.array(numelem*[40000])  #modulus of elasticity for each mem
+A = np.array(numelem*[0.0225])  #area - each mem 0.15x0.15
 
 """"Global stiffness MAT"""
 gStif = np.zeros((tdof, tdof))  #empty Global Stiffness MAT
@@ -68,10 +68,10 @@ print(u)
 
 """Inner forces"""
 k = E*A/length
-uxi = u[np.ix_(2*iEdge)].transpose()
-uxj = u[np.ix_(2*jEdge)].transpose()
-uyi = u[np.ix_(2*iEdge + 1)].transpose()
-uyj = u[np.ix_(2*jEdge + 1)].transpose()
+uxi = u[np.ix_(2*mem_begin)].transpose()
+uxj = u[np.ix_(2*mem_end)].transpose()
+uyi = u[np.ix_(2*mem_begin + 1)].transpose()
+uyj = u[np.ix_(2*mem_end + 1)].transpose()
 
 Flocal = k*((uxj - uxi)*c + (uyj - uyi)*s)
 print(Flocal)

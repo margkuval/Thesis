@@ -62,20 +62,20 @@ class GA:
 
     def calc(self):
 
-        iEdge = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
-        jEdge = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
+        mem_begin = np.array([0, 1, 2, 3, 4, 5, 6, 7, 1, 7, 5, 1, 5])  # beginning of an edge
+        mem_end = np.array([1, 2, 3, 4, 5, 6, 7, 0, 7, 5, 1, 3, 3])  # end of an edge
 
-        self._iEdge = iEdge
-        self._jEdge = jEdge
+        self._mem_begin = mem_begin
+        self._mem_end = mem_end
 
-        numelem = iEdge.shape[0]  # count # of beginnings
+        numelem = mem_begin.shape[0]  # count # of beginnings
 
         """Material characteristics E=(kPa), A=(m2)"""
-        E = np.array(iEdge.shape[0] * [40000])  # modulus of elasticity for each member
-        A = np.array(iEdge.shape[0] * [0.0225])  # area - each member 0.15x0.15m
+        E = np.array(mem_begin.shape[0] * [40000])  # modulus of elasticity for each mem
+        A = np.array(mem_begin.shape[0] * [0.0225])  # area - each mem 0.15x0.15m
 
         "Outside Forces [kN]"
-        F = np.zeros((2*len(np.unique(iEdge)), 1))  # forces vector
+        F = np.zeros((2*len(np.unique(mem_begin)), 1))  # forces vector
         F[0] = 0
         F[2] = 10
         F[13] = -15
@@ -86,7 +86,7 @@ class GA:
         print("calculation")
 
         for i in range(self._popsize):
-            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], iEdge, jEdge, numelem, E, A, F, fixedDof)
+            self._pool[i]._stress = slv.Stress(self._pool[i]._nodes[0], self._pool[i]._nodes[1], mem_begin, mem_end, numelem, E, A, F, fixedDof)
             self._pool[i]._probability = 0  #Stana mel 0
             print("nodes : {}  stress_max : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3), self._pool[i]._stress))
         print("......................")

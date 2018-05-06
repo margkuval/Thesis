@@ -2,16 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
-    "Linking x, ycoord with i,jEdge"
+def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
+    "Linking x, ycoord with i,mem_end"
 
-    xi = xcoord[np.ix_(iEdge)]
-    xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
-    yi = ycoord[np.ix_(iEdge)]
-    yj = ycoord[np.ix_(jEdge)]
+    xi = xcoord[np.ix_(mem_begin)]
+    xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord
+    yi = ycoord[np.ix_(mem_begin)]
+    yj = ycoord[np.ix_(mem_end)]
 
     "Connectivity MAT computation"
-    ij = np.vstack([[2 * iEdge, 2 * iEdge + 1], [2 * jEdge, 2 * jEdge + 1]]).transpose()
+    ij = np.vstack([[2 * mem_begin, 2 * mem_begin + 1], [2 * mem_end, 2 * mem_end + 1]]).transpose()
 
     "Other information"
     numnode = xcoord.shape[0]  # all nodes must be used
@@ -20,7 +20,7 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
 
     """"Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
-    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members (edges) length
+    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
     c = (xj - xi) / length  # cos
     s = (yj - yi) / length  # sin
 
@@ -53,10 +53,10 @@ def Stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
 
     """Inner forces"""
     k = E * A / length
-    uxi = u[np.ix_(2 * iEdge)].transpose()
-    uxj = u[np.ix_(2 * jEdge)].transpose()
-    uyi = u[np.ix_(2 * iEdge + 1)].transpose()
-    uyj = u[np.ix_(2 * jEdge + 1)].transpose()
+    uxi = u[np.ix_(2 * mem_begin)].transpose()
+    uxj = u[np.ix_(2 * mem_end)].transpose()
+    uyi = u[np.ix_(2 * mem_begin + 1)].transpose()
+    uyj = u[np.ix_(2 * mem_end + 1)].transpose()
 
     Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
 

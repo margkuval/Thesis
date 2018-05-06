@@ -2,24 +2,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
-    "Linking x, ycoord with i,jEdge"
+def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, fixedDof):
+    "Linking x, ycoord with i,mem_end"
 
-    xi = xcoord[np.ix_(iEdge)]
-    xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
-    yi = ycoord[np.ix_(iEdge)]
-    yj = ycoord[np.ix_(jEdge)]
+    xi = xcoord[np.ix_(mem_begin)]
+    xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord
+    yi = ycoord[np.ix_(mem_begin)]
+    yj = ycoord[np.ix_(mem_end)]
 
     "Connectivity MAT computation"
-    ij = np.vstack([[2 * iEdge, 2 * iEdge + 1], [2 * jEdge, 2 * jEdge + 1]]).transpose()
+    ij = np.vstack([[2 * mem_begin, 2 * mem_begin + 1], [2 * mem_end, 2 * mem_end + 1]]).transpose()
 
     "Other information"
     numnode = xcoord.shape[0]  # all nodes must be used
     tdof = 2 * numnode  # total degrees of freedom
 
-    """"Global stiffness MAT"""
+    """Global stiffness MAT"""
     gStif = np.zeros((tdof, tdof))  # empty Global Stiffness MAT
-    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members (edges) length
+    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
     c = (xj - xi) / length  # cos
     s = (yj - yi) / length  # sin
 
@@ -49,13 +49,16 @@ def stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     u1 = np.linalg.solve(gStif[np.ix_(actDof, actDof)], F[np.ix_(actDof)])  # solve equation gStiff*u = F
     u[np.ix_(actDof)] = u1  # map back to the empty def MAT
 
-    """Inner forces"""
+    "Deflections calculation"
+    # for each node in both directions
+    # important to use _end and _begin to calculate new nodes location
     k = E * A / length
-    uxi = u[np.ix_(2 * iEdge)].transpose()
-    uxj = u[np.ix_(2 * jEdge)].transpose()
-    uyi = u[np.ix_(2 * iEdge + 1)].transpose()
-    uyj = u[np.ix_(2 * jEdge + 1)].transpose()
+    uxi = u[np.ix_(2 * mem_begin)].transpose()
+    uxj = u[np.ix_(2 * mem_end)].transpose()
+    uyi = u[np.ix_(2 * mem_begin + 1)].transpose()
+    uyj = u[np.ix_(2 * mem_end + 1)].transpose()
 
+    "Inner forces"
     Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
 
     """Stress (sigma)=(kPa)"""
@@ -65,15 +68,15 @@ def stress(xcoord, ycoord, iEdge, jEdge, numelem, E, A, F, fixedDof):
     return stress
 
 
-def weight(xcoord, ycoord, iEdge, jEdge, A):
+def weight(xcoord, ycoord, mem_begin, mem_end, A):
     ro = 2400  # kg/m3
 
-    xi = xcoord[np.ix_(iEdge)]
-    xj = xcoord[np.ix_(jEdge)]  # take jEdge #s and replace them with corresponding xcoord
-    yi = ycoord[np.ix_(iEdge)]
-    yj = ycoord[np.ix_(jEdge)]
+    xi = xcoord[np.ix_(mem_begin)]
+    xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord
+    yi = ycoord[np.ix_(mem_begin)]
+    yj = ycoord[np.ix_(mem_end)]
 
-    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members (edges) length
+    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
     weight = length * A * ro
     weight_max = np.round(np.max(weight), 3)
     weight_sum = np.round(weight.sum(), 3)

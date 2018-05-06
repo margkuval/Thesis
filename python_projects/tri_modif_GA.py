@@ -18,7 +18,7 @@ class Individual:
 
         xcoord = np.array([0, a, x1GA])    # CH
         ycoord = np.array([0, 0, y1GA])  # can use np.ix_?    # CH
-        self.A = np.array(3 * [0.0225])  # area - each member 0.15x0.15m TROJUHELNIK  # CH
+        self.A = np.array(3 * [0.0225])  # area - each mem 0.15x0.15m TROJUHELNIK  # CH
 
         self._nodes = np.array([xcoord, ycoord])
         self._stress = 0
@@ -52,8 +52,8 @@ class Individual:
 
 class GA:
     def __init__(self, pop):
-        self.iEdge = np.array([0, 1, 2])  # beginning of an edge   # CH
-        self.jEdge = np.array([1, 2, 0])  # end of an edge         # CH
+        self.mem_begin = np.array([0, 1, 2])  # beginning of an edge   # CH
+        self.mem_end = np.array([1, 2, 0])  # end of an edge         # CH
 
         self._pool = list()
         self._popsize = pop
@@ -65,13 +65,13 @@ class GA:
         print("......................")
 
     def calc(self):
-        numelem = self.iEdge.shape[0]  # count # of beginnings
+        numelem = self.mem_begin.shape[0]  # count # of beginnings
 
         """Material characteristics E=(kPa), A=(m2)"""
-        E = np.array(self.iEdge.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
+        E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each mem, now all concrete
 
         "Outside Forces [kN]"
-        F = np.zeros((2*len(np.unique(self.iEdge)), 1))  # forces vector
+        F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector
         F[2] = 10
         F[5] = 10
 
@@ -82,7 +82,7 @@ class GA:
 
         for i in range(self._popsize):
             pool = self._pool[i]
-            pool._stress = slv.stress(pool._nodes[0], pool._nodes[1], self.iEdge, self.jEdge, numelem, E, pool.A, F, fixedDof)
+            pool._stress = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, fixedDof)
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0  #Stana mel 0
             print(pool._stress)
@@ -92,7 +92,7 @@ class GA:
 
         for i in range(self._popsize):
             pool = self._pool[i]
-            pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.iEdge, self.jEdge, pool.A)
+            pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
             pool._probability = 0  #Stana mel 0
             print("nodes : {}  weight_sum : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._weight))
         print("......................")

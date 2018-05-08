@@ -17,7 +17,6 @@ class Individual:
         ycoord = np.array([0, 0, h])    # CH
 
         "Take a random number in range +-0.5m from the original coordinate"
-
         x1GA = rnd.randrange(np.round((xcoord[2] - 0.5)*10), np.round((xcoord[2] + 0.5)*10))/10
         y1GA = rnd.randrange(np.round((ycoord[2] - 0.5)*10), np.round((ycoord[2] + 0.5)*10))/10
 
@@ -25,7 +24,7 @@ class Individual:
         xcoord = np.array([0, a, x1GA])    # CH
         ycoord = np.array([0, 0, y1GA])    # can use np.ix_?    # CH
         self.A = np.array(3 * [0.0225])    # area - each member 0.15x0.15m triangle  # CH
-
+        self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
         self._stress = 0
         self._fitness = 0
@@ -91,7 +90,14 @@ class GA:
         "Access solver"  #inner forces, stress, weight
         for i in range(self._popsize):
             pool = self._pool[i]
-            pool._stress = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof_fixed)
+            # do res uloz veci, ktere returnuje, tuple 11 veci, globbing
+            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof_fixed)
+            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode = res
+            pool._stress = stress
+            plot_dict = {"xi":xi, "xj":xj, "yi":yi, "yj":yj, "xinew": xinew, "xjnew":xjnew, "yinew" : yinew, "yjnew":yjnew,
+                         "F_numnodex2": F_numnodex2, "stress_normed": stress_normed, "numnode": numnode}
+            pool._plot_dict = plot_dict
+
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0
             print(pool._stress)
@@ -234,20 +240,49 @@ class GA:
         self._pool[choice]._nodes[1, 2] *= y_coefficient
 
     def plot(self):
-        plt.title("Sense you make")
-        plt.ylabel('Algorithm result')
-        plt.xlabel('Population size')
-        plt.axis('equal')
-        plt.grid(True)
-        for i in range(2):  # from how many pools im taking the information
-            for j in range(1):
-                for l in range(2):
-                    o = (self._pool[i]._nodes[0, l], self._pool[i]._nodes[0, l+1])
-                    p = (self._pool[i]._nodes[1, l], self._pool[i]._nodes[1, l+1])
-                    # chybi tam provazanost s ij matici, nevi to, kde to zacina a kde konci
-                    line = plt.plot(o, p)
-                    plt.setp(line, ls='-', c='black', lw='1', label='orig')
+        # ziskej hodnoty z dictionary
+        num_to_plot = 4
+        fig = plt.figure()
+        for index in range(num_to_plot):
+            ax = fig.add_subplot(1,4, index + 1)
+            ax.set_title("Candidate {}".format(index))
+            # vezmi num_to_plot nejlepsich kandidatu
+            pool = self._pool[index]
+            plot_dict = pool._plot_dict
+            stress = pool._stress
+            xi = plot_dict['xi']
+            xj = plot_dict['xj']
+            yi = plot_dict['yi']
+            yj = plot_dict['yj']
+            xinew = plot_dict['xinew']
+            xjnew = plot_dict['xjnew']
+            yinew = plot_dict['yinew']
+            yjnew = plot_dict['yjnew']
+            stress_normed = plot_dict['stress_normed']
+            F_numnodex2 = plot_dict['F_numnodex2']
+            numnode = plot_dict['numnode']
 
 
+            #stress, numnode, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, stress_normed, F_numnodex2
+            for r in range(3):
+                x = (xi[r], xj[r])
+                y = (yi[r], yj[r])
+                line = plt.plot(x, y)
+                plt.setp(line, ls='-', c='black', lw='1', label='orig')
 
-# change nodes from [0, 2] and [1, 2] to relevant ones that are moving
+                xnew = (xinew[r], xjnew[r])
+                ynew = (yinew[r], yjnew[r])
+                linenew = plt.plot(xnew, ynew)
+                plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
+                     label='strain' if stress[r] > 0 else 'stress')
+
+            for r in range(numnode):
+                plt.annotate(F_numnodex2[r],
+                             xy=(xi[r], yi[r]), xycoords='data',
+                             xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
+                             arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                             horizontalalignment='right', verticalalignment='bottom')
+                # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
+            plt.axis('equal')
+
+        plt.show()

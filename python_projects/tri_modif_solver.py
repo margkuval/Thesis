@@ -64,8 +64,12 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
     """Stress (sigma)=(kPa)"""
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
+    xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
+    xjnew = xj + uxj[0]
+    yinew = yi + uyi[0]
+    yjnew = yj + uyj[0]
 
-    return stress
+    return stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode
 
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):
@@ -85,10 +89,6 @@ def weight(xcoord, ycoord, mem_begin, mem_end, A):
 
 
 def plot():
-    xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
-    xjnew = xj + uxj[0]
-    yinew = yi + uyi[0]
-    yjnew = yj + uyj[0]
 
     """Plot structure""" ## nic nefunguje <3
     def plot(xi, xj, yi, yj):

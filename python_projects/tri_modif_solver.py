@@ -46,7 +46,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
 
     "Solve deflections"
     u = np.zeros((dof_tot, 1))  # empty deflections MAT; 1 = # of columns
-    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)], F[np.ix_(dof_active)])  # solve equation glob_stiff*u = F
+    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)], F[np.ix_(dof_active)])  # solve equation glob_stif*u = F
     u[np.ix_(dof_active)] = u1  # map back to the empty def MAT
 
     "Deflections calculation"
@@ -69,7 +69,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
 
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):
-    ro = 2400  # kg/m3
+    ro = 2500  # kg/m3, reinforced concrete  # http://www.boeingconsult.com/tafe/general/symbols&units.html
 
     xi = xcoord[np.ix_(mem_begin)]
     xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord

@@ -2,6 +2,7 @@ import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
 import tri_modif_solver as slv
+from matplotlib.gridspec import GridSpec
 
 # CH = change if implementing on a new structure
 
@@ -268,22 +269,25 @@ class GA:
     def plot(self):
         # ziskej hodnoty z dictionary
         num_to_plot = 4
-        fig = plt.figure()
-        plt.title("Generation {}".format(1))
 
-        for index in range(num_to_plot):
+
+        gs = GridSpec(1, 4)
+        gs.update(left=0.05, right=0.95, wspace=0.05)
+        fig = plt.figure(figsize=(10, 3))
+        fig.suptitle("Generation {}".format(self))
+
+        """for index in range(num_to_plot):
             # TODO: axis are not simetrical - make them smaae for each subplot so results are comparable
             # TODO: naming Generation xx - based on the iteration
             # TODO: sizes of plots - so they are equal to max value or just a fixed one :)
-
-            ax = fig.add_subplot(1,4, index + 1)
-            ax.set_title("Candidate {}".format(index+1))
-            ax.axis('equal')
-            ax.grid(True)
-            ax.set_xlim()
+"""
 
 
-            # take num_to_plot best candidates, load data from saved dict
+        # ax1.set_title("Candidate {}".format(index+1))
+
+
+        for index in range(num_to_plot):
+          # take num_to_plot best candidates, load data from saved dict
             pool = self._pool[index]
             plot_dict = pool._plot_dict
             stress = pool._stress
@@ -299,16 +303,24 @@ class GA:
             F_numnodex2 = plot_dict['F_numnodex2']
             numnode = plot_dict['numnode']
 
+            ax = fig.add_subplot(gs[0, index], aspect="equal")
+
+            ax.grid(True)
+            ax.set_xlim(-1, 5)   #CH
+            ax.set_ylim(-1, 3)   #CH
+            # ax.axis('equal') solved by adding equal to "ax = "
+
             for r in range(numnode):
                 x = (xi[r], xj[r])
                 y = (yi[r], yj[r])
-                line = plt.plot(x, y)
+
+                line = ax.plot(x, y)
                 plt.setp(line, ls='-', c='black', lw='1', label='orig')
 
                 xnew = (xinew[r], xjnew[r])
                 ynew = (yinew[r], yjnew[r])
-                linenew = plt.plot(xnew, ynew)
-                plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 10 * stress_normed[r],
+                linenew = ax.plot(xnew, ynew)
+                plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'r', lw=1 + 10 * stress_normed[r],
                      label='strain' if stress[r] > 0 else 'stress')
 
             for r in range(numnode):

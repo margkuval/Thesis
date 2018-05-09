@@ -55,7 +55,15 @@ F_3x2 = F.reshape(3, 2)
 #print(F_3x2)
 
 "Fixed and active DOFs"
+dof = np.zeros((2 * len(np.unique(mem_begin)), 1))
+dof[0] = 1
+dof[1] = 1
+dof[3] = 1
+d = np.array(np.where(dof == 1))
+print(dof)
+print(d[0])
 dof_fixed = np.array([0, 1, 3])  #fixed dof
+print(dof_fixed)
 acdof_tot = np.setdiff1d(np.arange(dof_tot), dof_fixed)  #Return sorted,unique values from dof_tot that are not in dof_fixed
 
 "Solve deflections"

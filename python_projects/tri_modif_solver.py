@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
+def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
     "Link x, ycoord with member begin and end"""
     xi = xcoord[np.ix_(mem_begin)]
@@ -42,7 +42,10 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
     F_numnodex2 = F.reshape(numnode, 2)
 
     "Fixed and active DOFs"
-    dof_active = np.setdiff1d(np.arange(dof_tot), dof_fixed)  # Return sorted,unique values from dof_tot that are not in dof_fixed
+    dof_a = np.array(np.where(dof == 0))  # node where dof = 0 is an active node
+    dof_active = dof_a[0]
+
+    dof_totx2 = dof.reshape(numnode, 2)  # reshape for plotting
 
     "Solve deflections"
     u = np.zeros((dof_tot, 1))  # empty deflections MAT; 1 = # of columns
@@ -69,7 +72,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
     yinew = yi + uyi[0]
     yjnew = yj + uyj[0]
 
-    return stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode
+    return stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2
 
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):

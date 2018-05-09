@@ -93,7 +93,10 @@ class GA:
         F[4] = 60
 
         "Fixed Degrees of Freedom (DOF)"
-        dof_fixed = np.array([0, 1, 3])
+        dof = np.zeros((2*len(np.unique(self.mem_begin)), 1))  #dof vector
+        dof[0] = 1
+        dof[1] = 1
+        dof[3] = 1
 
         print("calculation")
 
@@ -101,11 +104,11 @@ class GA:
         for i in range(self._popsize):
             pool = self._pool[i]
             # do res uloz veci, ktere returnuje, tuple 11 veci, globbing
-            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof_fixed)
-            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode = res
+            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
+            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
             pool._stress = stress
             plot_dict = {"xi":xi, "xj":xj, "yi":yi, "yj":yj, "xinew": xinew, "xjnew":xjnew, "yinew" : yinew, "yjnew":yjnew,
-                         "F_numnodex2": F_numnodex2, "stress_normed": stress_normed, "numnode": numnode}
+                         "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed, "numnode": numnode}
             pool._plot_dict = plot_dict
 
             pool._stress_max = np.round(np.max(pool._stress), 3)
@@ -284,7 +287,7 @@ class GA:
 
 
         for index in range(num_to_plot):
-          # take num_to_plot best candidates, load data from saved dict
+            # take num_to_plot best candidates, load data from saved dict
             pool = self._pool[index]
             plot_dict = pool._plot_dict
             stress = pool._stress
@@ -298,6 +301,7 @@ class GA:
             yjnew = plot_dict['yjnew']
             stress_normed = plot_dict['stress_normed']
             F_numnodex2 = plot_dict['F_numnodex2']
+            dof_totx2 = plot_dict['dof_totx2']
             numnode = plot_dict['numnode']
 
             ax = fig.add_subplot(gs[0, index], aspect="equal")
@@ -319,7 +323,7 @@ class GA:
                 ynew = (yinew[r], yjnew[r])
                 linenew = ax.plot(xnew, ynew)
 
-                plt.setp(linenew, ls='-', c='c' if stress[r] > 0.5 else ('r' if stress[r] < -0.5 else 'b'), lw=1 + 10 * stress_normed[r],
+                plt.setp(linenew, ls='-', c='c' if stress[r] > 0.000001 else ('r' if stress[r] < -0.000001 else 'b'), lw=1 + 10 * stress_normed[r],
                      label='strain' if stress[r] > 0 else 'stress')
 
             for r in range(numnode):
@@ -329,6 +333,9 @@ class GA:
                              arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                              horizontalalignment='right', verticalalignment='bottom')
 
-        plt.subplots(1, 2,sharex=True, sharey=True)
+
+                # TODO: if dof_tot == 1 annotate by creating a circle under (or by - if y coordinate) the node
+
+        # plt.subplots(1, 2,sharex=True, sharey=True)
 
         plt.show()

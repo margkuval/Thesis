@@ -270,10 +270,10 @@ class GA:
         # ziskej hodnoty z dictionary
         num_to_plot = 4
 
-
         gs = GridSpec(1, 4)
         gs.update(left=0.05, right=0.95, wspace=0.05)
-        fig = plt.figure(figsize=(10, 3))
+        #fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
+        fig = plt.figure(figsize=(10,3))
         fig.suptitle("Generation {}".format(self))
 
         """for index in range(num_to_plot):
@@ -281,9 +281,6 @@ class GA:
             # TODO: naming Generation xx - based on the iteration
             # TODO: sizes of plots - so they are equal to max value or just a fixed one :)
 """
-
-
-        # ax1.set_title("Candidate {}".format(index+1))
 
 
         for index in range(num_to_plot):
@@ -309,6 +306,7 @@ class GA:
             ax.set_xlim(-1, 5)   #CH
             ax.set_ylim(-1, 3)   #CH
             # ax.axis('equal') solved by adding equal to "ax = "
+            ax.set_title("Candidate {}".format(index+1))
 
             for r in range(numnode):
                 x = (xi[r], xj[r])
@@ -320,7 +318,8 @@ class GA:
                 xnew = (xinew[r], xjnew[r])
                 ynew = (yinew[r], yjnew[r])
                 linenew = ax.plot(xnew, ynew)
-                plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'r', lw=1 + 10 * stress_normed[r],
+
+                plt.setp(linenew, ls='-', c='c' if stress[r] > 0.5 else ('r' if stress[r] < -0.5 else 'b'), lw=1 + 10 * stress_normed[r],
                      label='strain' if stress[r] > 0 else 'stress')
 
             for r in range(numnode):
@@ -330,5 +329,6 @@ class GA:
                              arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                              horizontalalignment='right', verticalalignment='bottom')
 
+        plt.subplots(1, 2,sharex=True, sharey=True)
 
         plt.show()

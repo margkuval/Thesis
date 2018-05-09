@@ -82,7 +82,7 @@ def Stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
         linenew = plt.plot(xnew, ynew)
         plt.setp(linenew,
                  ls='-',
-                 c='c' if stress[r] > 0.5 else 'crimson',
+                 c='c' if stress[r] > 0.5 else ('r' if stress[r] < -0.5 else 'k'),
                  lw=1 + 20 * stress_normed[r],
                  label='strain' if stress[r] > 0.5 else 'stress')
 

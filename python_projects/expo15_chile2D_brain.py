@@ -7,3 +7,7 @@ for i in range(1):
     task.fitness()
     task.crossover()
     task.plot()
+
+
+    # pravdepodobnost - moc skace (udelal if - 9999). Mam zaridit, aby ty vahy nikdy nebyly zaporne
+    # mutace A - na cem na zaviset mutace A

@@ -60,7 +60,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof_fixed):
 
     "Inner forces"
     Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
-
+    print(Flocal)
     """Stress (sigma)=(kPa)"""
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
@@ -86,19 +86,4 @@ def weight(xcoord, ycoord, mem_begin, mem_end, A):
     weight_sum = np.round(weight.sum(), 3)
 
     return weight_sum
-
-
-def plot():
-
-    """Plot structure""" ## nic nefunguje <3
-    def plot(xi, xj, yi, yj):
-        for r in range(numelem):
-            x = (xi[r], xj[r])
-            y = (yi[r], yj[r])
-            line = plt.plot(x, y)
-            plt.setp(line, ls='-', c='black', lw='1', label='orig')
-
-        plt.axis('equal')
-        plt.show()
-
 

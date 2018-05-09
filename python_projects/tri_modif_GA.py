@@ -27,6 +27,7 @@ class Individual:
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
         self._stress = 0
+        self._weight = 0
         self._fitness = 0
         self._probability = 0
 
@@ -34,9 +35,17 @@ class Individual:
     def stress(self):
         return self._stress
 
+    @property
+    def weight(self):
+        return self._weight
+
     @stress.setter
     def stress(self, new):
         self._stress = new
+
+    @weight.setter
+    def weight(self, new):
+        self._weight = new
 
     @property
     def fitness(self):
@@ -80,7 +89,7 @@ class GA:
         "Outside Forces [kN]"
         F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector
         F[2] = 10
-        F[5] = 10
+        F[4] = 60
 
         "Fixed Degrees of Freedom (DOF)"
         dof_fixed = np.array([0, 1, 3])
@@ -114,26 +123,39 @@ class GA:
 
     def fitness(self):
         print("fitness")
-        for i in range(self._popsize):
-            self._pool[i]._fitness = self._pool[i]._stress_max / max(self._pool, key=lambda x: x._stress_max)._stress_max
-        self._pool.sort(key=lambda x: x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
-        sum_fit = sum(map(lambda x: x._fitness, self._pool))
+        # take stress and weight and sum
+        stresses = [sum(x._stress) for x in self._pool]
+        # coef based on importance
+        stress_coef = 0.5
+        weight_coef = 0.5
+        # list comprehension, for inside the line, vytvor seznam, co ma tyto vlastnosti, bere postupne vsechny hodnoty ze self pool
+        weights = [x._weight for x in self._pool]
+
+        fitnesses = []
+        # 2 variables, need to connect them together
+        for stress, weight in zip(stresses, weights):
+            if stress < 0 or weight < 0:
+                fitnesses.append(999999)
+            else:
+                fitnesses.append(stress_coef * stress + weight_coef * weight)
+        best_fitness = min(fitnesses)
+        # normalize
+        sum_fit = sum(fitnesses)
+
+        # save fitness for each candidate
+        for i in range(len(self._pool)):
+            self._pool[i]._fitness = fitnesses[i]
+            self._pool[i]._probability =  fitnesses[i]/sum_fit
+        # sort, in py ascending so "-" is needed
+        self._pool.sort(key=lambda x: -x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
 
         """Define/create probability"""
         # create empty cell, i-times add a value at the end
         # higher individual fitness -> higher probab (a member will be chosen for a mutation with higher probability)
         # TODO: change either: better fitness - lower mutation probab or higher crossover probab
-        probab = []
-        for i in range(self._popsize):
-            probab.append(sum_fit / self._pool[i]._fitness)
-        sum_prob = sum(probab)
-
         """Probability record"""
         for i in range(self._popsize):
             pool = self._pool[i]
-            # co konkretne dela tento radek?
-            # todo: co je pool._probability?
-            pool._probability = pool._probability + probab[i] / sum_prob
             print("nodes : {}  fit : {}  prob : {} ".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                                                             np.round(pool._fitness, 3),
                                                             np.round(pool._probability, 3)))
@@ -221,12 +243,16 @@ class GA:
             # TODO: dat maximalni a minimalni hodnoty A, x, y
             # TODO: jakou probob mutuje? tu nejhorsi nebo nejlepsi?
             for i in range(self._popsize):
+                cur_candidate = self._pool[i]
                 se = np.argmin(self._pool[i]._stress)
-                mutation_candidate.A[se] = mutation_candidate.A[se] * 0.93  # vem prurez s min stress a zmensi ho o 7%
-                # TODO: jaky by byl lepsi zpusob, dostat lepsi member?
-                print(mutation_candidate.A)
-    # not sure if completely correct logic with A... Check the results,
+                if cur_candidate.A[se] < 0.01:
+                    continue
+                cur_candidate.A[se] = cur_candidate.A[se] * 0.93
 
+                # vem prurez s min stress a zmensi ho o 7%
+                # TODO: jaky by byl lepsi zpusob, dostat lepsi member?
+               # print(cur_candidate.A)
+    # not sure if completely correct logic with A... Check the results,
 
     def mutate_worst(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
@@ -243,10 +269,21 @@ class GA:
         # ziskej hodnoty z dictionary
         num_to_plot = 4
         fig = plt.figure()
+        plt.title("Generation {}".format(1))
+
         for index in range(num_to_plot):
+            # TODO: axis are not simetrical - make them smaae for each subplot so results are comparable
+            # TODO: naming Generation xx - based on the iteration
+            # TODO: sizes of plots - so they are equal to max value or just a fixed one :)
+
             ax = fig.add_subplot(1,4, index + 1)
-            ax.set_title("Candidate {}".format(index))
-            # vezmi num_to_plot nejlepsich kandidatu
+            ax.set_title("Candidate {}".format(index+1))
+            ax.axis('equal')
+            ax.grid(True)
+            ax.set_xlim()
+
+
+            # take num_to_plot best candidates, load data from saved dict
             pool = self._pool[index]
             plot_dict = pool._plot_dict
             stress = pool._stress
@@ -262,9 +299,7 @@ class GA:
             F_numnodex2 = plot_dict['F_numnodex2']
             numnode = plot_dict['numnode']
 
-
-            #stress, numnode, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, stress_normed, F_numnodex2
-            for r in range(3):
+            for r in range(numnode):
                 x = (xi[r], xj[r])
                 y = (yi[r], yj[r])
                 line = plt.plot(x, y)
@@ -273,7 +308,7 @@ class GA:
                 xnew = (xinew[r], xjnew[r])
                 ynew = (yinew[r], yjnew[r])
                 linenew = plt.plot(xnew, ynew)
-                plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 20 * stress_normed[r],
+                plt.setp(linenew, ls='-', c='c' if stress[r] > 0 else 'crimson', lw=1 + 10 * stress_normed[r],
                      label='strain' if stress[r] > 0 else 'stress')
 
             for r in range(numnode):
@@ -282,7 +317,6 @@ class GA:
                              xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
                              arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                              horizontalalignment='right', verticalalignment='bottom')
-                # print("N"+str(i+1)+" = "+ str(np.round(N[i] /1000,3)) +" kN")
-            plt.axis('equal')
+
 
         plt.show()

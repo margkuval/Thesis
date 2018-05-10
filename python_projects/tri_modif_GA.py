@@ -274,17 +274,12 @@ class GA:
         num_to_plot = 4
 
         gs = GridSpec(1, 4)
-        gs.update(left=0.05, right=0.95, wspace=0.05)
+        gs.update(left=0.05, right=0.95, wspace=0.2)
         #fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
         fig = plt.figure(figsize=(10,3))
-        fig.suptitle("Generation {}".format(self))
+        fig.suptitle("Generation {}".format(i in range(self), print i)  # need to change
 
-        """for index in range(num_to_plot):
-            # TODO: axis are not simetrical - make them smaae for each subplot so results are comparable
             # TODO: naming Generation xx - based on the iteration
-            # TODO: sizes of plots - so they are equal to max value or just a fixed one :)
-"""
-
 
         for index in range(num_to_plot):
             # take num_to_plot best candidates, load data from saved dict
@@ -326,16 +321,23 @@ class GA:
                 plt.setp(linenew, ls='-', c='c' if stress[r] > 0.000001 else ('r' if stress[r] < -0.000001 else 'b'), lw=1 + 10 * stress_normed[r],
                      label='strain' if stress[r] > 0 else 'stress')
 
+            "Annotate outside forces"
             for r in range(numnode):
                 plt.annotate(F_numnodex2[r],
-                             xy=(xi[r], yi[r]), xycoords='data',
-                             xytext=(np.sign(F_numnodex2[r]) * -50), textcoords='offset pixels',
-                             arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                             horizontalalignment='right', verticalalignment='bottom')
+                            xy=(xi[r], yi[r]), xycoords='data', xytext = np.sign(F_numnodex2[r]) * -50, textcoords='offset pixels',
+                            arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                            horizontalalignment='right', verticalalignment='bottom')
 
+            "Annotate fixed DOFs"
+            for r in range(numnode):
+                if np.array_equal(dof_totx2[r], np.array([0, 1])):
+                    plt.plot([xi[r]], [yi[r] - 0.2], 'o', c='k', markersize=8)
+                if np.array_equal(dof_totx2[r], np.array([1, 0])):
+                    plt.plot([xi[r] - 0.2], [yi[r]], 'o', c='k', markersize=8)
+                if np.array_equal(dof_totx2[r], np.array([1, 1])):
+                    plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
-                # TODO: if dof_tot == 1 annotate by creating a circle under (or by - if y coordinate) the node
-
+        # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
 
         plt.show()

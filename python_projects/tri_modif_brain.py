@@ -1,11 +1,11 @@
 import tri_modif_GA as triGA
 
-task = triGA.GA(50)  # num of different results
+task = triGA.GA(10)  # num of different results
 task.initial()
-for i in range(20):  # num of cycles
+for i in range(10):  # num of cycles
     task.calc()
     task.fitness()
-    if i % 10 == 0:
+    if i % 5 == 0:
         task.plot()
     task.crossover()
     task.mutate(mutation_type="x")

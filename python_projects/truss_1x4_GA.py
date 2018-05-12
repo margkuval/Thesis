@@ -10,21 +10,27 @@ class Individual:
     def __init__(self):
 
         "Structural dimentions"""
-        a = 2.5  #CH
-        h = np.sqrt(pow(a, 2) - pow(a/2, 2))  # triangle height  # CH
+        a = 2  #CH
+        h = a  # triangle height  # CH
 
         "Original coordinates"
-        xcoord = np.array([0, a, a/2])  # CH
-        ycoord = np.array([0, 0, h])    # CH
+        xcoord = np.array([0, a, 2.5*a, 4*a, 5*a, a, 2.5*a, 4*a])  # CH
+        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])    # CH
 
         "Take a random number in range +-0.5m from the original coordinate"
-        x1GA = rnd.randrange(np.round((xcoord[2] - 0.5)*10), np.round((xcoord[2] + 0.5)*10))/10
-        y1GA = rnd.randrange(np.round((ycoord[2] - 0.5)*10), np.round((ycoord[2] + 0.5)*10))/10
+        x1GA = rnd.randrange(np.round((xcoord[1] - 0.3)*10), np.round((xcoord[1] + 0.3)*10))/10
+        y1GA = rnd.randrange(np.round((ycoord[1] - 0.3)*10), np.round((ycoord[1] + 0.3)*10))/10
+
+        x1aGA = rnd.randrange(np.round((xcoord[3] - 0.3)*10), np.round((xcoord[3] + 0.3)*10))/10
+        y1aGA = rnd.randrange(np.round((ycoord[3] - 0.3)*10), np.round((ycoord[3] + 0.3)*10))/10
+
+        x2GA = rnd.randrange(np.round((xcoord[2] - 0.3)*10), np.round((xcoord[2] + 0.3)*10))/10
+        y2GA = rnd.randrange(np.round((ycoord[2] - 0.3)*10), np.round((ycoord[2] + 0.3)*10))/10
 
         "New coordinates"
-        xcoord = np.array([0, a, x1GA])    # CH
-        ycoord = np.array([0, 0, y1GA])    # can use np.ix_?    # CH
-        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(3,))   # area between 12x12 and 23x23cm # CH
+        xcoord = np.array([0, x1GA, x2GA, x1aGA, 5*a, a, 2.5*a, 4*a])    # CH
+        ycoord = np.array([0, y1GA, y2GA, y1aGA, 0, h, h, h])    # can use np.ix_?    # CH
+        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))   # area between 12x12 and 23x23cm # CH
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
 
@@ -65,11 +71,19 @@ class Individual:
     def probability(self,new):
         self._probability = new
 
+    @property
+    def u(self):
+        return self._probability
+
+    @probability.setter
+    def u(self,new):
+        self._probability = new
+
 
 class GA:
     def __init__(self, pop):
-        self.mem_begin = np.array([0, 1, 2])  # beginning of an edge   # CH
-        self.mem_end = np.array([1, 2, 0])  # end of an edge         # CH
+        self.mem_begin = np.array([0, 1, 2, 3, 4, 7, 6, 5, 1, 5, 6, 2, 7])  # beginning of an edge   # CH
+        self.mem_end =   np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])  # end of an edge         # CH
 
         self._pool = list()
         self._popsize = pop
@@ -88,16 +102,17 @@ class GA:
         "Material characteristics E=(kPa), A=(m2)"
         E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
 
-        "Outside Forces [kN]"
-        F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
-        F[2] = 10
-        F[4] = 60
-
         "Fixed Degrees of Freedom (DOF)"
         dof = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
         dof[0] = 1
         dof[1] = 1
-        dof[3] = 1
+        dof[9] = 1
+
+        "Outside Forces [kN]"
+        F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
+        F[11] = -50
+        F[13] = -30
+        F[15] = -50
 
         print("calculation")
 
@@ -106,14 +121,18 @@ class GA:
             pool = self._pool[i]
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
             res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
-            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
+            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u = res
+
             pool._stress = stress
+            pool._u = u
+
             plot_dict = {"xi":xi, "xj":xj, "yi":yi, "yj":yj, "xinew": xinew, "xjnew":xjnew, "yinew" : yinew, "yjnew":yjnew,
                          "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed, "numnode": numnode,
                          "numelem": numelem, "A": pool.A}
             pool._plot_dict = plot_dict
 
             pool._stress_max = np.round(np.max(pool._stress), 3)
+            pool._u_max = sum(abs(u))
             pool._probability = 0
             print(pool._stress)
             print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._stress_max))
@@ -130,17 +149,18 @@ class GA:
     def fitness(self):
         print("fitness")
         # take stress and weight and sum
-        stresses = [sum(x._stress) for x in self._pool]
+        stresses = [sum(abs(x._stress)) for x in self._pool]
+        deflections = [sum(abs(x._))]
         # coef based on importance
-        stress_coef = 0.5
-        weight_coef = 0.5
+        stress_coef = 0.7
+        weight_coef = 0.3
         # list comprehension, for inside the line, vytvor seznam, co ma tyto vlastnosti, bere postupne vsechny hodnoty ze self pool
         weights = [x._weight for x in self._pool]
 
         fitnesses = []
         # 2 variables, need to connect them together
         for stress, weight in zip(stresses, weights):
-            if stress < 0 or weight < 0:
+            if weight < 0:
                 fitnesses.append(999999)
             else:
                 fitnesses.append(stress_coef * stress + weight_coef * weight)
@@ -271,14 +291,17 @@ class GA:
         self._pool[choice]._nodes[0, 2] *= x_coefficient
         self._pool[choice]._nodes[1, 2] *= y_coefficient
 
+    # xi[3] = xi [1]
+    # xj[3]
+
     def plot(self):
         # ziskej hodnoty z dictionary
-        num_to_plot = 4
+        num_to_plot = 2
 
-        gs = GridSpec(1, 4)
+        gs = GridSpec(1, 2)
         gs.update(left=0.05, right=0.95, wspace=0.2)
         #fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
-        fig = plt.figure(figsize=(10,3))
+        fig = plt.figure(figsize=(18,5))
         fig.suptitle("Generation {}".format(1))  # need to change
 
             # TODO: naming Generation xx - based on the iteration
@@ -305,8 +328,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 5)   #CH
-            ax.set_ylim(-1, 3)   #CH
+            ax.set_xlim(-1, 12)   #CH
+            ax.set_ylim(-3, 3)   #CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index+1))
 

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def stress (xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
+def u(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
     "Link x, ycoord with member begin and end"""
     xi = xcoord[np.ix_(mem_begin)]
@@ -72,12 +72,19 @@ def stress (xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     yjnew = yj + uyj[0]
 
     u_sum = sum(abs(u))
+    print(u_sum)
 
-    """Stress (sigma)=(kPa)"""
-    stress = Flocal[0] / A
-    stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
+    def stress():
 
-    return stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u
+        """Stress (sigma)=(kPa)"""
+        stress = Flocal[0] / A
+        stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
+
+        print("stress_normed : {}".format(stress_normed))
+
+    return xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, Flocal, F_numnodex2, numnode, dof_totx2, u, stress
+
+
 
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):

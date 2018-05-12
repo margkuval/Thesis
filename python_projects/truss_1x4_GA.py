@@ -31,11 +31,13 @@ class Individual:
         xcoord = np.array([0, x1GA, x2GA, x1aGA, 5*a, a, 2.5*a, 4*a])    # CH
         ycoord = np.array([0, y1GA, y2GA, y1aGA, 0, h, h, h])    # can use np.ix_?    # CH
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))   # area between 12x12 and 23x23cm # CH
+        self.Flocal = 0
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
 
         self._stress = 0
         self._weight = 0
+        self._u = 0
         self._fitness = 0
         self._probability = 0
 
@@ -43,13 +45,13 @@ class Individual:
     def stress(self):
         return self._stress
 
-    @property
-    def weight(self):
-        return self._weight
-
     @stress.setter
     def stress(self, new):
         self._stress = new
+
+    @property
+    def weight(self):
+        return self._weight
 
     @weight.setter
     def weight(self, new):
@@ -73,9 +75,9 @@ class Individual:
 
     @property
     def u(self):
-        return self._probability
+        return self._u
 
-    @probability.setter
+    @u.setter
     def u(self,new):
         self._probability = new
 
@@ -117,28 +119,44 @@ class GA:
         print("calculation")
 
         "Access solver"  # inner forces, stress, weight
+        """Deflection"""
         for i in range(self._popsize):
             pool = self._pool[i]
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
-            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
-            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u = res
+            res = slv.u(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
+            xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u, Flocal = res
 
-            pool._stress = stress
             pool._u = u
 
             plot_dict = {"xi":xi, "xj":xj, "yi":yi, "yj":yj, "xinew": xinew, "xjnew":xjnew, "yinew" : yinew, "yjnew":yjnew,
-                         "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed, "numnode": numnode,
+                         "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "numnode": numnode,
                          "numelem": numelem, "A": pool.A}
             pool._plot_dict = plot_dict
 
-            pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._u_max = sum(abs(u))
             pool._probability = 0
-            print(pool._stress)
-            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._stress_max))
+            print(pool._u)
 
         print("...")
 
+        """Stress"""
+        for i in range(self._popsize):
+            pool = self._pool[i]
+            # globbing, to "res" save everything that slv.stress returns (tuple of 11)
+            res = slv.u(pool._u, pool.A)
+            stress, stress_normed = res
+
+            pool._stress = stress
+
+            pool.plot_dict.update({"stress_normed": stress_normed})
+
+            pool._stress_max = np.round(np.max(pool._stress), 3)
+            pool._probability = 0
+            print(pool._stress)
+            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+                                                       pool._stress_max))
+
+        """Weight"""
         for i in range(self._popsize):
             pool = self._pool[i]
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
@@ -150,7 +168,7 @@ class GA:
         print("fitness")
         # take stress and weight and sum
         stresses = [sum(abs(x._stress)) for x in self._pool]
-        deflections = [sum(abs(x._))]
+        deflections = [sum(abs(x._u))]
         # coef based on importance
         stress_coef = 0.7
         weight_coef = 0.3

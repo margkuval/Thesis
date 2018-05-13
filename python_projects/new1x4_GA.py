@@ -200,12 +200,12 @@ class GA:
 
         sum_fit = sum(fitnesses)
 
-        # save fitness for each candidate
+        "Fitness for each candidate"
         for i in range(len(self._pool)):
-            self._pool[i]._fitness = fitnesses[i]
+            self._pool[i]._fitness = min(fitnesses)/fitnesses[i]
             self._pool[i]._probability =  fitnesses[i]/sum_fit
-        # sort, in py ascending so "-" is needed
-        self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness # velka zmena 1845 135
+        # sort in py is ascending, so "-" is needed
+        self._pool.sort(key=lambda x: -x._fitness)  # lambda = go through each individual and give fitness
 
         """Define/create probability"""
         # create empty cell, i-times add a value at the end

@@ -18,8 +18,8 @@ class Individual:
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])    # CH
 
         "Take a random number in range +-0.5m from the original coordinate"
-        x1GA = rnd.randrange(np.round((xcoord[2] - 0.25)*10), np.round((xcoord[2] + 0.25)*10))/10
-        y1GA = rnd.randrange(np.round((ycoord[2] - 0.25)*10), np.round((ycoord[2] + 0.25)*10))/10
+        x1GA = rnd.randrange(np.round((xcoord[2] - 0.5)*10), np.round((xcoord[2] + 0.5)*10))/10
+        y1GA = rnd.randrange(np.round((ycoord[2] - 0.5)*10), np.round((ycoord[2] + 1)*10))/10
 
         "New coordinates"
         xcoord = np.array([0, a, x1GA, 4*a, 5*a, a, 2.5*a, 4*a])     # CH
@@ -139,7 +139,7 @@ class GA:
 
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0
-            print(pool._stress)
+            #print(pool._stress)
             print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                                                        np.round(pool._stress_max), 3))
 
@@ -163,9 +163,9 @@ class GA:
         #stresses_tension = [sum((x._stress) for x in self._pool if x._stress < 0)]
         weights = [(abs(x._weight)/abs(sum(x._weight))).sum() for x in self._pool]
 
-        print(deflections)
-        print(stresses)
-        print(weights)
+        #print(deflections)
+        #print(stresses)
+        #print(weights)
         # coef based on importance
         deflection_coef = 0.5
         stress_coef = 0.3

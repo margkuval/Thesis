@@ -114,11 +114,11 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
     "Inner forces"
     Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
-    print(Flocal)
+    #print(Flocal)
     """Stress (sigma)=(kPa)"""
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
-    print("s_normed : {}".format(np.round(stress_normed, 3)))
+    #print("s_normed : {}".format(np.round(stress_normed, 3)))
     xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]
     yinew = yi + uyi[0]

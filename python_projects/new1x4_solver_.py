@@ -47,9 +47,10 @@ def deflection(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)], F[np.ix_(dof_active)])  # solve equation glob_stif*u = F
     u[np.ix_(dof_active)] = u1  # map back to the empty def MAT
 
+    u = np.round(u, 3)
     abs_u_sum = np.round(abs(u).sum(), 3)
 
-    return abs_u_sum
+    return u
 
 
 def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
@@ -117,6 +118,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     """Stress (sigma)=(kPa)"""
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
+    print("s_normed : {}".format(np.round(stress_normed, 3)))
     xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]
     yinew = yi + uyi[0]
@@ -138,5 +140,5 @@ def weight(xcoord, ycoord, mem_begin, mem_end, A):
     weight_max = np.round(np.max(weight), 3)
     weight_sum = np.round(weight.sum(), 3)
 
-    return weight_sum
+    return weight
 

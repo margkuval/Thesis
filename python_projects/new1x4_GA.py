@@ -116,9 +116,12 @@ class GA:
         # DEFLECTION
         for i in range(self._popsize):
             pool = self._pool[i]
-            pool._deflection = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
+            pool._deflection = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem,
+                                              E, pool.A, F, dof)
             pool._probability = 0
-            print("nodes : {} abs_deflection_sum : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._deflection))
+            print("nodes : {} abs_deflection_sum : {}".format(np.round([pool._nodes[0, 2],
+                                                                        pool._nodes[1, 2]], 3),
+                                                              abs(pool._deflection).sum()))
 
         # STRESS
         for i in range(self._popsize):
@@ -127,6 +130,8 @@ class GA:
             res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
             stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
             pool._stress = stress
+            pool._stress_normed = stress_normed
+
             plot_dict = {"xi":xi, "xj":xj, "yi":yi, "yj":yj, "xinew": xinew, "xjnew":xjnew, "yinew" : yinew, "yjnew":yjnew,
                          "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed, "numnode": numnode,
                          "numelem": numelem, "A": pool.A}
@@ -144,32 +149,55 @@ class GA:
             pool = self._pool[i]
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
             pool._probability = 0
-            print("nodes : {}  weight_sum : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._weight))
+            print("nodes : {}  weight_sum : {}".format(np.round([pool._nodes[0, 2],
+                                                                 pool._nodes[1, 2]], 3),
+                                                       np.round(pool._weight.sum(), 3)))
         print("......................")
 
     def fitness(self):
         print("fitness")
 
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
-        deflections = [x._deflection for x in self._pool]
-        stresses = [abs(x._stress).sum() for x in self._pool]
-        weights = [x._weight for x in self._pool]
+        deflections = [(abs(x._deflection)/abs(sum(x._deflection))).sum() for x in self._pool]
+        stresses = [(abs(x._stress)/abs(sum(x._stress))).sum() for x in self._pool]
+        #stresses_tension = [sum((x._stress) for x in self._pool if x._stress < 0)]
+        weights = [(abs(x._weight)/abs(sum(x._weight))).sum() for x in self._pool]
 
+        print(deflections)
+        print(stresses)
+        print(weights)
         # coef based on importance
         deflection_coef = 0.5
         stress_coef = 0.3
         weight_coef = 0.2
+        #stresses_tension_coef = 11
+
+        #d = [(1 -(i / sum(abs(self._pool[i]._deflection))) for i in abs(self._popsize))]
+        #d_n = sum(d)
+        #d_n_coef = deflection_coef * d_n
+
+
+        #deflections_normed = [((deflection_coef * (sum(1- i / sum(abs(x._deflection)))) for i in abs(x._deflection))) for x in self._pool]
+        #print(deflections_normed)
+        #print(deflections)
+        #stresses_normed = [(stress_coef * (1 - i / sum(abs(x._stress))) for i in abs(x._stress)) for x in self._pool]
+        #weights_normed = [(weight_coef * (1 - i / sum(x._weight)) for i in x._weight) for x in self._pool]
+
+        #ttt = deflections_normed + stresses_normed + weights_normed
+        #print(sum(ttt))
 
         fitnesses = []
 
+        #for deflection, stress, weight in zip(deflections_normed, stresses_normed, weights_normed):
+         #   fitnesses.append(sum(sum(deflections_normed), sum(stresses_normed), sum(weights_normed)))
+
         # 2 variables, need to connect them together
         for deflection, stress, weight in zip(deflections, stresses, weights):
-            if weight < 0:
+            if weight.sum() < 0:
                 fitnesses.append(999999)
             else:
-                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)
-        best_fitness = min(fitnesses)
-        # normalize
+                fitnesses.append(deflection_coef * 50 * deflection + stress_coef * stress + weight_coef * weight)
+
         sum_fit = sum(fitnesses)
 
         # save fitness for each candidate
@@ -177,7 +205,7 @@ class GA:
             self._pool[i]._fitness = fitnesses[i]
             self._pool[i]._probability =  fitnesses[i]/sum_fit
         # sort, in py ascending so "-" is needed
-        self._pool.sort(key=lambda x: -x._fitness)  # lambda = jdi pres kazdy ind a dej mi fitness
+        self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness # velka zmena 1845 135
 
         """Define/create probability"""
         # create empty cell, i-times add a value at the end
@@ -230,14 +258,12 @@ class GA:
 
     def crossover(self):
         # choose individuals that will switch
-        # TODO: zakomponovat pravdepodobnost do np.random.choice
         probs = [x._probability for x in self._pool]
         switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         "Areas Crossover"
         # matrix with one column only
-        # todo: Q: probehne crossover mezi stejnymi members, nebo naparuje dva jakekoliv clanky matice?
         switch_a =  np.random.choice(self._pool, 2, replace=False, p=probs)
         first_A = switch_a[0]
         second_A = switch_a[1]
@@ -271,12 +297,10 @@ class GA:
             for i in range(self._popsize):
                 cur_candidate = self._pool[i]
                 se = np.argmin(self._pool[i]._stress)
-                if cur_candidate.A[se] < 0.01:
+                if cur_candidate.A[se] > 0.01:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * 0.93
 
-                # vem prurez s min stress a zmensi ho o 7%
-                # TODO: jaky by byl lepsi zpusob, dostat lepsi member?
                # print(cur_candidate.A)
 
     def mutate_worst(self):
@@ -290,17 +314,16 @@ class GA:
         self._pool[choice]._nodes[0, 2] *= x_coefficient
         self._pool[choice]._nodes[1, 2] *= y_coefficient
 
-    def plot(self):
-        # ziskej hodnoty z dictionary
+    def plot_stress(self):
         num_to_plot = 4
 
         gs = GridSpec(1, 4)
         gs.update(left=0.05, right=0.95, wspace=0.2)
-        #fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
-        fig = plt.figure(figsize=(18, 5))
-        fig.suptitle("Generation {}".format(1))  # need to change
+        # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
+        fig = plt.figure(figsize=(18,5))
+        fig.suptitle("Best in generation - stress")
 
-            # TODO: naming Generation xx - based on the iteration
+        # TODO: naming Generation xx - based on the iteration
 
         for index in range(num_to_plot):
             # take num_to_plot best candidates, load data from saved dict
@@ -324,10 +347,10 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 12)  # CH
+            ax.set_xlim(-1, 12)   #CH
             ax.set_ylim(-3, 3)   #CH
             # ax.axis('equal') solved by adding equal to "ax = "
-            ax.set_title("Candidate {}".format(index+1))
+            ax.set_title("Candidate {}".format(index + 1))
 
             for r in range(numelem):
                 x = (xi[r], xj[r])
@@ -338,22 +361,93 @@ class GA:
 
                 xnew = (xinew[r], xjnew[r])
                 ynew = (yinew[r], yjnew[r])
-                linenew = ax.plot(xnew, ynew)
-                linenewA = ax.plot(xnew, ynew)
 
-                plt.setp(linenew, ls='-', c='c' if stress[r] > 0.000001 else ('r' if stress[r] < -0.000001 else 'b'),
-                         lw=1 + 10 * stress_normed[r], label='strain' if stress[r] > 0 else 'stress')
-                ax.plot()
-                for r in range(numelem):
-                    plt.setp(linenewA, ls='-', c='g', lw=(1 + 400 * pool.A[r])/20)
+                linenew = ax.plot(xnew, ynew)
+
+
+                plt.setp(linenew, ls='-', c='c' if stress[r] > 0.000001 else ('red' if stress[r] < -0.000001 else 'black'),
+                     lw=(1 + 20 * stress_normed[r]), label='strain' if stress[r] > 0 else 'stress')
                 ax.plot()
 
             "Annotate outside forces"
             for r in range(numnode):
                 plt.annotate(F_numnodex2[r],
-                            xy=(xi[r], yi[r]), xycoords='data', xytext = np.sign(F_numnodex2[r]) * -50, textcoords='offset pixels',
-                            arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
-                            horizontalalignment='right', verticalalignment='bottom')
+                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -50,
+                             textcoords='offset pixels',
+                             arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                             horizontalalignment='right', verticalalignment='bottom')
+
+            "Annotate fixed DOFs"
+            for r in range(numnode):
+                if np.array_equal(dof_totx2[r], np.array([0, 1])):
+                    plt.plot([xi[r]], [yi[r] - 0.2], 'o', c='k', markersize=8)
+                if np.array_equal(dof_totx2[r], np.array([1, 0])):
+                    plt.plot([xi[r] - 0.2], [yi[r]], 'o', c='k', markersize=8)
+                if np.array_equal(dof_totx2[r], np.array([1, 1])):
+                    plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
+
+        plt.show()
+
+    def plot_A(self):
+        # ziskej hodnoty z dictionary
+        num_to_plot = 4
+
+        gs = GridSpec(1, 4)
+        gs.update(left=0.05, right=0.95, wspace=0.2)
+        # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
+        fig = plt.figure(figsize=(18, 5))
+        fig.suptitle("Best in generation, X-section")  # need to change
+
+        # TODO: naming Generation xx - based on the iteration
+        for index in range(num_to_plot):
+            # take num_to_plot best candidates, load data from saved dict
+            pool = self._pool[index]
+            plot_dict = pool._plot_dict
+            stress = pool._stress
+            xi = plot_dict['xi']
+            xj = plot_dict['xj']
+            yi = plot_dict['yi']
+            yj = plot_dict['yj']
+            xinew = plot_dict['xinew']
+            xjnew = plot_dict['xjnew']
+            yinew = plot_dict['yinew']
+            yjnew = plot_dict['yjnew']
+            stress_normed = plot_dict['stress_normed']
+            F_numnodex2 = plot_dict['F_numnodex2']
+            dof_totx2 = plot_dict['dof_totx2']
+            numnode = plot_dict['numnode']
+            numelem = plot_dict['numelem']
+
+            ax = fig.add_subplot(gs[0, index], aspect="equal")
+
+            ax.grid(True)
+            ax.set_xlim(-1, 12)  # CH
+            ax.set_ylim(-3, 3)  # CH
+            # ax.axis('equal') solved by adding equal to "ax = "
+            ax.set_title("Candidate {}".format(index + 1))
+
+            for r in range(numelem):
+                x = (xi[r], xj[r])
+                y = (yi[r], yj[r])
+
+                line = ax.plot(x, y)
+                plt.setp(line, ls='-', c='black', lw='1', label='orig')
+
+                xnew = (xinew[r], xjnew[r])
+                ynew = (yinew[r], yjnew[r])
+
+                linenewA = ax.plot(xnew, ynew)
+
+                plt.setp(linenewA, ls='-', c='green', lw=(1 + 70 * pool.A[r]))
+            ax.plot()
+
+            "Annotate outside forces"
+            for r in range(numnode):
+                plt.annotate(F_numnodex2[r],
+                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -50,
+                             textcoords='offset pixels',
+                             arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                             horizontalalignment='right', verticalalignment='bottom')
 
             "Annotate fixed DOFs"
             for r in range(numnode):

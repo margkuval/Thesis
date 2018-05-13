@@ -28,10 +28,19 @@ class Individual:
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
 
+        self._deflection = 0
         self._stress = 0
         self._weight = 0
         self._fitness = 0
         self._probability = 0
+
+    @property
+    def deflection(self):
+        return self._deflection
+
+    @deflection.setter
+    def deflection(self, new):
+        self._deflection = new
 
     @property
     def stress(self):
@@ -103,6 +112,15 @@ class GA:
         print("calculation")
 
         "Access solver"  # inner forces, stress, weight
+
+        # DEFLECTION
+        for i in range(self._popsize):
+            pool = self._pool[i]
+            pool._deflection = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
+            pool._probability = 0
+            print("nodes : {} abs_deflection_sum : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._deflection))
+
+        # STRESS
         for i in range(self._popsize):
             pool = self._pool[i]
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
@@ -117,10 +135,11 @@ class GA:
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0
             print(pool._stress)
-            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3), pool._stress_max))
+            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+                                                       np.round(pool._stress_max), 3))
 
         print("...")
-
+        # WEIGHT
         for i in range(self._popsize):
             pool = self._pool[i]
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
@@ -130,21 +149,25 @@ class GA:
 
     def fitness(self):
         print("fitness")
-        # take stress and weight and sum
-        stresses = [abs(sum(x._stress)) for x in self._pool]
-        # coef based on importance
-        stress_coef = 0.5
-        weight_coef = 0.5
-        # list comprehension, for inside the line, vytvor seznam, co ma tyto vlastnosti, bere postupne vsechny hodnoty ze self pool
+
+        # list comprehension, create a list that has following char. Takes values one by one from self._pool
+        deflections = [x._deflection for x in self._pool]
+        stresses = [abs(x._stress).sum() for x in self._pool]
         weights = [x._weight for x in self._pool]
 
+        # coef based on importance
+        deflection_coef = 0.5
+        stress_coef = 0.3
+        weight_coef = 0.2
+
         fitnesses = []
+
         # 2 variables, need to connect them together
-        for stress, weight in zip(stresses, weights):
+        for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight < 0:
                 fitnesses.append(999999)
             else:
-                fitnesses.append(stress_coef * stress + weight_coef * weight)
+                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)
         best_fitness = min(fitnesses)
         # normalize
         sum_fit = sum(fitnesses)
@@ -224,6 +247,7 @@ class GA:
 
         self._switch(switch_x, 0)
         self._switch(switch_y, 1)
+        #TODO please check if Areas switch (print and see)
 
     def mutate(self, mutation_type):
         # create empty cell for probability

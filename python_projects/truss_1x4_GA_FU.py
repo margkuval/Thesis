@@ -1,7 +1,7 @@
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
-import solver_stress_u_weight as slv
+import solver_stress_u_weight_FU as slv
 from matplotlib.gridspec import GridSpec
 
 # CH = change if implementing on a new structure

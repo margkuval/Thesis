@@ -1,4 +1,4 @@
-import truss_1x4_GA as GA
+import new1x4_GA as GA
 
 task = GA.GA(10)  # num of different results
 task.initial()

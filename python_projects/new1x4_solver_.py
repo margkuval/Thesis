@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def u(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
+def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
     "Link x, ycoord with member begin and end"""
     xi = xcoord[np.ix_(mem_begin)]
@@ -54,7 +54,7 @@ def u(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
     "Deflections calculation"
     # for each node in both directions
-    # linking with _end and _begin to calculate new nodes location
+    # important to use _end and _begin to calculate new nodes location
     k = E * A / length
     uxi = u[np.ix_(2 * mem_begin)].transpose()
     uxj = u[np.ix_(2 * mem_end)].transpose()
@@ -64,27 +64,15 @@ def u(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     "Inner forces"
     Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
     print(Flocal)
-
-    """Deflections"""
-    xinew = xi + uxi[0]
+    """Stress (sigma)=(kPa)"""
+    stress = Flocal[0] / A
+    stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
+    xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]
     yinew = yi + uyi[0]
     yjnew = yj + uyj[0]
 
-    u_sum = sum(abs(u))
-    print(u_sum)
-
-    def stress():
-
-        """Stress (sigma)=(kPa)"""
-        stress = Flocal[0] / A
-        stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
-
-        print("stress_normed : {}".format(stress_normed))
-
-    return xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, Flocal, F_numnodex2, numnode, dof_totx2, u, stress
-
-
+    return stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2
 
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):

@@ -1,7 +1,7 @@
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
-import solver_stress_u_weight_FU as slv
+import new1x4_solver_ as slv
 from matplotlib.gridspec import GridSpec
 
 # CH = change if implementing on a new structure
@@ -10,21 +10,21 @@ class Individual:
     def __init__(self):
 
         "Structural dimentions"""
-        a = 2.5  #CH
-        h = np.sqrt(pow(a, 2) - pow(a/2, 2))  # triangle height  # CH
+        a = 2  #CH
+        h = a  # triangle height  # CH
 
         "Original coordinates"
-        xcoord = np.array([0, a, a/2])  # CH
-        ycoord = np.array([0, 0, h])    # CH
+        xcoord = np.array([0, a, 2.5*a, 4*a, 5*a, a, 2.5*a, 4*a])  # CH
+        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])    # CH
 
         "Take a random number in range +-0.5m from the original coordinate"
-        x1GA = rnd.randrange(np.round((xcoord[2] - 0.5)*10), np.round((xcoord[2] + 0.5)*10))/10
-        y1GA = rnd.randrange(np.round((ycoord[2] - 0.5)*10), np.round((ycoord[2] + 0.5)*10))/10
+        x1GA = rnd.randrange(np.round((xcoord[2] - 0.25)*10), np.round((xcoord[2] + 0.25)*10))/10
+        y1GA = rnd.randrange(np.round((ycoord[2] - 0.25)*10), np.round((ycoord[2] + 0.25)*10))/10
 
         "New coordinates"
-        xcoord = np.array([0, a, x1GA])    # CH
-        ycoord = np.array([0, 0, y1GA])    # can use np.ix_?    # CH
-        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(3,))   # area between 12x12 and 23x23cm # CH
+        xcoord = np.array([0, a, x1GA, 4*a, 5*a, a, 2.5*a, 4*a])     # CH
+        ycoord = np.array([0, 0, y1GA, 0, 0, h, h, h])    # can use np.ix_?    # CH
+        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))   # area between 12x12 and 23x23cm # CH
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
 
@@ -68,8 +68,8 @@ class Individual:
 
 class GA:
     def __init__(self, pop):
-        self.mem_begin = np.array([0, 1, 2])  # beginning of an edge   # CH
-        self.mem_end = np.array([1, 2, 0])  # end of an edge         # CH
+        self.mem_begin = np.array([0, 1, 2, 3, 4, 7, 6, 5, 1, 5, 6, 2, 7])  # beginning of an edge   # CH
+        self.mem_end =   np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])  # end of an edge         # CH
 
         self._pool = list()
         self._popsize = pop
@@ -88,16 +88,17 @@ class GA:
         "Material characteristics E=(kPa), A=(m2)"
         E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
 
-        "Outside Forces [kN]"
-        F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
-        F[2] = 10
-        F[4] = 60
-
         "Fixed Degrees of Freedom (DOF)"
         dof = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
         dof[0] = 1
         dof[1] = 1
-        dof[3] = 1
+        dof[9] = 1
+
+        "Outside Forces [kN]"
+        F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
+        F[11] = -15
+        F[13] = -5
+        F[15] = -15
 
         print("calculation")
 
@@ -278,7 +279,7 @@ class GA:
         gs = GridSpec(1, 4)
         gs.update(left=0.05, right=0.95, wspace=0.2)
         #fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
-        fig = plt.figure(figsize=(10,3))
+        fig = plt.figure(figsize=(18, 5))
         fig.suptitle("Generation {}".format(1))  # need to change
 
             # TODO: naming Generation xx - based on the iteration
@@ -305,8 +306,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 5)   #CH
-            ax.set_ylim(-1, 3)   #CH
+            ax.set_xlim(-1, 12)  # CH
+            ax.set_ylim(-3, 3)   #CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index+1))
 
@@ -328,7 +329,6 @@ class GA:
                 for r in range(numelem):
                     plt.setp(linenewA, ls='-', c='g', lw=(1 + 400 * pool.A[r])/20)
                 ax.plot()
-
 
             "Annotate outside forces"
             for r in range(numnode):

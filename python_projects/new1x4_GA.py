@@ -24,9 +24,12 @@ class Individual:
         x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 10), np.round((xcoord[1] + 0.7) * 10)) / 10
         y1GA = rnd.randrange(np.round((ycoord[1] - 0.7) * 10), np.round((ycoord[1] + 1.3) * 10)) / 10
 
+        x3GA = xcoord[4] - x1GA
+        y3GA = y1GA
+
         "New coordinates"
-        xcoord = np.array([0, x1GA, x2GA, 4*a, 5*a, a, 2.5*a, 4*a])     # CH
-        ycoord = np.array([0, y1GA, y2GA, 0, 0, h, h, h])    # can use np.ix_?    # CH
+        xcoord = np.array([0, x1GA, x2GA, x3GA, 5*a, a, 2.5*a, 4*a])     # CH
+        ycoord = np.array([0, y1GA, y2GA, y3GA, 0, h, h, h])    # can use np.ix_?    # CH
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))   # area between 12x12 and 23x23cm # CH
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -203,7 +206,7 @@ class GA:
             if weight.sum() < 0:
                 fitnesses.append(999999)
             else:
-                fitnesses.append(deflection_coef * 50 * deflection + stress_coef * stress + weight_coef * weight)
+                fitnesses.append(deflection_coef * 20 * deflection + stress_coef * stress + weight_coef * weight)
 
         sum_fit = sum(fitnesses)
 
@@ -285,7 +288,11 @@ class GA:
 
         self._switch1(switch_x, 0)
         self._switch1(switch_y, 1)
-        #TODO please check if Areas switch (print and see)
+
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
     def crossover2(self):
         # choose 2 individuals that will switch
@@ -299,15 +306,19 @@ class GA:
         self._switch2(switch_x, 0)
         self._switch2(switch_y, 1)
 
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
+
         "Areas Crossover"
-        # matrix with one column only
+        # matrix with one column only #switches 3...idk
         switch_a =  np.random.choice(self._pool, 2, replace=False, p=probs)
         first_A = switch_a[0]
         second_A = switch_a[1]
         tmp = first_A.A
         first_A = second_A.A
         second_A = tmp
-        #TODO please check if Areas switch (print and see)
 
     def mutate1(self, mutation_type):
         # create empty cell for probability
@@ -334,6 +345,11 @@ class GA:
                 if cur_candidate.A[se] > 0.01:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
+
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
                # print(cur_candidate.A)
 
@@ -363,7 +379,12 @@ class GA:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
 
-               # print(cur_candidate.A)
+        # print(cur_candidate.A)
+
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
     def mutate_worst2(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
@@ -375,6 +396,12 @@ class GA:
         # same as self._pool[choice]._nodes[0, 2] = self._pool[choice]._nodes[0, 2] * x_coefficient
         self._pool[choice]._nodes[0, 2] *= x_coefficient
         self._pool[choice]._nodes[1, 2] *= y_coefficient
+
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
+
 
     def plot_stress(self):
         num_to_plot = 4

@@ -37,13 +37,13 @@ class Individual:
     def stress(self):
         return self._stress
 
-    @property
-    def weight(self):
-        return self._weight
-
     @stress.setter
     def stress(self, new):
         self._stress = new
+
+    @property
+    def weight(self):
+        return self._weight
 
     @weight.setter
     def weight(self, new):
@@ -131,7 +131,7 @@ class GA:
     def fitness(self):
         print("fitness")
         # take stress and weight and sum
-        stresses = [sum(x._stress) for x in self._pool]
+        stresses = [abs(sum(x._stress)) for x in self._pool]
         # coef based on importance
         stress_coef = 0.5
         weight_coef = 0.5
@@ -141,7 +141,7 @@ class GA:
         fitnesses = []
         # 2 variables, need to connect them together
         for stress, weight in zip(stresses, weights):
-            if stress < 0 or weight < 0:
+            if weight < 0:
                 fitnesses.append(999999)
             else:
                 fitnesses.append(stress_coef * stress + weight_coef * weight)
@@ -168,6 +168,7 @@ class GA:
                                                             np.round(pool._probability, 3)))
         print("..............")
 
+    ### NOT USED
     def crossover_top_3(self):
         selected_pool_x = list()
         selected_pool_y = list()
@@ -190,12 +191,9 @@ class GA:
         for i in range(self._popsize):
             print([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]])
         print("___________________________________")
+    ###
 
     def _switch(self, individual_pair, axis=0):
-        # prohod hodnoty mezi 2 individualy
-        # axis 0 -> prohod x
-        # axis 1 -> prohod y
-
         # switch values between 2 individuals
         # axis 0 -> switch x
         # axis 1 -> switch y
@@ -208,15 +206,14 @@ class GA:
         second._nodes[axis, 2] = tmp
 
     def crossover(self):
-        # vyber individualy co se prohodi
         # choose individuals that will switch
         # TODO: zakomponovat pravdepodobnost do np.random.choice
         probs = [x._probability for x in self._pool]
-        switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)  #vyber dvojice na prohozeni x
+        switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         "Areas Crossover"
-        # different that for x and y, matrix with one column only
+        # matrix with one column only
         # todo: Q: probehne crossover mezi stejnymi members, nebo naparuje dva jakekoliv clanky matice?
         switch_a =  np.random.choice(self._pool, 2, replace=False, p=probs)
         first_A = switch_a[0]
@@ -230,10 +227,9 @@ class GA:
 
     def mutate(self, mutation_type):
         # create empty cell for probability
-        probs = []  #  bude pole pravdepodobnosti
-
+        probs = []
         for individual in self._pool:
-            probs.append(individual._probability)  # append = pridej nakonec
+            probs.append(individual._probability)  # append = add to the end
 
         # pick a mutation candidate
         # todo: co znamena p=probs v dalsim radku?
@@ -248,7 +244,6 @@ class GA:
         if mutation_type == "a":
             # TODO: mutovat kazdou osu zvlast, cim vetsi napeti v ose, tim vetsi prurez
             # TODO: dat maximalni a minimalni hodnoty A, x, y
-            # TODO: jakou probob mutuje? tu nejhorsi nebo nejlepsi?
             for i in range(self._popsize):
                 cur_candidate = self._pool[i]
                 se = np.argmin(self._pool[i]._stress)
@@ -259,11 +254,10 @@ class GA:
                 # vem prurez s min stress a zmensi ho o 7%
                 # TODO: jaky by byl lepsi zpusob, dostat lepsi member?
                # print(cur_candidate.A)
-    # not sure if completely correct logic with A... Check the results,
 
     def mutate_worst(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
-        # todo: vyber z possible_coef 1 cislo?
+        # choose one from possible coof
         x_coefficient = np.random.choice(possible_coefficients, 1)
         y_coefficient = np.random.choice(possible_coefficients, 1)
         choice = np.random.randint(0, 3)

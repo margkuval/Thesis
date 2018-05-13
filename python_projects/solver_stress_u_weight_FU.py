@@ -61,10 +61,6 @@ def u(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     uyi = u[np.ix_(2 * mem_begin + 1)].transpose()
     uyj = u[np.ix_(2 * mem_end + 1)].transpose()
 
-    "Inner forces"
-    Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
-    print(Flocal)
-
     """Deflections"""
     xinew = xi + uxi[0]
     xjnew = xj + uxj[0]
@@ -74,15 +70,23 @@ def u(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     u_sum = sum(abs(u))
     print(u_sum)
 
-    def stress():
+    "Inner forces"
+    Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
+    print(Flocal)
+
+    def stress(A):
 
         """Stress (sigma)=(kPa)"""
+        print(Flocal[0])
+        print(A)
         stress = Flocal[0] / A
         stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
 
         print("stress_normed : {}".format(stress_normed))
 
-    return xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, Flocal, F_numnodex2, numnode, dof_totx2, u, stress
+        return stress
+
+    return xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u
 
 
 # ted nevim, jak zavolat na stress z GA, ani mi nic netiskne, tak nevim

@@ -124,7 +124,7 @@ class GA:
             pool = self._pool[i]
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
             res = slv.u(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
-            xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u, Flocal = res
+            xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2, u= res
 
             pool._u = u
 
@@ -136,6 +136,7 @@ class GA:
             pool._u_max = sum(abs(u))
             pool._probability = 0
             print(pool._u)
+            print(pool._stress)
 
         print("...")
 
@@ -143,12 +144,12 @@ class GA:
         for i in range(self._popsize):
             pool = self._pool[i]
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
-            res = slv.u(pool._u, pool.A)
-            stress, stress_normed = res
+            res = slv.u(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
+            stress = res
 
             pool._stress = stress
 
-            pool.plot_dict.update({"stress_normed": stress_normed})
+            #pool.plot_dict.update({"stress_normed": stress_normed})
 
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0
@@ -167,8 +168,8 @@ class GA:
     def fitness(self):
         print("fitness")
         # take stress and weight and sum
-        stresses = [sum(abs(x._stress)) for x in self._pool]
-        deflections = [sum(abs(x._u))]
+        stresses = [sum(x._stress) for x in self._pool]
+        deflections = [sum(x._u) for x in self._pool]
         # coef based on importance
         stress_coef = 0.7
         weight_coef = 0.3

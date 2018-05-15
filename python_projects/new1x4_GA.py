@@ -3,6 +3,7 @@ import random as rnd
 import matplotlib.pyplot as plt
 import new1x4_solver_ as slv
 from matplotlib.gridspec import GridSpec
+import datetime
 
 # CH = change if implementing on a new structure
 
@@ -19,10 +20,10 @@ class Individual:
 
         "Take a random number in range +-0.5m from the original coordinate"
         x2GA = rnd.randrange(np.round((xcoord[2] - 0.7)*10), np.round((xcoord[2] + 0.7)*10))/10
-        y2GA = rnd.randrange(np.round((ycoord[2] - 0.7)*10), np.round((ycoord[2] + 1.3)*10))/10
+        y2GA = rnd.randrange(np.round((ycoord[2] - 1)*10), np.round((ycoord[2] + 1.3)*10))/10
 
         x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 10), np.round((xcoord[1] + 0.7) * 10)) / 10
-        y1GA = rnd.randrange(np.round((ycoord[1] - 0.7) * 10), np.round((ycoord[1] + 1.3) * 10)) / 10
+        y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 10), np.round((ycoord[1] + 1.3) * 10)) / 10
 
         x3GA = xcoord[4] - x1GA
         y3GA = y1GA
@@ -204,7 +205,7 @@ class GA:
 
         for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight.sum() < 0:
-                fitnesses.append(999999)
+                print("Weight is negative!")
             else:
                 fitnesses.append(deflection_coef * 20 * deflection + stress_coef * stress + weight_coef * weight)
 
@@ -212,10 +213,10 @@ class GA:
 
         "Fitness for each candidate"
         for i in range(len(self._pool)):
-            self._pool[i]._fitness = min(fitnesses)/fitnesses[i]
+            self._pool[i]._fitness = fitnesses[i]
             self._pool[i]._probability =  fitnesses[i]/sum_fit
         # sort in py is ascending, so "-" is needed
-        self._pool.sort(key=lambda x: -x._fitness)  # lambda = go through each individual and give fitness
+        self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness
 
         """Define/create probability"""
         # create empty cell, i-times add a value at the end
@@ -410,7 +411,7 @@ class GA:
         gs.update(left=0.05, right=0.95, wspace=0.2)
         # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
         fig = plt.figure(figsize=(18,5))
-        fig.suptitle("Best in generation - stress")
+        fig.suptitle("Best members in generation - stress")
 
         # TODO: naming Generation xx - based on the iteration
 
@@ -436,8 +437,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 12)   #CH
-            ax.set_ylim(-3, 3)   #CH
+            ax.set_xlim(-1, 11)    # CH
+            ax.set_ylim(-2.5, 5)   # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
 
@@ -461,9 +462,9 @@ class GA:
             "Annotate outside forces"
             for r in range(numnode):
                 plt.annotate(F_numnodex2[r],
-                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -50,
+                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -35,
                              textcoords='offset pixels',
-                             arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
+                             arrowprops=dict(facecolor='black', shrink=0, width=1.3, headwidth=5),
                              horizontalalignment='right', verticalalignment='bottom')
 
             "Annotate fixed DOFs"
@@ -475,6 +476,8 @@ class GA:
                 if np.array_equal(dof_totx2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
+        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI = 500)
+
         plt.show()
 
     def plot_A(self):
@@ -485,7 +488,7 @@ class GA:
         gs.update(left=0.05, right=0.95, wspace=0.2)
         # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
         fig = plt.figure(figsize=(18, 5))
-        fig.suptitle("Best in generation, X-section")  # need to change
+        fig.suptitle("Best members in generation - cross section")
 
         # TODO: naming Generation xx - based on the iteration
         for index in range(num_to_plot):
@@ -510,8 +513,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 12)  # CH
-            ax.set_ylim(-3, 3)  # CH
+            ax.set_xlim(-1, 11)   # CH
+            ax.set_ylim(-2.5, 5)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
 
@@ -533,7 +536,7 @@ class GA:
             "Annotate outside forces"
             for r in range(numnode):
                 plt.annotate(F_numnodex2[r],
-                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -50,
+                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -35,
                              textcoords='offset pixels',
                              arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                              horizontalalignment='right', verticalalignment='bottom')
@@ -549,5 +552,6 @@ class GA:
 
         # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
+        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI = 500)
 
         plt.show()

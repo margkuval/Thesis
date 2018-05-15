@@ -1,12 +1,15 @@
 import new1x4_GA as GA
+import matplotlib as plt
 
-task = GA.GA(100)  # num of different results
+task = GA.GA(10)  # num of different results
 task.initial()
 for i in range(31):  # num of cycles
     task.calc()
     task.fitness()
     if i % 10 == 0:
         task.plot_stress()
+
+
         task.plot_A()
     task.crossover1()
     task.crossover2()

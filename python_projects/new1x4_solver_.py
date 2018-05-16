@@ -128,7 +128,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):
-    ro = 2500  # kg/m3, reinforced concrete  # http://www.boeingconsult.com/tafe/general/symbols&units.html
+    ro_concr = 2500  # kg/m3, reinforced concrete  # http://www.boeingconsult.com/tafe/general/symbols&units.html
 
     xi = xcoord[np.ix_(mem_begin)]
     xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord
@@ -136,7 +136,11 @@ def weight(xcoord, ycoord, mem_begin, mem_end, A):
     yj = ycoord[np.ix_(mem_end)]
 
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
-    weight = length * A * ro
+    for i in range(12):
+        if A is
+
+
+    weight = length * A * ro_concr
     weight_max = np.round(np.max(weight), 3)
     weight_sum = np.round(weight.sum(), 3)
 

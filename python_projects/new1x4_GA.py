@@ -31,7 +31,10 @@ class Individual:
         "New coordinates"
         xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # can use np.ix_?    # CH
+
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
+        self.A[11] = rnd.randrange((0.0004 * 10000), 0.0064 * 10000) / 10000
+
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
 
@@ -103,8 +106,9 @@ class GA:
 
         """Structural characteristics"""
 
-        "Material characteristics E=(kPa)"
+        "Material characteristics E=(MPa)"
         E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
+        E[11] = 200000  # modulus of elasticity of steel
 
         "Fixed Degrees of Freedom (DOF)"
         dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
@@ -123,21 +127,15 @@ class GA:
         print("calculation ")
 
         "Access solver"  # inner forces, stress, weight
-
-        # DEFLECTION
         for i in range(self._popsize):
+
+            "DEFLECTION"
             pool = self._pool[i]
             pool._deflection = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem,
                                               E, pool.A, F, dof)
             pool._probability = 0
-            print("node_1: {} node_2 : {} abs_deflection_sum : {}".format(
-                np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
-                np.round(abs(pool._deflection).sum(), 3)))
 
-        # STRESS
-        for i in range(self._popsize):
-            pool = self._pool[i]
+            "STRESS"
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
             res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
             stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
@@ -152,20 +150,17 @@ class GA:
             pool._plot_dict = plot_dict
 
             pool._stress_max = np.round(np.max(pool._stress), 3)
-            pool._probability = 0
 
-            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                                                       np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
-                                                       np.round(pool._stress_max), 3))
-
-        # WEIGHT
-        for i in range(self._popsize):
-            pool = self._pool[i]
+            "WEIGHT"
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
-            pool._probability = 0
-            print("node_1 : {} node_2 : {}  weight_sum : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                                                                    np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
-                                                                    np.round(pool._weight.sum(), 3)))
+
+            print("node_1:{} node_2:{} node_3:{} abs_def_sum:{} abs_stress_sum:{} weight_sum:{}".format(
+                np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
+                np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+                np.round([pool._nodes[0, 3], pool._nodes[1, 3]], 3),
+                np.round(abs(pool._deflection).sum(), 3),
+                np.round(abs(pool._stress).sum()),
+                np.round(pool._weight.sum())))
         print("......................")
 
     def fitness(self):
@@ -226,9 +221,10 @@ class GA:
         """Probability record"""
         for i in range(self._popsize):
             pool = self._pool[i]
-            print("node_1 : {} node_2 : {}  fit : {}  prob : {} area : {} ".format(
+            print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} area:{} ".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
                 np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+                np.round([pool._nodes[0, 3], pool._nodes[1, 3]]),
                 np.round(pool._fitness, 3),
                 np.round(pool._probability, 3),
                 np.round(pool.A, 3)))
@@ -304,9 +300,6 @@ class GA:
         probs = [x._probability for x in self._pool]
         switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
-
-        print(switch_x)
-        print(switch_y)
 
         self._switch2(switch_x, 0)
         self._switch2(switch_y, 1)

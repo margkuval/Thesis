@@ -25,12 +25,12 @@ class Individual:
         x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 10), np.round((xcoord[1] + 0.7) * 10)) / 10
         y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 10), np.round((ycoord[1] + 1.3) * 10)) / 10
 
-        x3GA = rnd.randrange(np.round((xcoord[3] - 0.7)*10), np.round((xcoord[3] + 0.7)*10))/10
-        y3GA = rnd.randrange(np.round((ycoord[3] - 1)*10), np.round((ycoord[3] + 1.3)*10))/10
+        x3GA = xcoord[4] - x1GA
+        y3GA = y1GA
 
         "New coordinates"
         xcoord = np.array([0, x1GA, x2GA, x3GA, 5*a, a, 2.5*a, 4*a])     # CH
-        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])    # can use np.ix_?    # CH
+        ycoord = np.array([0, y1GA, y2GA, y3GA, 0, h, h, h])    # can use np.ix_?    # CH
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))   # area between 12x12 and 23x23cm # CH
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -113,10 +113,8 @@ class GA:
 
         "Outside Forces [kN]"
         F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
-        F[10] = 10
         F[11] = -15
         F[13] = -5
-        F[14] = 10
         F[15] = -15
 
         print("calculation ")
@@ -292,11 +290,10 @@ class GA:
         self._switch1(switch_x, 0)
         self._switch1(switch_y, 1)
 
-        ## if want node #3 to be the mirror of node #1
-        # for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
     def crossover2(self):
         # choose 2 individuals that will switch
@@ -310,11 +307,10 @@ class GA:
         self._switch2(switch_x, 0)
         self._switch2(switch_y, 1)
 
-        ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
         "Areas Crossover"
         # matrix with one column only #switches 3...idk
@@ -351,11 +347,10 @@ class GA:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
 
-        ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
                # print(cur_candidate.A)
 
@@ -387,11 +382,10 @@ class GA:
 
         # print(cur_candidate.A)
 
-        ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
     def mutate_worst2(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
@@ -404,11 +398,10 @@ class GA:
         self._pool[choice]._nodes[0, 2] *= x_coefficient
         self._pool[choice]._nodes[1, 2] *= y_coefficient
 
-        ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        for i in range(self._popsize):
+            self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+            self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+            continue
 
 
     def plot_stress(self):

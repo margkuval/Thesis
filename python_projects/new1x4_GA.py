@@ -19,14 +19,14 @@ class Individual:
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # CH
 
         "Take a random number in range +-0.5m from the original coordinate"
-        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 10), np.round((xcoord[2] + 0.7) * 10)) / 10
-        y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 10), np.round((ycoord[2] + 1.3) * 10)) / 10
+        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100
+        y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
-        x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 10), np.round((xcoord[1] + 0.7) * 10)) / 10
-        y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 10), np.round((ycoord[1] + 1.3) * 10)) / 10
+        x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
+        y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
 
-        x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 10), np.round((xcoord[3] + 0.7) * 10)) / 10
-        y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 10), np.round((ycoord[3] + 1.3) * 10)) / 10
+        x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
+        y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
 
         "New coordinates"
         xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
@@ -34,6 +34,9 @@ class Individual:
 
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
         self.A[11] = rnd.randrange((0.0004 * 10000), 0.0064 * 10000) / 10000
+
+        self.E = np.array(12 * [40000])  # modulus of elasticity for each member, now all concrete
+        self.E[11] = 210000  # modulus of elasticity of steel
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -108,7 +111,7 @@ class GA:
 
         "Material characteristics E=(MPa)"
         E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
-        E[11] = 200000  # modulus of elasticity of steel
+        E[11] = 210000  # modulus of elasticity of steel
 
         "Fixed Degrees of Freedom (DOF)"
         dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
@@ -166,10 +169,37 @@ class GA:
     def fitness(self):
         print("fitness")
 
+# if concrete - punish, when stress is too low or too high, same with steel
+        for x in self._pool:
+            for i in range(12):
+                if self._pool[i].E <= 40000:
+                    if x._stress[i] > 2.2:  # if any member in stress
+                        x._stress[i] = x._stress[i] * 10
+                    if x._stress[i] < 40000:  # if any member in stress
+                        x._stress[i] = x._stress[i] * 10
+                    else:
+                        x._stress[i] = x._stress[i]
+                if self._pool[i].E > 40000:
+                    if x._stress[i] > 210000:  # in case any member is steel and
+                        x._stress[i] = x._stress[i] * 11
+                    if x._stress[i] < 0:
+                        x._stress[i] = x._stress[i] * 11
+                    else:
+                        x._stress[i] = x._stress[i]
+                return x._stress
+
+
+
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
         deflections = [(abs(x._deflection) / abs(sum(x._deflection))).sum() for x in self._pool]
         stresses = [(abs(x._stress) / abs(sum(x._stress))).sum() for x in self._pool]
-        # stresses_tension = [sum((x._stress) for x in self._pool if x._stress < 0)]
+
+        """sum_tension = 0
+        for x in self._pool:
+            if x._stress > 0:
+                sum_tension = sum_tension + x._stress
+            return sum_tension"""
+
         weights = [(abs(x._weight) / abs(sum(x._weight))).sum() for x in self._pool]
 
         # coef based on importance
@@ -177,7 +207,13 @@ class GA:
         stress_coef = 0.3
         weight_coef = 0.2
 
-        # stresses_tension_coef = 11
+        """for x in self._pool:
+            for i in range(12):
+                if x._stress[i] > 0:
+                    stress_coef = stress_coef + 0.23
+                else:
+                    stress_coef = stress_coef - 0.23
+            return stress_coef"""
 
         # d = [(1 -(i / sum(abs(self._pool[i]._deflection))) for i in abs(self._popsize))]
         # d_n = sum(d)
@@ -217,7 +253,7 @@ class GA:
         """Define/create probability"""
         # create empty cell, i-times add a value at the end
         # higher individual fitness -> higher probab (a member will be chosen for a mutation with higher probability)
-        # TODO: change either: better fitness - lower mutation probab or higher crossover probab
+
         """Probability record"""
         for i in range(self._popsize):
             pool = self._pool[i]

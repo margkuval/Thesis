@@ -120,7 +120,7 @@ class GA:
 
         "Outside Forces [kN]"
         F = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
-        F[10] = 10
+        F[10] = 100
         F[11] = -15
         F[13] = -5
         F[14] = 10
@@ -156,7 +156,7 @@ class GA:
             "WEIGHT"
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
 
-            print("node_1:{} node_2:{} node_3:{} abs_def_sum:{} abs_stress_sum:{} weight_sum:{}".format(
+            print("node_1:{} node_2:{} node_3:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
                 np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                 np.round([pool._nodes[0, 3], pool._nodes[1, 3]], 3),
@@ -168,47 +168,18 @@ class GA:
     def fitness(self):
         print("fitness")
 
-# if concrete - punish, when stress is too low or too high, same with steel
-        """for x in self._pool:
-            for i in range(12):
-                each_stress = x._stress[i]
-
-                if self._pool[i].E >= 200000:
-                        each_stress = each_stress * 10
-                elif (each_stress < -40000) or (each_stress > 2.2):
-                        each_stress = each_stress * 10
-                else:
-                    return x._stress
-
-                print(each_stress)
+        # if inner force is higher than member's strength, make its fitness much worse
 
         for x in self._pool:
             for i in range(12):
-                each_stress = x._stress[i]
-                if np.logical_and(self._pool[i].E == 210000, np.logical_or(each_stress < 0, each_stress > 210000)):
-                    each_stress = each_stress * 10
-                elif np.logical_and(self._pool[i].E <= 50000, np.logical_or(each_stress<-40000, each_stress>2.2)):
-                    each_stress = each_stress * 10
-                print(each_stress)"""
-
-        for x in self._pool:
-            for i in range(12):
-                for k in self._pool[i].E:
-                    if k < abs(x._stress[i]):
+                for strength in self._pool[i].E:
+                    if strength < abs(x._stress[i]):
                         x._stress[i] = x._stress[i] * 100
                     continue
-
-
 
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
         deflections = [(abs(x._deflection) / abs(sum(x._deflection))).sum() for x in self._pool]
         stresses = [(abs(x._stress) / abs(sum(x._stress))).sum() for x in self._pool]
-
-        """sum_tension = 0
-        for x in self._pool:
-            if x._stress > 0:
-                sum_tension = sum_tension + x._stress
-            return sum_tension"""
 
         weights = [(abs(x._weight) / abs(sum(x._weight))).sum() for x in self._pool]
 
@@ -217,31 +188,7 @@ class GA:
         stress_coef = 0.3
         weight_coef = 0.2
 
-        """for x in self._pool:
-            for i in range(12):
-                if x._stress[i] > 0:
-                    stress_coef = stress_coef + 0.23
-                else:
-                    stress_coef = stress_coef - 0.23
-            return stress_coef"""
-
-        # d = [(1 -(i / sum(abs(self._pool[i]._deflection))) for i in abs(self._popsize))]
-        # d_n = sum(d)
-        # d_n_coef = deflection_coef * d_n
-
-
-        # deflections_normed = [((deflection_coef * (sum(1- i / sum(abs(x._deflection)))) for i in abs(x._deflection))) for x in self._pool]
-
-        # stresses_normed = [(stress_coef * (1 - i / sum(abs(x._stress))) for i in abs(x._stress)) for x in self._pool]
-        # weights_normed = [(weight_coef * (1 - i / sum(x._weight)) for i in x._weight) for x in self._pool]
-
-        # ttt = deflections_normed + stresses_normed + weights_normed
-        # print(sum(ttt))
-
         fitnesses = []
-
-        # for deflection, stress, weight in zip(deflections_normed, stresses_normed, weights_normed):
-        #   fitnesses.append(sum(sum(deflections_normed), sum(stresses_normed), sum(weights_normed)))
 
         # 2 variables, need to connect them together\
 
@@ -260,53 +207,26 @@ class GA:
         # sort in py is ascending, so "-" is needed
         self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness
 
-        """Define/create probability"""
-        # create empty cell, i-times add a value at the end
         # higher individual fitness -> higher probab (a member will be chosen for a mutation with higher probability)
 
         """Probability record"""
         for i in range(self._popsize):
             pool = self._pool[i]
-            print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} area:{} ".format(
+            print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
                 np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                 np.round([pool._nodes[0, 3], pool._nodes[1, 3]]),
                 np.round(pool._fitness, 3),
                 np.round(pool._probability, 3),
-                np.round(pool.A, 3)))
+                np.round(abs(pool._deflection).sum(), 3),
+                np.round(abs(pool._stress).sum()),
+                np.round(pool._weight.sum())))
         print("..............")
-
-    ### NOT USED
-    def crossover_top_3(self):
-        selected_pool_x = list()
-        selected_pool_y = list()
-        select_num = 6  # 6x se vybere pravdepodobnost - projde se vsemi ind - pokud tri ma vetsi prob nez co se vybraly,
-        #  tak se oba pridaji do selected pool
-        possible_x = []
-        possible_y = []
-        #  vybereme vsechna mozna x a y ze vsech bodu
-        for individual in self._pool:
-            possible_x.append(individual._nodes[0, 2])
-            possible_y.append(individual._nodes[1, 2])
-        # z teech x a y vybereme nahodne 3 x a 3 y
-        selected_pool_x = np.random.choice(possible_x, 3)
-        selected_pool_y = np.random.choice(possible_y, 3)
-
-        #  Do firstch tri (tedy nejhorsich) ulozime nove x a nove y
-        for i in range(3):
-            self._pool[i]._nodes[0, 2] = selected_pool_x[i]  # / 2
-            self._pool[i]._nodes[1, 2] = selected_pool_y[i]  # / 2
-        for i in range(self._popsize):
-            print([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]])
-        print("___________________________________")
-
-    ###
 
     def _switch1(self, individual_pair, axis=0):
         # switch values between 2 individuals
         # axis 0 -> switch x
         # axis 1 -> switch y
-        # todo: pomoc s komentovanim teto casti kodu
 
         first = individual_pair[0]
         second = individual_pair[1]
@@ -335,12 +255,6 @@ class GA:
         self._switch1(switch_x, 0)
         self._switch1(switch_y, 1)
 
-        ## if want node #3 to be the mirror of node #1
-        # for i in range(self._popsize):
-        # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-        # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-        # continue
-
     def crossover2(self):
         # choose 2 individuals that will switch
         probs = [x._probability for x in self._pool]
@@ -350,14 +264,7 @@ class GA:
         self._switch2(switch_x, 0)
         self._switch2(switch_y, 1)
 
-        ## if want node #3 to be the mirror of node #1
-        # for i in range(self._popsize):
-        # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-        # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-        # continue
-
         "Areas Crossover"
-        # matrix with one column only #switches 3...idk
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
         first_A = switch_a[0]
         second_A = switch_a[1]
@@ -371,33 +278,23 @@ class GA:
         for individual in self._pool:
             probs.append(individual._probability)  # append = add to the end
 
-        # pick a mutation candidate
-        # todo: co znamena p=probs v dalsim radku?
+        "Pick a mutation candidate"
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
         possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2, 1.1]
         coef = np.random.choice(possible_coefficients, 1)
 
+        "Mutate"
         if mutation_type == "x":
             mutation_candidate._nodes[0, 1] = mutation_candidate._nodes[0, 1] * coef
         if mutation_type == "y":
             mutation_candidate._nodes[1, 1] = mutation_candidate._nodes[1, 1] * coef
         if mutation_type == "a":
-            # TODO: mutovat kazdou osu zvlast, cim vetsi napeti v ose, tim vetsi prurez
-            # TODO: dat maximalni a minimalni hodnoty A, x, y
             for i in range(self._popsize):
                 cur_candidate = self._pool[i]
                 se = np.argmin(self._pool[i]._stress)
                 if cur_candidate.A[se] > 0.01:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
-
-                ## if want node #3 to be the mirror of node #1
-                # for i in range(self._popsize):
-                # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-                # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-                # continue
-
-                # print(cur_candidate.A)
 
     def mutate2(self, mutation_type):
         # create empty cell for probability
@@ -407,31 +304,22 @@ class GA:
 
         # pick a mutation candidate
         # todo: co znamena ta nula v dalsim radku?
+
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
         possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2, 1.1]
         coef = np.random.choice(possible_coefficients, 1)
-
-        if mutation_type == "x":
-            mutation_candidate._nodes[0, 2] = mutation_candidate._nodes[0, 2] * coef
-        if mutation_type == "y":
-            mutation_candidate._nodes[1, 2] = mutation_candidate._nodes[1, 2] * coef
+        for i in range(1,2,3):
+            if mutation_type == "x":
+                mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
+            if mutation_type == "y":
+                mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
         if mutation_type == "a":
-            # TODO: mutovat kazdou osu zvlast, cim vetsi napeti v ose, tim vetsi prurez
-            # TODO: dat maximalni a minimalni hodnoty A, x, y
             for i in range(self._popsize):
                 cur_candidate = self._pool[i]
                 se = np.argmin(self._pool[i]._stress)
                 if cur_candidate.A[se] > 0.01:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
-
-                # print(cur_candidate.A)
-
-                ## if want node #3 to be the mirror of node #1
-                # for i in range(self._popsize):
-                # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-                # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-                # continue
 
     def mutate_worst2(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
@@ -443,12 +331,6 @@ class GA:
         # same as self._pool[choice]._nodes[0, 2] = self._pool[choice]._nodes[0, 2] * x_coefficient
         self._pool[choice]._nodes[0, 2] *= x_coefficient
         self._pool[choice]._nodes[1, 2] *= y_coefficient
-
-        ## if want node #3 to be the mirror of node #1
-        # for i in range(self._popsize):
-        # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-        # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-        # continue
 
     def plot_stress(self):
         num_to_plot = 4
@@ -522,7 +404,7 @@ class GA:
                 if np.array_equal(dof_totx2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
-        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=500)
+        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=800)
 
         plt.show()
 
@@ -598,6 +480,6 @@ class GA:
 
         # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
-        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=500)
+        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=800)
 
         plt.show()

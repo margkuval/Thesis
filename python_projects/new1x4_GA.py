@@ -5,33 +5,33 @@ import new1x4_solver_ as slv
 from matplotlib.gridspec import GridSpec
 import datetime
 
+
 # CH = change if implementing on a new structure
 
 class Individual:
     def __init__(self):
-
         "Structural dimentions"""
-        a = 2  #CH
+        a = 2  # CH
         h = a  # triangle height  # CH
 
         "Original coordinates"
-        xcoord = np.array([0, a, 2.5*a, 4*a, 5*a, a, 2.5*a, 4*a])  # CH
-        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])    # CH
+        xcoord = np.array([0, a, 2.5 * a, 4 * a, 5 * a, a, 2.5 * a, 4 * a])  # CH
+        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # CH
 
         "Take a random number in range +-0.5m from the original coordinate"
-        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7)*10), np.round((xcoord[2] + 0.7)*10))/10
-        y2GA = rnd.randrange(np.round((ycoord[2] - 1)*10), np.round((ycoord[2] + 1.3)*10))/10
+        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 10), np.round((xcoord[2] + 0.7) * 10)) / 10
+        y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 10), np.round((ycoord[2] + 1.3) * 10)) / 10
 
         x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 10), np.round((xcoord[1] + 0.7) * 10)) / 10
         y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 10), np.round((ycoord[1] + 1.3) * 10)) / 10
 
-        x3GA = rnd.randrange(np.round((xcoord[3] - 0.7)*10), np.round((xcoord[3] + 0.7)*10))/10
-        y3GA = rnd.randrange(np.round((ycoord[3] - 1)*10), np.round((ycoord[3] + 1.3)*10))/10
+        x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 10), np.round((xcoord[3] + 0.7) * 10)) / 10
+        y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 10), np.round((ycoord[3] + 1.3) * 10)) / 10
 
         "New coordinates"
-        xcoord = np.array([0, x1GA, x2GA, x3GA, 5*a, a, 2.5*a, 4*a])     # CH
-        ycoord = np.array([0, y1GA, y2GA, y3GA, 0, h, h, h])    # can use np.ix_?    # CH
-        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))   # area between 12x12 and 23x23cm # CH
+        xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
+        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # can use np.ix_?    # CH
+        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
 
@@ -78,14 +78,14 @@ class Individual:
         return self._probability
 
     @probability.setter
-    def probability(self,new):
+    def probability(self, new):
         self._probability = new
 
 
 class GA:
     def __init__(self, pop):
         self.mem_begin = np.array([0, 1, 2, 3, 4, 7, 6, 5, 1, 5, 6, 2, 7])  # beginning of an edge   # CH
-        self.mem_end =   np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])  # end of an edge         # CH
+        self.mem_end = np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])  # end of an edge         # CH
 
         self._pool = list()
         self._popsize = pop
@@ -93,8 +93,9 @@ class GA:
     def initial(self):
         for i in range(self._popsize):
             self._pool.append(Individual())
-            print("node_1 : {} node_2 : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
-                                                   np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3)))
+            print(
+                "node_1 : {} node_2 : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
+                                                 np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3)))
         print("......................")
 
     def calc(self):
@@ -106,15 +107,17 @@ class GA:
         E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
 
         "Fixed Degrees of Freedom (DOF)"
-        dof = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
+        dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
         dof[0] = 1
         dof[1] = 1
         dof[9] = 1
 
         "Outside Forces [kN]"
-        F = np.zeros((2*len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
+        F = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
+        F[10] = 10
         F[11] = -15
         F[13] = -5
+        F[14] = 10
         F[15] = -15
 
         print("calculation ")
@@ -127,9 +130,10 @@ class GA:
             pool._deflection = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem,
                                               E, pool.A, F, dof)
             pool._probability = 0
-            print("node_1: {} node_2 : {} abs_deflection_sum : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                                                                          np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
-                                                                          np.round(abs(pool._deflection).sum(), 3)))
+            print("node_1: {} node_2 : {} abs_deflection_sum : {}".format(
+                np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
+                np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+                np.round(abs(pool._deflection).sum(), 3)))
 
         # STRESS
         for i in range(self._popsize):
@@ -140,26 +144,27 @@ class GA:
             pool._stress = stress
             pool._stress_normed = stress_normed
 
-            plot_dict = {"xi":xi, "xj":xj, "yi":yi, "yj":yj, "xinew": xinew, "xjnew":xjnew, "yinew" : yinew, "yjnew":yjnew,
-                         "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed, "numnode": numnode,
+            plot_dict = {"xi": xi, "xj": xj, "yi": yi, "yj": yj, "xinew": xinew, "xjnew": xjnew, "yinew": yinew,
+                         "yjnew": yjnew,
+                         "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed,
+                         "numnode": numnode,
                          "numelem": numelem, "A": pool.A}
             pool._plot_dict = plot_dict
 
             pool._stress_max = np.round(np.max(pool._stress), 3)
             pool._probability = 0
-            #print(pool._stress)
-            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]],3),
-                                                       np.round([pool._nodes[0, 2], pool._nodes[1, 2]],3),
+
+            print("nodes : {}  stress_max : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
+                                                       np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                                                        np.round(pool._stress_max), 3))
 
-        print("...")
         # WEIGHT
         for i in range(self._popsize):
             pool = self._pool[i]
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
             pool._probability = 0
-            print("node_1 : {} node_2 : {}  weight_sum : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]],3),
-                                                                    np.round([pool._nodes[0, 2], pool._nodes[1, 2]],3),
+            print("node_1 : {} node_2 : {}  weight_sum : {}".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
+                                                                    np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                                                                     np.round(pool._weight.sum(), 3)))
         print("......................")
 
@@ -167,39 +172,35 @@ class GA:
         print("fitness")
 
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
-       #deflectionn = [[(abs(x._deflection[0, 1])/abs(sum(x._deflection))).sum() for x in self._pool]] I thought that defl should matter only at top nodes
-        deflections = [(abs(x._deflection)/abs(sum(x._deflection))).sum() for x in self._pool]
-        stresses = [(abs(x._stress)/abs(sum(x._stress))).sum() for x in self._pool]
-        #stresses_tension = [sum((x._stress) for x in self._pool if x._stress < 0)]
-        weights = [(abs(x._weight)/abs(sum(x._weight))).sum() for x in self._pool]
+        deflections = [(abs(x._deflection) / abs(sum(x._deflection))).sum() for x in self._pool]
+        stresses = [(abs(x._stress) / abs(sum(x._stress))).sum() for x in self._pool]
+        # stresses_tension = [sum((x._stress) for x in self._pool if x._stress < 0)]
+        weights = [(abs(x._weight) / abs(sum(x._weight))).sum() for x in self._pool]
 
-        #print(deflections)
-        #print(stresses)
-        #print(weights)
         # coef based on importance
         deflection_coef = 0.5
         stress_coef = 0.3
         weight_coef = 0.2
-        #stresses_tension_coef = 11
 
-        #d = [(1 -(i / sum(abs(self._pool[i]._deflection))) for i in abs(self._popsize))]
-        #d_n = sum(d)
-        #d_n_coef = deflection_coef * d_n
+        # stresses_tension_coef = 11
+
+        # d = [(1 -(i / sum(abs(self._pool[i]._deflection))) for i in abs(self._popsize))]
+        # d_n = sum(d)
+        # d_n_coef = deflection_coef * d_n
 
 
-        #deflections_normed = [((deflection_coef * (sum(1- i / sum(abs(x._deflection)))) for i in abs(x._deflection))) for x in self._pool]
-        #print(deflections_normed)
-        #print(deflections)
-        #stresses_normed = [(stress_coef * (1 - i / sum(abs(x._stress))) for i in abs(x._stress)) for x in self._pool]
-        #weights_normed = [(weight_coef * (1 - i / sum(x._weight)) for i in x._weight) for x in self._pool]
+        # deflections_normed = [((deflection_coef * (sum(1- i / sum(abs(x._deflection)))) for i in abs(x._deflection))) for x in self._pool]
 
-        #ttt = deflections_normed + stresses_normed + weights_normed
-        #print(sum(ttt))
+        # stresses_normed = [(stress_coef * (1 - i / sum(abs(x._stress))) for i in abs(x._stress)) for x in self._pool]
+        # weights_normed = [(weight_coef * (1 - i / sum(x._weight)) for i in x._weight) for x in self._pool]
+
+        # ttt = deflections_normed + stresses_normed + weights_normed
+        # print(sum(ttt))
 
         fitnesses = []
 
-        #for deflection, stress, weight in zip(deflections_normed, stresses_normed, weights_normed):
-         #   fitnesses.append(sum(sum(deflections_normed), sum(stresses_normed), sum(weights_normed)))
+        # for deflection, stress, weight in zip(deflections_normed, stresses_normed, weights_normed):
+        #   fitnesses.append(sum(sum(deflections_normed), sum(stresses_normed), sum(weights_normed)))
 
         # 2 variables, need to connect them together\
 
@@ -214,7 +215,7 @@ class GA:
         "Fitness for each candidate"
         for i in range(len(self._pool)):
             self._pool[i]._fitness = fitnesses[i]
-            self._pool[i]._probability =  fitnesses[i]/sum_fit
+            self._pool[i]._probability = fitnesses[i] / sum_fit
         # sort in py is ascending, so "-" is needed
         self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness
 
@@ -225,11 +226,12 @@ class GA:
         """Probability record"""
         for i in range(self._popsize):
             pool = self._pool[i]
-            print("node_1 : {} node_2 : {}  fit : {}  prob : {} area : {} ".format(np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                                                                             np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
-                                                                             np.round(pool._fitness, 3),
-                                                                             np.round(pool._probability, 3),
-                                                                             np.round(pool.A, 3)))
+            print("node_1 : {} node_2 : {}  fit : {}  prob : {} area : {} ".format(
+                np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
+                np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+                np.round(pool._fitness, 3),
+                np.round(pool._probability, 3),
+                np.round(pool.A, 3)))
         print("..............")
 
     ### NOT USED
@@ -244,7 +246,7 @@ class GA:
         for individual in self._pool:
             possible_x.append(individual._nodes[0, 2])
             possible_y.append(individual._nodes[1, 2])
-        #  z teech x a y vybereme nahodne 3 x a 3 y
+        # z teech x a y vybereme nahodne 3 x a 3 y
         selected_pool_x = np.random.choice(possible_x, 3)
         selected_pool_y = np.random.choice(possible_y, 3)
 
@@ -255,6 +257,7 @@ class GA:
         for i in range(self._popsize):
             print([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]])
         print("___________________________________")
+
     ###
 
     def _switch1(self, individual_pair, axis=0):
@@ -265,7 +268,7 @@ class GA:
 
         first = individual_pair[0]
         second = individual_pair[1]
-        tmp = first._nodes[axis, 1]  # temporary
+        tmp = first._nodes[axis, 1]  # = temporary
         first._nodes[axis, 1] = second._nodes[axis, 1]
         second._nodes[axis, 1] = tmp
 
@@ -292,9 +295,9 @@ class GA:
 
         ## if want node #3 to be the mirror of node #1
         # for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+        # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+        # continue
 
     def crossover2(self):
         # choose 2 individuals that will switch
@@ -309,14 +312,14 @@ class GA:
         self._switch2(switch_y, 1)
 
         ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+        # for i in range(self._popsize):
+        # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+        # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+        # continue
 
         "Areas Crossover"
         # matrix with one column only #switches 3...idk
-        switch_a =  np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
         first_A = switch_a[0]
         second_A = switch_a[1]
         tmp = first_A.A
@@ -349,13 +352,13 @@ class GA:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
 
-        ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+                ## if want node #3 to be the mirror of node #1
+                # for i in range(self._popsize):
+                # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+                # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+                # continue
 
-               # print(cur_candidate.A)
+                # print(cur_candidate.A)
 
     def mutate2(self, mutation_type):
         # create empty cell for probability
@@ -383,13 +386,13 @@ class GA:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
 
-        # print(cur_candidate.A)
+                # print(cur_candidate.A)
 
-        ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
+                ## if want node #3 to be the mirror of node #1
+                # for i in range(self._popsize):
+                # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+                # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+                # continue
 
     def mutate_worst2(self):
         possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
@@ -403,11 +406,10 @@ class GA:
         self._pool[choice]._nodes[1, 2] *= y_coefficient
 
         ## if want node #3 to be the mirror of node #1
-        #for i in range(self._popsize):
-            #self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
-            #self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
-            #continue
-
+        # for i in range(self._popsize):
+        # self._pool[i]._nodes[0, 3] = self._pool[i]._nodes[0, 4] - self._pool[i]._nodes[0, 1]
+        # self._pool[i]._nodes[1, 3] = self._pool[i]._nodes[1, 1]
+        # continue
 
     def plot_stress(self):
         num_to_plot = 4
@@ -415,7 +417,7 @@ class GA:
         gs = GridSpec(1, 4)
         gs.update(left=0.05, right=0.95, wspace=0.2)
         # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
-        fig = plt.figure(figsize=(18,5))
+        fig = plt.figure(figsize=(18, 5))
         fig.suptitle("Best members in generation - stress")
 
         # TODO: naming Generation xx - based on the iteration
@@ -442,8 +444,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 11)    # CH
-            ax.set_ylim(-2.5, 5)   # CH
+            ax.set_xlim(-1, 11)  # CH
+            ax.set_ylim(-2.5, 5)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
 
@@ -459,9 +461,9 @@ class GA:
 
                 linenew = ax.plot(xnew, ynew)
 
-
-                plt.setp(linenew, ls='-', c='c' if stress[r] > 0.000001 else ('red' if stress[r] < -0.000001 else 'black'),
-                     lw=(1 + 20 * stress_normed[r]), label='strain' if stress[r] > 0 else 'stress')
+                plt.setp(linenew, ls='-',
+                         c='c' if stress[r] > 0.000001 else ('red' if stress[r] < -0.000001 else 'black'),
+                         lw=(1 + 20 * stress_normed[r]), label='strain' if stress[r] > 0 else 'stress')
                 ax.plot()
 
             "Annotate outside forces"
@@ -481,7 +483,7 @@ class GA:
                 if np.array_equal(dof_totx2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
-        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI = 500)
+        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=500)
 
         plt.show()
 
@@ -518,7 +520,7 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 11)   # CH
+            ax.set_xlim(-1, 11)  # CH
             ax.set_ylim(-2.5, 5)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
@@ -557,6 +559,6 @@ class GA:
 
         # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
-        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI = 500)
+        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=500)
 
         plt.show()

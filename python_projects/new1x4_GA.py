@@ -35,8 +35,7 @@ class Individual:
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
         self.A[11] = rnd.randrange((0.0004 * 10000), 0.0064 * 10000) / 10000
 
-        self.E = np.array(12 * [40000])  # modulus of elasticity for each member, now all concrete
-        self.E[11] = 210000  # modulus of elasticity of steel
+        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 2100000, 40000])  # modulus of elasticity for each member, now all concrete
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -170,23 +169,34 @@ class GA:
         print("fitness")
 
 # if concrete - punish, when stress is too low or too high, same with steel
+        """for x in self._pool:
+            for i in range(12):
+                each_stress = x._stress[i]
+
+                if self._pool[i].E >= 200000:
+                        each_stress = each_stress * 10
+                elif (each_stress < -40000) or (each_stress > 2.2):
+                        each_stress = each_stress * 10
+                else:
+                    return x._stress
+
+                print(each_stress)
+
         for x in self._pool:
             for i in range(12):
-                if self._pool[i].E <= 40000:
-                    if x._stress[i] > 2.2:  # if any member in stress
-                        x._stress[i] = x._stress[i] * 10
-                    if x._stress[i] < 40000:  # if any member in stress
-                        x._stress[i] = x._stress[i] * 10
-                    else:
-                        x._stress[i] = x._stress[i]
-                if self._pool[i].E > 40000:
-                    if x._stress[i] > 210000:  # in case any member is steel and
-                        x._stress[i] = x._stress[i] * 11
-                    if x._stress[i] < 0:
-                        x._stress[i] = x._stress[i] * 11
-                    else:
-                        x._stress[i] = x._stress[i]
-                return x._stress
+                each_stress = x._stress[i]
+                if np.logical_and(self._pool[i].E == 210000, np.logical_or(each_stress < 0, each_stress > 210000)):
+                    each_stress = each_stress * 10
+                elif np.logical_and(self._pool[i].E <= 50000, np.logical_or(each_stress<-40000, each_stress>2.2)):
+                    each_stress = each_stress * 10
+                print(each_stress)"""
+
+        for x in self._pool:
+            for i in range(12):
+                for k in self._pool[i].E:
+                    if k < abs(x._stress[i]):
+                        x._stress[i] = x._stress[i] * 100
+                    continue
 
 
 

@@ -120,7 +120,7 @@ class GA:
 
         "Outside Forces [kN]"
         F = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
-        F[10] = 100
+        F[10] = 10
         F[11] = -15
         F[13] = -5
         F[14] = 10
@@ -171,7 +171,7 @@ class GA:
         # if inner force is higher than member's strength, make its fitness much worse
 
         for x in self._pool:
-            for i in range(12):
+            for i in range(self.mem_begin.shape[0]):
                 for strength in self._pool[i].E:
                     if strength < abs(x._stress[i]):
                         x._stress[i] = x._stress[i] * 100
@@ -180,13 +180,20 @@ class GA:
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
         deflections = [(abs(x._deflection) / abs(sum(x._deflection))).sum() for x in self._pool]
         stresses = [(abs(x._stress) / abs(sum(x._stress))).sum() for x in self._pool]
-
         weights = [(abs(x._weight) / abs(sum(x._weight))).sum() for x in self._pool]
 
+        #deflections = [(abs(sum(x._deflection) / abs(x._deflection))).sum() for x in self._pool]
+        #stresses = [(abs(sum(x._stress) / abs(x._stress))) for x in self._pool]
+        #weights = [(abs(x._weight).sum() / abs(x._weight)) for x in self._pool]
+
+        print(deflections)
+        print(stresses)
+        print(weights)
+
         # coef based on importance
-        deflection_coef = 0.5
-        stress_coef = 0.3
-        weight_coef = 0.2
+        deflection_coef = 30
+        stress_coef = 0.55
+        weight_coef = 0.15
 
         fitnesses = []
 
@@ -196,26 +203,30 @@ class GA:
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(deflection_coef * 20 * deflection + stress_coef * stress + weight_coef * weight)
+                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)
 
         sum_fit = sum(fitnesses)
 
         "Fitness for each candidate"
-        for i in range(len(self._pool)):
+        len_sf = len(self._pool)
+        for i in range(len_sf):
             self._pool[i]._fitness = fitnesses[i]
-            self._pool[i]._probability = fitnesses[i] / sum_fit
-        # sort in py is ascending, so "-" is needed
+
+            """Probability record"""
+            self._pool[i]._probability = fitnesses[(len_sf-1) - i] / sum_fit
+
+
+        # sort in py is ascending (if "-"- would be descending
         self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness
 
         # higher individual fitness -> higher probab (a member will be chosen for a mutation with higher probability)
 
-        """Probability record"""
         for i in range(self._popsize):
             pool = self._pool[i]
             print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
                 np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
-                np.round([pool._nodes[0, 3], pool._nodes[1, 3]]),
+                np.round([pool._nodes[0, 3], pool._nodes[1, 3]], 3),
                 np.round(pool._fitness, 3),
                 np.round(pool._probability, 3),
                 np.round(abs(pool._deflection).sum(), 3),
@@ -248,7 +259,8 @@ class GA:
 
     def crossover1(self):
         # choose 2 individuals that will switch
-        probs = [x._probability for x in self._pool]
+        probs = [(x._probability) for x in self._pool]
+        print(probs)
         switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
@@ -257,7 +269,7 @@ class GA:
 
     def crossover2(self):
         # choose 2 individuals that will switch
-        probs = [x._probability for x in self._pool]
+        probs = [(x._probability) for x in self._pool]
         switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
@@ -406,7 +418,7 @@ class GA:
 
         plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=800)
 
-        plt.show()
+        #plt.show()
 
     def plot_A(self):
         # ziskej hodnoty z dictionary
@@ -482,4 +494,4 @@ class GA:
         # plt.subplots(1, 2,sharex=True, sharey=True)
         plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=800)
 
-        plt.show()
+        #plt.show()

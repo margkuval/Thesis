@@ -1,9 +1,9 @@
 import new1x4_GA as GA
 import matplotlib as plt
 
-task = GA.GA(43)  # num of different results
+task = GA.GA(80)  # num of different results
 task.initial()
-for i in range(10):  # num of cycles
+for i in range(102):  # num of cycles
     task.calc()
     task.fitness()
     if i % 100 == 0:

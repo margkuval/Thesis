@@ -48,9 +48,10 @@ def deflection(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     u[np.ix_(dof_active)] = u1  # map back to the empty def MAT
 
     u = np.round(u, 3)
+    deflection = u
     abs_u_sum = np.round(abs(u).sum(), 3)
 
-    return u
+    return deflection
 
 
 def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):

@@ -133,8 +133,10 @@ class GA:
 
             "DEFLECTION"
             pool = self._pool[i]
-            pool._deflection = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem,
+            res = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem,
                                               E, pool.A, F, dof)
+            deflection = res
+            pool._deflection = deflection
             pool._probability = 0
 
             "STRESS"
@@ -191,7 +193,7 @@ class GA:
         print(weights)
 
         # coef based on importance
-        deflection_coef = 30
+        deflection_coef = 0.35
         stress_coef = 0.55
         weight_coef = 0.15
 

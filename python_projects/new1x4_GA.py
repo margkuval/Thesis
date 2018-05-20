@@ -35,7 +35,7 @@ class Individual:
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
         self.A[11] = rnd.randrange((0.0004 * 10000), 0.0064 * 10000) / 10000
 
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 2100000, 40000])  # modulus of elasticity for each member, now all concrete
+        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 2100000, 40000])  # modulus of elasticity for each member, now all concrete
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -90,7 +90,7 @@ class Individual:
 class GA:
     def __init__(self, pop):
         self.mem_begin = np.array([0, 1, 2, 3, 4, 7, 6, 5, 1, 5, 6, 2, 7])  # beginning of an edge   # CH
-        self.mem_end = np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])  # end of an edge         # CH
+        self.mem_end = np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])    # end of an edge         # CH
 
         self._pool = list()
         self._popsize = pop
@@ -104,13 +104,13 @@ class GA:
         print("......................")
 
     def calc(self):
-        numelem = self.mem_begin.shape[0]  # count number of beginnings
+        numelem = len(self.mem_begin)  # count number of beginnings
 
         """Structural characteristics"""
 
         "Material characteristics E=(MPa)"
-        E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
-        E[11] = 210000  # modulus of elasticity of steel
+        #E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
+        #E[11] = 210000  # modulus of elasticity of steel
 
         "Fixed Degrees of Freedom (DOF)"
         dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
@@ -134,14 +134,14 @@ class GA:
             "DEFLECTION"
             pool = self._pool[i]
             res = slv.deflection(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem,
-                                              E, pool.A, F, dof)
+                                              pool.E, pool.A, F, dof)
             deflection = res
             pool._deflection = deflection
             pool._probability = 0
 
             "STRESS"
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
-            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, E, pool.A, F, dof)
+            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, pool.E, pool.A, F, dof)
             stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
             pool._stress = stress
             pool._stress_normed = stress_normed
@@ -172,7 +172,7 @@ class GA:
         "Condition to disadvantage members with stress > E"
         # if inner force is higher than member's strength, make its fitness much worse
         for x in self._pool:
-            for i in range(self.mem_begin.shape[0]):
+            for i in range(len(self.mem_begin)):
                 for strength in self._pool[i].E:
                     if strength < abs(x._stress[i]):
                         x._stress[i] = x._stress[i] * 100
@@ -255,7 +255,6 @@ class GA:
     def crossover1(self):
         # choose 2 individuals that will switch
         probs = [(x._probability) for x in self._pool]
-        print(probs)
         switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
@@ -336,8 +335,9 @@ class GA:
         choice = np.random.randint(0, 3)
         # take a member and multiply it by a coef - change previous value for a new one
         # same as self._pool[choice]._nodes[0, 2] = self._pool[choice]._nodes[0, 2] * x_coefficient
-        self._pool[choice]._nodes[0, 2] *= x_coefficient
-        self._pool[choice]._nodes[1, 2] *= y_coefficient
+        for i in range(self._popsize):
+            self._pool[choice]._nodes[0, i] *= x_coefficient
+            self._pool[choice]._nodes[1, i] *= y_coefficient
 
     def plot_stress(self):
         num_to_plot = 4
@@ -411,7 +411,7 @@ class GA:
                 if np.array_equal(dof_totx2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
-        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=800)
+        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=1200)
 
         #plt.show()
 
@@ -487,6 +487,6 @@ class GA:
 
         # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
-        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=800)
+        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=1200)
 
         #plt.show()

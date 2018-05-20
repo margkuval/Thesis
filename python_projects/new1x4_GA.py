@@ -171,7 +171,6 @@ class GA:
         print("fitness")
 
         # if inner force is higher than member's strength, make its fitness much worse
-
         for x in self._pool:
             for i in range(self.mem_begin.shape[0]):
                 for strength in self._pool[i].E:
@@ -180,9 +179,28 @@ class GA:
                     continue
 
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
-        deflections = [(abs(x._deflection) / abs(sum(x._deflection))).sum() for x in self._pool]
+        deflections = [(abs(x._deflection)).sum() for x in self._pool]
         stresses = [(abs(x._stress) / abs(sum(x._stress))).sum() for x in self._pool]
         weights = [(abs(x._weight) / abs(sum(x._weight))).sum() for x in self._pool]
+
+        """def fitness(self):
+            print("fitness")
+            for i in range(self._popsize):
+                self._pool[i]._fitness = self._pool[i]._posun / max(self._pool, key=lambda x: x._posun)._posun
+            self._pool.sort(key=lambda x: x._fitness)
+            sum_fit = sum(map(lambda x: x._fitness, self._pool))
+            ###### urceni pravdepodobnosti #####
+            probab = []
+            for i in range(self._popsize):
+                probab.append(sum_fit / self._pool[i]._fitness)
+            sum_prob = sum(probab)
+            ###### zapsani pravdepodobnosti #####
+            for i in range(self._popsize):
+                self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
+                print("body : {}  fit : {}  prob : {} ".format(np.round(self._pool[i]._body[1, :], 3),
+                                                               np.round(self._pool[i]._fitness, 3),
+                                                               np.round(self._pool[i]._probability, 3)))
+            print("..............")"""
 
         #deflections = [(abs(sum(x._deflection) / abs(x._deflection))).sum() for x in self._pool]
         #stresses = [(abs(sum(x._stress) / abs(x._stress))) for x in self._pool]
@@ -201,11 +219,31 @@ class GA:
 
         # 2 variables, need to connect them together\
 
+        """for deflection, stress, weight in zip(deflections, stresses, weights):
+            if weight.sum() < 0:
+                print("Weight is negative!")
+            else:
+                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)"""
+
         for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)
+                fitnesses.append(deflection_coef * deflection)
+
+        """for deflection, stress, weight in zip(deflections, stresses, weights):
+            if weight.sum() < 0:
+                print("Weight is negative!")
+            else:
+                fitnesses.append(stress_coef * stress)
+
+        for deflection, stress, weight in zip(deflections, stresses, weights):
+            if weight.sum() < 0:
+                print("Weight is negative!")
+            else:
+                fitnesses.append(weight_coef * weight)"""
+
+
 
         sum_fit = sum(fitnesses)
 

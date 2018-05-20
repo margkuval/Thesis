@@ -168,8 +168,8 @@ class GA:
         print("......................")
 
     def fitness(self):
-        print("fitness")
 
+        "Condition to disadvantage members with stress > E"
         # if inner force is higher than member's strength, make its fitness much worse
         for x in self._pool:
             for i in range(self.mem_begin.shape[0]):
@@ -178,73 +178,28 @@ class GA:
                         x._stress[i] = x._stress[i] * 100
                     continue
 
-        # list comprehension, create a list that has following char. Takes values one by one from self._pool
-        deflections = [(abs(x._deflection)).sum() for x in self._pool]
-        stresses = [sum(abs(x._stress)).sum() for x in self._pool] # sum of absolutes, b/c it creates a higher difference, see calcs in your notebook
-        weights = [sum(x._weight).sum() for x in self._pool]
+        """Rate / give fitness to each member"""
+        print("fitness")  # better fitness = lower fitness
 
-        """def fitness(self):
-            print("fitness")
-            for i in range(self._popsize):
-                self._pool[i]._fitness = self._pool[i]._posun / max(self._pool, key=lambda x: x._posun)._posun
-            self._pool.sort(key=lambda x: x._fitness)
-            sum_fit = sum(map(lambda x: x._fitness, self._pool))
-            ###### urceni pravdepodobnosti #####
-            probab = []
-            for i in range(self._popsize):
-                probab.append(sum_fit / self._pool[i]._fitness)
-            sum_prob = sum(probab)
-            ###### zapsani pravdepodobnosti #####
-            for i in range(self._popsize):
-                self._pool[i]._probability = self._pool[i - 1]._probability + probab[i] / sum_prob
-                print("body : {}  fit : {}  prob : {} ".format(np.round(self._pool[i]._body[1, :], 3),
-                                                               np.round(self._pool[i]._fitness, 3),
-                                                               np.round(self._pool[i]._probability, 3)))
-            print("..............")"""
+        "Conditions to find the best candidate"
+        deflections = [(abs(x._deflection)).sum() for x in self._pool]  # abs sum of deflections, want constr with lowest defl
+        stresses = [sum(abs(x._stress)).sum() for x in self._pool]  # sum of absolutes, b/c it creates a higher difference, see calcs in your notebook
+        weights = [sum(x._weight).sum() for x in self._pool]  # abs sum of weigths, want the ightest construction
 
-        #deflections = [(abs(sum(x._deflection) / abs(x._deflection))).sum() for x in self._pool]
-        #stresses = [(abs(sum(x._stress) / abs(x._stress))) for x in self._pool]
-        #weights = [(abs(x._weight).sum() / abs(x._weight)) for x in self._pool]
+        "Importance coefficients for stated conditions"
+        deflection_coef = 0.40
+        stress_coef = 0.50
+        weight_coef = 0.10
 
-        print(deflections)
-        print(stresses)
-        print(weights)
-
-        # coef based on importance
-        deflection_coef = 0.35
-        stress_coef = 0.55
-        weight_coef = 0.15
-
+        "Create empty cell"
         fitnesses = []
 
-        # 2 variables, need to connect them together\
-
-        """for deflection, stress, weight in zip(deflections, stresses, weights):
-            if weight.sum() < 0:
-                print("Weight is negative!")
-            else:
-                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)"""
-
-        """for deflection, stress, weight in zip(deflections, stresses, weights):
-            if weight.sum() < 0:
-                print("Weight is negative!")
-            else:
-                fitnesses.append(deflection_coef * deflection)"""
-
-        
+        "Fill the cell based on conditions and importance coefficients"
         for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(stress_coef * stress)
-
-        """for deflection, stress, weight in zip(deflections, stresses, weights):
-            if weight.sum() < 0:
-                print("Weight is negative!")
-            else:
-                fitnesses.append(weight_coef * weight)"""
-
-
+                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)
 
         sum_fit = sum(fitnesses)
 
@@ -253,14 +208,13 @@ class GA:
         for i in range(len_sf):
             self._pool[i]._fitness = fitnesses[i]
 
-            """Probability record"""
+            "Probability record"
+            # member with lower fit ( = better) has higher prop for being chosen to cross
             self._pool[i]._probability = fitnesses[(len_sf-1) - i] / sum_fit
 
-
-        # sort in py is ascending (if "-"- would be descending
-        self._pool.sort(key=lambda x: x._fitness)  # lambda = go through each individual and give fitness
-
-        # higher individual fitness -> higher probab (a member will be chosen for a mutation with higher probability)
+        "Sort members based on probability"
+        # sort in py is ascending (if "-", would be descending
+        self._pool.sort(key=lambda x: x._fitness)
 
         for i in range(self._popsize):
             pool = self._pool[i]

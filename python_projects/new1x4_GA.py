@@ -180,8 +180,8 @@ class GA:
 
         # list comprehension, create a list that has following char. Takes values one by one from self._pool
         deflections = [(abs(x._deflection)).sum() for x in self._pool]
-        stresses = [(abs(x._stress) / abs(sum(x._stress))).sum() for x in self._pool]
-        weights = [abs(sum(x._weight)).sum() for x in self._pool]
+        stresses = [sum(abs(x._stress)).sum() for x in self._pool] # sum of absolutes, b/c it creates a higher difference, see calcs in your notebook
+        weights = [sum(x._weight).sum() for x in self._pool]
 
         """def fitness(self):
             print("fitness")
@@ -229,20 +229,20 @@ class GA:
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(deflection_coef * deflection)
+                fitnesses.append(deflection_coef * deflection)"""
 
         
         for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(stress_coef * stress)"""
+                fitnesses.append(stress_coef * stress)
 
-        for deflection, stress, weight in zip(deflections, stresses, weights):
+        """for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(weight_coef * weight)
+                fitnesses.append(weight_coef * weight)"""
 
 
 

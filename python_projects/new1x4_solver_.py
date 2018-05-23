@@ -86,7 +86,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, E, A, F, dof, deflection):
 
     Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)
 
-    "Stress (sigma)=(kPa)"
+    "Stress (kPa)"
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
 
@@ -108,4 +108,3 @@ def weight(A, xi, xj, yi, yj, length):
     weight = length * A * ro
 
     return weight
-

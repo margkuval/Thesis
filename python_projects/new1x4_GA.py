@@ -281,9 +281,6 @@ class GA:
 
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
-        for i in range(0,1):
-            if switch_a[i] == best:
-                worst = best
 
         first_A  = switch_a[0]
         second_A = switch_a[1]
@@ -298,6 +295,8 @@ class GA:
                worst = best
             if (switch_x2[i]) == best:
                worst = best
+            if switch_a[i] == best:
+                worst = best
 
 
     def mutation(self, mutation_type):

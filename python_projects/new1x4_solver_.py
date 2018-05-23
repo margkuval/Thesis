@@ -1,25 +1,24 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def deflection(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
-    "Link x, ycoord with member begin and end"""
+    "Link x and y coordinates with member's beginning and end"""
     xi = xcoord[np.ix_(mem_begin)]
     xj = xcoord[np.ix_(mem_end)]  # take mem_end numbers and replace them with corresponding xcoord
     yi = ycoord[np.ix_(mem_begin)]
     yj = ycoord[np.ix_(mem_end)]
 
-    "Connectivity MAT computation"
+    "Connectivity matrix"
     ij = np.vstack([[2 * mem_begin, 2 * mem_begin + 1], [2 * mem_end, 2 * mem_end + 1]]).transpose()
 
     "Other information"
-    numnode = xcoord.shape[0]  # number of nodes, xcoord b/c all nodes must be used
+    numnode = xcoord.shape[0]  # number of nodes, xcoord because all nodes are used
     dof_tot = 2 * numnode  # total degrees of freedom
 
-    """Global stiffness MAT"""
-    glob_stif = np.zeros((dof_tot, dof_tot))  # empty Global Stiffness MAT
-    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
+    """Global Stiffness Matrix"""
+    glob_stif = np.zeros((dof_tot, dof_tot))  # empty Global Stiffness Matrix
+    length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # defines length of members
     c = (xj - xi) / length  # cos
     s = (yj - yi) / length  # sin
 
@@ -43,41 +42,41 @@ def deflection(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     dof_active = dof_a[0]
 
     "Solve deflections"
-    u = np.zeros((dof_tot, 1))  # empty deflections MAT; 1 = # of columns
-    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)], F[np.ix_(dof_active)])  # solve equation glob_stif*u = F
-    u[np.ix_(dof_active)] = u1  # map back to the empty def MAT
+    u = np.zeros(dof_tot, 1)  # empty deflections matrix; 1 = number of columns
+    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)],
+                         F[np.ix_(dof_active)]) # solve equation glob_stif*u = F
+    u[np.ix_(dof_active)] = u1  # map back to the empty deflection matrix
 
     u = np.round(u, 3)
     deflection = u
-    abs_u_sum = np.round(abs(u).sum(), 3)
 
     return deflection
 
 
 def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
-    "Link x, ycoord with member begin and end"""
+    "Link x and y coordinates with member's beginning and end"""
     xi = xcoord[np.ix_(mem_begin)]
-    xj = xcoord[np.ix_(mem_end)]  # take mem_end numbers and replace them with corresponding xcoord
+    xj = xcoord[np.ix_(mem_end)]
     yi = ycoord[np.ix_(mem_begin)]
     yj = ycoord[np.ix_(mem_end)]
 
-    "Connectivity MAT computation"
+    "Connectivity matrix computation"
     ij = np.vstack([[2 * mem_begin, 2 * mem_begin + 1], [2 * mem_end, 2 * mem_end + 1]]).transpose()
 
     "Other information"
-    numnode = xcoord.shape[0]  # number of nodes, xcoord b/c all nodes must be used
-    dof_tot = 2 * numnode  # total degrees of freedom
+    numnode = xcoord.shape[0]
+    dof_tot = 2 * numnode
 
-    """Global stiffness MAT"""
-    glob_stif = np.zeros((dof_tot, dof_tot))  # empty Global Stiffness MAT
+    """Global Stiffness Matrix"""
+    glob_stif = np.zeros((dof_tot, dof_tot))  # empty Global Stiffness Matrix
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
     c = (xj - xi) / length  # cos
     s = (yj - yi) / length  # sin
 
     for p in range(numelem):
         # takes p from the range of numelem 1 by 1 and creates multiple k1 (local) matrices
-        # at the end maps k1 MATs on right places in glob_stiff MAT
+        # at the end maps k1 matrices on right places in glob_stif MAT
         n = ij[p]
         cc = c[p] * c[p]
         cs = c[p] * s[p]
@@ -100,13 +99,14 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     dof_totx2 = dof.reshape(numnode, 2)  # reshape for plotting
 
     "Solve deflections"
-    u = np.zeros((dof_tot, 1))  # empty deflections MAT; 1 = # of columns
-    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)], F[np.ix_(dof_active)])  # solve equation glob_stif*u = F
-    u[np.ix_(dof_active)] = u1  # map back to the empty def MAT
+    u = np.zeros((dof_tot, 1))  # empty deflections matrix; 1 = number of columns
+    u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)],
+                         F[np.ix_(dof_active)])  # solve equation glob_stif*u = F
+    u[np.ix_(dof_active)] = u1  # map back to the empty deflection matrix
 
     "Deflections calculation"
     # for each node in both directions
-    # important to use _end and _begin to calculate new nodes location
+    # important to use mem_end and mem_begin to calculate new nodes location
     k = E * A / length
     uxi = u[np.ix_(2 * mem_begin)].transpose()
     uxj = u[np.ix_(2 * mem_end)].transpose()
@@ -114,12 +114,12 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     uyj = u[np.ix_(2 * mem_end + 1)].transpose()
 
     "Inner forces"
-    Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos,s=sin
-    #print(Flocal)
+    Flocal = k * ((uxj - uxi) * c + (uyj - uyi) * s)  # c=cos, s=sin
+
     """Stress (sigma)=(kPa)"""
     stress = Flocal[0] / A
     stress_normed = [i / sum(abs(stress)) for i in abs(stress)]
-    #print("s_normed : {}".format(np.round(stress_normed, 3)))
+
     xinew = xi + uxi[0]  # [[ in u array, now solved by taking "list 0" from the MAT
     xjnew = xj + uxj[0]
     yinew = yi + uyi[0]
@@ -130,7 +130,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
 def weight(xcoord, ycoord, mem_begin, mem_end, A):
     ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])
-    # kg/m3, reinforced concrete  # http://www.boeingconsult.com/tafe/general/symbols&units.html
+    # kg/m3, reinforced concrete, steel
 
     xi = xcoord[np.ix_(mem_begin)]
     xj = xcoord[np.ix_(mem_end)]  # take mem_end #s and replace them with corresponding xcoord
@@ -140,8 +140,6 @@ def weight(xcoord, ycoord, mem_begin, mem_end, A):
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # mems (edges) length
 
     weight = length * A * ro
-    weight_max = np.round(np.max(weight), 3)
-    weight_sum = np.round(weight.sum(), 3)
 
     return weight
 

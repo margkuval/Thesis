@@ -3,7 +3,7 @@ import matplotlib as plt
 
 task = GA.GA(13)  # population size
 task.initial()
-for i in range(80):  # num of computation cycles
+for i in range(80):  # number of computation cycles
     task.calc()
     task.fitness()
     if i % 20 == 0:

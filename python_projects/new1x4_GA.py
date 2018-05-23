@@ -5,7 +5,6 @@ import new1x4_solver_ as slv
 from matplotlib.gridspec import GridSpec
 import datetime
 
-
 # CH = change if implementing on a new structure
 
 class Individual:
@@ -18,15 +17,15 @@ class Individual:
         xcoord = np.array([0, a, 2.5 * a, 4 * a, 5 * a, a, 2.5 * a, 4 * a])  # CH
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # CH
 
-        "Take a random number in range +-m from the original coordinate"
-        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100
-        y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
+        "Choose a random number in range +- (m) from the original coordinate"
+        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100  # CH
+        #y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
         x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
-        y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
+        #y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
 
         x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
-        y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
+        #y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
 
         "New coordinates"
         xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
@@ -34,10 +33,10 @@ class Individual:
 
         "Cross-section area (m)"
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
-        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element
+        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
 
         "Material characteristic E=(MPa)"
-        # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
+        # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa # CH
         self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 210000, 40000])
 
         self._plot_dict = None
@@ -101,7 +100,8 @@ class GA:
         for i in range(self._popsize):
             self._pool.append(Individual())
             print(
-                "node_1 : {} node_2 : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
+                "node_1:{} node_2:{} node_3:{}".format(
+                                                 np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
                                                  np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3),
                                                  np.round([self._pool[i]._nodes[0, 3], self._pool[i]._nodes[1, 3]], 3)))
         print("......................")
@@ -112,9 +112,8 @@ class GA:
         """Structural characteristics"""
 
         "Fixed Degrees of Freedom (DOF)"
-        # 1 =
         dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
-        dof[0] = 1
+        dof[0] = 1  # 1 = fixed
         dof[1] = 1
         dof[9] = 1
 
@@ -128,7 +127,7 @@ class GA:
 
         print("calculation ")
 
-        "Access solver"  # inner forces, stress, weight
+        "Access solver"  # deflection, stress, weight
         for i in range(self._popsize):
 
             "DEFLECTION"
@@ -141,19 +140,17 @@ class GA:
 
             "STRESS"
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
-            res = slv.stress(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, numelem, pool.E, pool.A, F, dof)
+            res = slv.stress(pool._nodes[0], pool._nodes[1],
+                             self.mem_begin, self.mem_end, numelem, pool.E, pool.A, F, dof)
             stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
             pool._stress = stress
             pool._stress_normed = stress_normed
+            pool._stress_max = np.round(np.max(pool._stress), 3)
 
             plot_dict = {"xi": xi, "xj": xj, "yi": yi, "yj": yj, "xinew": xinew, "xjnew": xjnew, "yinew": yinew,
-                         "yjnew": yjnew,
-                         "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2, "stress_normed": stress_normed,
-                         "numnode": numnode,
-                         "numelem": numelem, "A": pool.A}
+                         "yjnew": yjnew, "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2,
+                         "stress_normed": stress_normed, "numnode": numnode, "numelem": numelem, "A": pool.A}
             pool._plot_dict = plot_dict
-
-            pool._stress_max = np.round(np.max(pool._stress), 3)
 
             "WEIGHT"
             pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
@@ -168,7 +165,6 @@ class GA:
         print("......................")
 
     def fitness(self):
-
         "Condition to disadvantage members with stress > E"""
         # if the inner force is higher than member's strength, make its fitness much worse
         for x in self._pool:
@@ -176,7 +172,6 @@ class GA:
                 for strength in self._pool[i].E:
                     if strength < abs(x._stress[i]):
                         x._stress[i] = x._stress[i] * 100
-                    continue
 
         """Rate / give fitness to each member"""
         print("fitness")  # lower fitness = better fitness
@@ -209,7 +204,7 @@ class GA:
             self._pool[i]._fitness = fitnesses[i]
 
             "Probability record"
-            # member with lower fit ( = better) has higher probability for being chosen to crossover
+            # member with lower fit (= better) has higher probability for being chosen to crossover
             self._pool[i]._probability = fitnesses[(len_sf - 1) - i] / sum_fit
 
         "Sort members based on probability"
@@ -231,7 +226,7 @@ class GA:
         print("..............")
 
     def _switch1(self, individual_pair, axis=0):
-        # switch values between 2 individuals
+        # set switch values between 2 individuals (node 1)
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 1]  # = temporary
@@ -239,7 +234,7 @@ class GA:
         second._nodes[axis, 1] = tmp
 
     def _switch2(self, individual_pair, axis=0):
-        # switch values between 2 individuals
+        # set switch values between 2 individuals (node 2)
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 2]  # temporary
@@ -247,7 +242,7 @@ class GA:
         second._nodes[axis, 2] = tmp
 
     def _switch3(self, individual_pair, axis=0):
-        # switch values between 2 individuals
+        # set switch values between 2 individuals (node 3)
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 3]  # temporary
@@ -255,12 +250,12 @@ class GA:
         second._nodes[axis, 3] = tmp
 
     def crossover(self):
+        "Nodes locations crossover"""
         # choose 2 individuals that will crossover
         probs = [x._probability for x in self._pool]
         switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
-
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         self._switch1(switch_x0, 0)
@@ -270,16 +265,17 @@ class GA:
 
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
-        first_A = switch_a[0]
+        first_A  = switch_a[0]
         second_A = switch_a[1]
-        tmp = first_A.A
-        first_A = second_A.A
+        tmp      = first_A.A
+        first_A  = second_A.A
         second_A = tmp
 
     def mutation(self, mutation_type):
         "Create empty cell"""
         probs = []
 
+        "Append rule"
         for individual in self._pool:
             probs.append(individual._probability)  # append = add to the end
 

@@ -141,19 +141,19 @@ class GA:
             "STRESS"
             # globbing, to "res" save everything that slv.stress returns (tuple of 11)
             res = slv.stress(pool._nodes[0], pool._nodes[1],
-                             self.mem_begin, self.mem_end, numelem, pool.E, pool.A, F, dof)
-            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_numnodex2, numnode, dof_totx2 = res
+                             self.mem_begin, self.mem_end, pool.E, pool.A, F, dof, deflection)
+            stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_x2, numnode, dof_x2, length = res
             pool._stress = stress
             pool._stress_normed = stress_normed
             pool._stress_max = np.round(np.max(pool._stress), 3)
 
             plot_dict = {"xi": xi, "xj": xj, "yi": yi, "yj": yj, "xinew": xinew, "xjnew": xjnew, "yinew": yinew,
-                         "yjnew": yjnew, "F_numnodex2": F_numnodex2, "dof_totx2": dof_totx2,
+                         "yjnew": yjnew, "F_x2": F_x2, "dof_x2": dof_x2,
                          "stress_normed": stress_normed, "numnode": numnode, "numelem": numelem, "A": pool.A}
             pool._plot_dict = plot_dict
 
             "WEIGHT"
-            pool._weight = slv.weight(pool._nodes[0], pool._nodes[1], self.mem_begin, self.mem_end, pool.A)
+            pool._weight = slv.weight(xi, xj, yi, yj, pool.A, length)
 
             print("node_1:{} node_2:{} node_3:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
@@ -324,8 +324,8 @@ class GA:
             yinew = plot_dict['yinew']
             yjnew = plot_dict['yjnew']
             stress_normed = plot_dict['stress_normed']
-            F_numnodex2 = plot_dict['F_numnodex2']
-            dof_totx2 = plot_dict['dof_totx2']
+            F_x2 = plot_dict['F_x2']
+            dof_x2 = plot_dict['dof_x2']
             numnode = plot_dict['numnode']
             numelem = plot_dict['numelem']
 
@@ -356,19 +356,19 @@ class GA:
 
             "Annotate outside forces"
             for r in range(numnode):
-                plt.annotate(F_numnodex2[r],
-                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -35,
+                plt.annotate(F_x2[r],
+                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_x2[r]) * -35,
                              textcoords='offset pixels',
                              arrowprops=dict(facecolor='black', shrink=0, width=1.3, headwidth=5),
                              horizontalalignment='right', verticalalignment='bottom')
 
             "Annotate fixed DOFs"
             for r in range(numnode):
-                if np.array_equal(dof_totx2[r], np.array([0, 1])):
+                if np.array_equal(dof_x2[r], np.array([0, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], 'o', c='k', markersize=8)
-                if np.array_equal(dof_totx2[r], np.array([1, 0])):
+                if np.array_equal(dof_x2[r], np.array([1, 0])):
                     plt.plot([xi[r] - 0.2], [yi[r]], 'o', c='k', markersize=8)
-                if np.array_equal(dof_totx2[r], np.array([1, 1])):
+                if np.array_equal(dof_x2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
         plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=1200)
@@ -400,8 +400,8 @@ class GA:
             yinew = plot_dict['yinew']
             yjnew = plot_dict['yjnew']
             stress_normed = plot_dict['stress_normed']
-            F_numnodex2 = plot_dict['F_numnodex2']
-            dof_totx2 = plot_dict['dof_totx2']
+            F_x2 = plot_dict['F_x2']
+            dof_x2 = plot_dict['dof_x2']
             numnode = plot_dict['numnode']
             numelem = plot_dict['numelem']
 
@@ -430,19 +430,19 @@ class GA:
 
             "Annotate outside forces"
             for r in range(numnode):
-                plt.annotate(F_numnodex2[r],
-                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_numnodex2[r]) * -35,
+                plt.annotate(F_x2[r],
+                             xy=(xi[r], yi[r]), xycoords='data', xytext=np.sign(F_x2[r]) * -35,
                              textcoords='offset pixels',
                              arrowprops=dict(facecolor='black', shrink=0, width=1.5, headwidth=8),
                              horizontalalignment='right', verticalalignment='bottom')
 
             "Annotate fixed DOFs"
             for r in range(numnode):
-                if np.array_equal(dof_totx2[r], np.array([0, 1])):
+                if np.array_equal(dof_x2[r], np.array([0, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], 'o', c='k', markersize=8)
-                if np.array_equal(dof_totx2[r], np.array([1, 0])):
+                if np.array_equal(dof_x2[r], np.array([1, 0])):
                     plt.plot([xi[r] - 0.2], [yi[r]], 'o', c='k', markersize=8)
-                if np.array_equal(dof_totx2[r], np.array([1, 1])):
+                if np.array_equal(dof_x2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
         # can use Textbox if needed

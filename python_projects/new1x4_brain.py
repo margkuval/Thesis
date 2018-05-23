@@ -10,8 +10,8 @@ for i in range(80):  # number of computation cycles
         task.plot_stress()
         task.plot_A()
     task.crossover()
-    if i % 10 == 0:
-        task.mutation(mutation_type="y")
-    if i % 4 == 0:
-        task.mutation(mutation_type="x")
-        task.mutation(mutation_type="a")
+    #if i % 10 == 0:
+        #task.mutation(mutation_type="y")
+    #if i % 4 == 0:
+       # task.mutation(mutation_type="x")
+        #task.mutation(mutation_type="a")

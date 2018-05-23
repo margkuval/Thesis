@@ -250,11 +250,23 @@ class GA:
         first._nodes[axis, 3] = second._nodes[axis, 3]
         second._nodes[axis, 3] = tmp
 
+    def elite(self):
+        n_elitist = int((10*self._popsize)/100)
+        n_rest = int(self._popsize - n_elitist)
+        fit = [x._fitness for x in self._pool]
+        probs = [x._probability for x in self._pool]
+
+        # chromozoms = self._pool
+        rest_ch = self._pool[np.random.choice(np.arange(0, len(self._pool)), n_rest, replace=True, p=probs)]
+        elitist_ch = self._pool[np.sort(fit, n_elitist, minimize=True)]
+        np.sor
+
     def crossover(self):
         "Nodes locations crossover"""
         # choose 2 individuals that will crossover
-        s = int((10*self._popsize)/100)
         probs = [x._probability for x in self._pool]
+        best = self._pool[0]
+        worst = self._pool[-1]
 
         switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
@@ -267,42 +279,26 @@ class GA:
         self._switch3(switch_x2, 0)
         #self._switch2(switch_y, 1)
 
-        for i in range(0, 1):
-            if switch_x0[i] in range(s):
-                self._pool[len(self._pool)-1] = self._pool[0]
-            if switch_x1[i] in range(s):
-                self._pool[len(self._pool) - 1] = self._pool[0]
-            if switch_x2[i] in range(s):
-                self._pool[len(self._pool) - 1] = self._pool[0]
-        for individual in self._pool:
-            if individual._probability > 0.15:
-
-
-        def crossover(self):
-            selected_pool = list()
-            select_num = 6
-            for i in range(select_num):
-                a = np.random.uniform(0, 1)
-                print(round(a, 3))
-                select_ind = self._pool[0]._body[1, :]
-                for individual in self._pool:
-                    if individual._probability > a:
-                        select_ind = individual._body[1, :]
-                        selected_pool.append(select_ind)
-                        break
-
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
         for i in range(0,1):
-            if switch_a[i] in range(s):
-                switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
-                return switch_a
+            if switch_a[i] == best:
+                worst = best
 
         first_A  = switch_a[0]
         second_A = switch_a[1]
         tmp      = first_A.A
         first_A  = second_A.A
         second_A = tmp
+
+        for i in range(0, 1):
+            if (switch_x0[i]) == best:
+                worst = best
+            if (switch_x1[i]) == best:
+               worst = best
+            if (switch_x2[i]) == best:
+               worst = best
+
 
     def mutation(self, mutation_type):
         "Create empty cell"""

@@ -4,7 +4,7 @@ import matplotlib as plt
 task = GA.GA(13)  # population size
 task.initial()
 for i in range(80):  # number of computation cycles
-    task.calc()
+    task.calculation()
     task.fitness()
     if i % 20 == 0:
         task.plot_stress()

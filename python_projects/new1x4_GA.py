@@ -106,7 +106,7 @@ class GA:
                                                  np.round([self._pool[i]._nodes[0, 3], self._pool[i]._nodes[1, 3]], 3)))
         print("......................")
 
-    def calc(self):
+    def calculation(self):
         numelem = len(self.mem_begin)  # count number of beginnings
 
         """Structural characteristics"""
@@ -214,7 +214,8 @@ class GA:
         "Print results"
         for i in range(self._popsize):
             pool = self._pool[i]
-            print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
+            print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} "
+                  "|def(mm)| sum:{} |stress(kPa)| sum:{} |weight(t)| sum:{}".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
                 np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                 np.round([pool._nodes[0, 3], pool._nodes[1, 3]], 3),
@@ -252,10 +253,13 @@ class GA:
     def crossover(self):
         "Nodes locations crossover"""
         # choose 2 individuals that will crossover
+        s = int((10*self._popsize)/100)
         probs = [x._probability for x in self._pool]
+
         switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
+
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         self._switch1(switch_x0, 0)
@@ -263,8 +267,37 @@ class GA:
         self._switch3(switch_x2, 0)
         #self._switch2(switch_y, 1)
 
+        for i in range(0, 1):
+            if switch_x0[i] in range(s):
+                self._pool[len(self._pool)-1] = self._pool[0]
+            if switch_x1[i] in range(s):
+                self._pool[len(self._pool) - 1] = self._pool[0]
+            if switch_x2[i] in range(s):
+                self._pool[len(self._pool) - 1] = self._pool[0]
+        for individual in self._pool:
+            if individual._probability > 0.15:
+
+
+        def crossover(self):
+            selected_pool = list()
+            select_num = 6
+            for i in range(select_num):
+                a = np.random.uniform(0, 1)
+                print(round(a, 3))
+                select_ind = self._pool[0]._body[1, :]
+                for individual in self._pool:
+                    if individual._probability > a:
+                        select_ind = individual._body[1, :]
+                        selected_pool.append(select_ind)
+                        break
+
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
+        for i in range(0,1):
+            if switch_a[i] in range(s):
+                switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
+                return switch_a
+
         first_A  = switch_a[0]
         second_A = switch_a[1]
         tmp      = first_A.A
@@ -276,11 +309,17 @@ class GA:
         probs = []
 
         "Append rule"
+        s = int((10*self._popsize)/100)
         for individual in self._pool:
             probs.append(individual._probability)  # append = add to the end
 
         "Pick a mutation candidate"
+        s = int((10 * self._popsize) / 100)
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
+
+        if mutation_candidate in range(s):
+            self._pool[len(self._pool) - 1] = self._pool[0]
+
         possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2, 1.1]
         coef = np.random.choice(possible_coefficients, 1)
 

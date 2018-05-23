@@ -100,9 +100,9 @@ def stress(xcoord, ycoord, mem_begin, mem_end, E, A, F, dof, deflection):
 
 def weight(A, xi, xj, yi, yj, length):
 
-    "Density of each element (kg/m3)"""
+    "Density of each element (1000 kg/m3)"""
     # reinforced concrete = 2500 kg/m3, steel = 7700 kg/m3
-    ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])
+    ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])/1000
 
     "Weigth calculation"
     weight = length * A * ro

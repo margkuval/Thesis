@@ -10,7 +10,7 @@ import datetime
 
 class Individual:
     def __init__(self):
-        "Structural dimentions"""
+        "Structural dimentions (m)"""
         a = 2  # CH
         h = a  # triangle height  # CH
 
@@ -18,7 +18,7 @@ class Individual:
         xcoord = np.array([0, a, 2.5 * a, 4 * a, 5 * a, a, 2.5 * a, 4 * a])  # CH
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # CH
 
-        "Take a random number in range +-0.5m from the original coordinate"
+        "Take a random number in range +-m from the original coordinate"
         x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100
         y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
@@ -32,14 +32,16 @@ class Individual:
         xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # can use np.ix_?    # CH
 
+        "Cross-section area (m)"
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
-        self.A[11] = rnd.randrange((0.0004 * 10000), 0.0064 * 10000) / 10000
+        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element
 
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 2100000, 40000])  # modulus of elasticity for each member, now all concrete
+        "Material characteristic E=(MPa)"
+        # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
+        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 210000, 40000])
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
-
         self._deflection = 0
         self._stress = 0
         self._weight = 0
@@ -100,7 +102,8 @@ class GA:
             self._pool.append(Individual())
             print(
                 "node_1 : {} node_2 : {}".format(np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
-                                                 np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3)))
+                                                 np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3),
+                                                 np.round([self._pool[i]._nodes[0, 3], self._pool[i]._nodes[1, 3]], 3)))
         print("......................")
 
     def calc(self):
@@ -108,11 +111,8 @@ class GA:
 
         """Structural characteristics"""
 
-        "Material characteristics E=(MPa)"
-        #E = np.array(self.mem_begin.shape[0] * [40000])  # modulus of elasticity for each member, now all concrete
-        #E[11] = 210000  # modulus of elasticity of steel
-
         "Fixed Degrees of Freedom (DOF)"
+        # 1 =
         dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
         dof[0] = 1
         dof[1] = 1
@@ -169,8 +169,8 @@ class GA:
 
     def fitness(self):
 
-        "Condition to disadvantage members with stress > E"
-        # if inner force is higher than member's strength, make its fitness much worse
+        "Condition to disadvantage members with stress > E"""
+        # if the inner force is higher than member's strength, make its fitness much worse
         for x in self._pool:
             for i in range(len(self.mem_begin)):
                 for strength in self._pool[i].E:
@@ -179,12 +179,12 @@ class GA:
                     continue
 
         """Rate / give fitness to each member"""
-        print("fitness")  # better fitness = lower fitness
+        print("fitness")  # lower fitness = better fitness
 
         "Conditions to find the best candidate"
-        deflections = [(abs(x._deflection)).sum() for x in self._pool]  # abs sum of deflections, want constr with lowest defl
-        stresses = [sum(abs(x._stress)).sum() for x in self._pool]  # sum of absolutes, b/c it creates a higher difference, see calcs in your notebook
-        weights = [sum(x._weight).sum() for x in self._pool]  # abs sum of weigths, want the ightest construction
+        deflections = [(abs(x._deflection)).sum() for x in self._pool]  # abs sum of deflections
+        stresses = [sum(abs(x._stress)).sum() for x in self._pool]  # sum of absolute stresses
+        weights = [sum(x._weight).sum() for x in self._pool]  # abs sum of weights
 
         "Importance coefficients for stated conditions"
         deflection_coef = 0.40
@@ -209,13 +209,14 @@ class GA:
             self._pool[i]._fitness = fitnesses[i]
 
             "Probability record"
-            # member with lower fit ( = better) has higher prop for being chosen to cross
-            self._pool[i]._probability = fitnesses[(len_sf-1) - i] / sum_fit
+            # member with lower fit ( = better) has higher probability for being chosen to crossover
+            self._pool[i]._probability = fitnesses[(len_sf - 1) - i] / sum_fit
 
         "Sort members based on probability"
-        # sort in py is ascending (if "-", would be descending
+        # sort in py is ascending (if "-x._fitness", would be descending)
         self._pool.sort(key=lambda x: x._fitness)
 
+        "Print results"
         for i in range(self._popsize):
             pool = self._pool[i]
             print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
@@ -231,9 +232,6 @@ class GA:
 
     def _switch1(self, individual_pair, axis=0):
         # switch values between 2 individuals
-        # axis 0 -> switch x
-        # axis 1 -> switch y
-
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 1]  # = temporary
@@ -242,33 +240,33 @@ class GA:
 
     def _switch2(self, individual_pair, axis=0):
         # switch values between 2 individuals
-        # axis 0 -> switch x
-        # axis 1 -> switch y
-        # todo: pomoc s komentovanim teto casti kodu
-
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 2]  # temporary
         first._nodes[axis, 2] = second._nodes[axis, 2]
         second._nodes[axis, 2] = tmp
 
-    def crossover1(self):
-        # choose 2 individuals that will switch
-        probs = [(x._probability) for x in self._pool]
-        switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
-        switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
+    def _switch3(self, individual_pair, axis=0):
+        # switch values between 2 individuals
+        first = individual_pair[0]
+        second = individual_pair[1]
+        tmp = first._nodes[axis, 3]  # temporary
+        first._nodes[axis, 3] = second._nodes[axis, 3]
+        second._nodes[axis, 3] = tmp
 
-        self._switch1(switch_x, 0)
-        self._switch1(switch_y, 1)
+    def crossover(self):
+        # choose 2 individuals that will crossover
+        probs = [x._probability for x in self._pool]
+        switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
 
-    def crossover2(self):
-        # choose 2 individuals that will switch
-        probs = [(x._probability) for x in self._pool]
-        switch_x = np.random.choice(self._pool, 2, replace=False, p=probs)
-        switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
+        #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
-        self._switch2(switch_x, 0)
-        self._switch2(switch_y, 1)
+        self._switch1(switch_x0, 0)
+        self._switch2(switch_x1, 0)
+        self._switch3(switch_x2, 0)
+        #self._switch2(switch_y, 1)
 
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
@@ -278,9 +276,10 @@ class GA:
         first_A = second_A.A
         second_A = tmp
 
-    def mutate1(self, mutation_type):
-        # create empty cell for probability
+    def mutation(self, mutation_type):
+        "Create empty cell"""
         probs = []
+
         for individual in self._pool:
             probs.append(individual._probability)  # append = add to the end
 
@@ -290,54 +289,19 @@ class GA:
         coef = np.random.choice(possible_coefficients, 1)
 
         "Mutate"
-        if mutation_type == "x":
-            mutation_candidate._nodes[0, 1] = mutation_candidate._nodes[0, 1] * coef
-        if mutation_type == "y":
-            mutation_candidate._nodes[1, 1] = mutation_candidate._nodes[1, 1] * coef
-        if mutation_type == "a":
-            for i in range(self._popsize):
-                cur_candidate = self._pool[i]
-                se = np.argmin(self._pool[i]._stress)
-                if cur_candidate.A[se] > 0.01:
-                    continue
-                cur_candidate.A[se] = cur_candidate.A[se] * coef
-
-    def mutate2(self, mutation_type):
-        # create empty cell for probability
-        probs = []
-        for individual in self._pool:
-            probs.append(individual._probability)  # append = add to the end
-
-        # pick a mutation candidate
-        # todo: co znamena ta nula v dalsim radku?
-
-        mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
-        possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2, 1.1]
-        coef = np.random.choice(possible_coefficients, 1)
-        for i in range(1,2,3):
+        for i in range(rnd.randrange(1,2,3)):
             if mutation_type == "x":
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
                 mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
+            break
         if mutation_type == "a":
             for i in range(self._popsize):
                 cur_candidate = self._pool[i]
                 se = np.argmin(self._pool[i]._stress)
-                if cur_candidate.A[se] > 0.01:
+                if cur_candidate.A[se] > 0.0001:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
-
-    def mutate_worst2(self):
-        possible_coefficients = [0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2]
-        # choose one from possible coof
-        x_coefficient = np.random.choice(possible_coefficients, 1)
-        y_coefficient = np.random.choice(possible_coefficients, 1)
-        choice = np.random.randint(0, 3)
-        # take a member and multiply it by a coef - change previous value for a new one
-        # same as self._pool[choice]._nodes[0, 2] = self._pool[choice]._nodes[0, 2] * x_coefficient
-        for i in range(self._popsize):
-            self._pool[choice]._nodes[0, i] *= x_coefficient
-            self._pool[choice]._nodes[1, i] *= y_coefficient
 
     def plot_stress(self):
         num_to_plot = 4

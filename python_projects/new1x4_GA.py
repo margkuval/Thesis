@@ -127,7 +127,7 @@ class GA:
 
         print("calculation ")
 
-        "Access solver"  # deflection, stress, weight
+        """Access solver"""  # deflection, stress, weight
         for i in range(self._popsize):
 
             "DEFLECTION"
@@ -165,7 +165,9 @@ class GA:
         print("......................")
 
     def fitness(self):
-        "Condition to disadvantage members with stress > E"""
+        fitnesses = []
+
+        "Condition to disadvantage members with stress > E"
         # if the inner force is higher than member's strength, make its fitness much worse
         for x in self._pool:
             for i in range(len(self.mem_begin)):
@@ -186,9 +188,6 @@ class GA:
         stress_coef = 0.50
         weight_coef = 0.10
 
-        "Create empty cell"
-        fitnesses = []
-
         "Fill the cell based on conditions and importance coefficients"
         for deflection, stress, weight in zip(deflections, stresses, weights):
             if weight.sum() < 0:
@@ -198,17 +197,17 @@ class GA:
 
         sum_fit = sum(fitnesses)
 
-        "Fitness for each candidate"
+        "Fitness of each candidate"
         len_sf = len(self._pool)
         for i in range(len_sf):
             self._pool[i]._fitness = fitnesses[i]
 
             "Probability record"
-            # member with lower fit (= better) has higher probability for being chosen to crossover
+            # member with lower fit (= better) has a higher probability to be chosen for the crossover
             self._pool[i]._probability = fitnesses[(len_sf - 1) - i] / sum_fit
 
         "Sort members based on probability"
-        # sort in py is ascending (if "-x._fitness", would be descending)
+        # sorting in Python is ascending (if "-x._fitness", would be descending)
         self._pool.sort(key=lambda x: x._fitness)
 
         "Print results"
@@ -250,7 +249,7 @@ class GA:
         first._nodes[axis, 3] = second._nodes[axis, 3]
         second._nodes[axis, 3] = tmp
 
-    def _switchA(self, individual_pair, axis=0):
+    def _switch_A(self, individual_pair, axis=0):
         # set switch values between 2 individuals (node 3)
         first = individual_pair[0]
         second = individual_pair[1]
@@ -258,31 +257,14 @@ class GA:
         first._nodes[axis, 0] = second._nodes[axis, 0]
         second._nodes[axis, 0] = tmp
 
-    """ def elite(self):
-        n_elitist = int((10*self._popsize)/100)
-        n_rest = int(self._popsize - n_elitist)
-        fit = [x._fitness for x in self._pool]
-        probs = [x._probability for x in self._pool]
-
-        # chromozoms = self._pool
-        rest_ch = self._pool[np.random.choice(np.arange(0, len(self._pool)), n_rest, replace=True, p=probs)]
-        elitist_ch = self._pool[np.sort(fit, n_elitist, minimize=True)]
-        np.sor"""
-
     def crossover(self):
-        "Nodes locations crossover"""
-        # choose 2 individuals that will crossover
         probs = [x._probability for x in self._pool]
-        worst = self._pool[-1]
-        for i in range(self._popsize):
-            all = self._pool[i]
-            best = np.argmax(all)
-        worst_probab = [min(x._probability for x in self._pool)]
 
+        "Nodes crossover"
+        # choose 2 individuals that will crossover
         switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
-
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         self._switch1(switch_x0, 0)
@@ -292,8 +274,14 @@ class GA:
 
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
-        self._switchA(switch_a, 0)
+        self._switch_A(switch_a, 0)
 
+        "Select the best member"
+        for i in range(self._popsize):
+            all = self._pool[i]
+            best = np.argmax(all)
+
+        "Best member stays in population"
         for i in range(0, 1):
             if (switch_x0[i]) == best:
                 self._pool[-1] = best
@@ -305,22 +293,20 @@ class GA:
                 self._pool[-1] = best
 
     def mutation(self, mutation_type):
-        "Create empty cell"""
         probs = []
 
         "Append rule"
-        s = int((10*self._popsize)/100)
         for individual in self._pool:
             probs.append(individual._probability)  # append = add to the end
 
         "Pick a mutation candidate"
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
 
-        possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.2, 0.8, 0.75, 1.3, 1.2, 1.1]
+        possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.1, 1.1, 0.8, 0.85, 0.75, 1.3, 1.2, 1.2]
         coef = np.random.choice(possible_coefficients, 1)
 
         "Mutate"
-        for i in range(rnd.randrange(1,2,3)):
+        for i in range(rnd.randrange(1, 2, 3)):  # CH
             if mutation_type == "x":
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
@@ -334,6 +320,7 @@ class GA:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
 
+        "Best member stays in population"
         for i in range(self._popsize):
             best = np.argmax(self._pool[i])
             if mutation_candidate == best:

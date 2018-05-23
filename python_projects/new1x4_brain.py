@@ -1,17 +1,17 @@
 import new1x4_GA as GA
 import matplotlib as plt
 
-task = GA.GA(13)  # population size
+task = GA.GA(100)  # population size
 task.initial()
-for i in range(80):  # number of computation cycles
+for i in range(810):  # number of computation cycles
     task.calculation()
     task.fitness()
-    if i % 20 == 0:
+    if i % 200 == 0:
         task.plot_stress()
         task.plot_A()
     task.crossover()
-    #if i % 10 == 0:
-        #task.mutation(mutation_type="y")
-    #if i % 4 == 0:
-       # task.mutation(mutation_type="x")
-        #task.mutation(mutation_type="a")
+    if i % 100 == 0:
+        task.mutation(mutation_type="x")
+    if i % 50 == 0:
+        task.mutation(mutation_type="y")
+        task.mutation(mutation_type="a")

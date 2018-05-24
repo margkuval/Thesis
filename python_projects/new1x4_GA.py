@@ -170,36 +170,29 @@ class GA:
         fitnesses = []
 
         """def fitness(self, problem=slv, seeds=np.array(12345), iter_log=-1):
-
         # Create the logger object to store the data during the evolutionary process
         seeds = np.array([seeds]) if not type(seeds) is np.ndarray else seeds
         # Initialize veriables
         logger = [logger(iter_log=iter_log) for i in range(len(seeds))]
         bestt = [None] * len(seeds)
         iteration = [None] *len(seeds)
-
         Logger(-1).print_description({"Problem to solve:": GA},
                                      {"Size of the population": self._popsize,
                                       "Max. number of iterations": 20,
                                       "Crossover probability": 0.05,
                                       "Mutation probability": 0.05})
-
         fitness_mean = np.array([])
         fitness_std = np.array([])
         fitness_worst = np.array([])
         timeit = np.zeros(len(seeds))
-
         for i in range(len(seeds)):
-
             # Perform the evolutionary process
             start = datetime.time()
             logger[i], bestt[i], iteration[i] = _iterate(self, logger[i],seeds[i])
             timeit[i] = datetime.time() - start
-
             fitness_mean = np.append(fitness_mean, logger[i].get_log('mean')[-1])
             fitness_worst = np.append(fitness_worst, logger[i].get_log('worst')[-1])
             fitness_std = np.append(fitness_std, logger[i].get_log('std')[-1])
-
             if len(bestt) > 0:
                 # Print the results
                 bestt[i]["Fitness mean:"] = fitness_mean[i]
@@ -209,10 +202,8 @@ class GA:
                                              "Iteration:": iteration[i],
                                              "Running time(s):": timeit[i]},
                                             bestt[i])
-
         # Plot the graph with all the results
         logger[0].plot(np.array(['mean', 'worst', 'best']), GA, False)
-
         succes = len([d['Fitness'] for d in bestt]) / len(seeds) * 100
         Logger(-1).print_description({"Average iterations": np.mean(iteration),
                                       "Std iterations": np.std(iteration),
@@ -254,7 +245,7 @@ class GA:
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(1/(deflection_coef * deflection +
+                fitnesses.append((deflection_coef * deflection +
                                  stress_coef * stress * (min(deflections)/min(stresses)) +
                                  weight_coef * weight * (min(deflections)/min(weights))))
 
@@ -267,11 +258,11 @@ class GA:
 
             "Probability record"
             # member with lower fit (= better) has a higher probability to be chosen for the crossover
-            self._pool[i]._probability = fitnesses[i] / sum_fit
+            self._pool[i]._probability = fitnesses[(len_sf - 1) - i] / sum_fit
 
         "Sort members based on probability"
         # sorting in Python is ascending (if "-x._fitness", would be descending)
-        self._pool.sort(key=lambda x: -x._probability)
+        self._pool.sort(key=lambda x: x._fitness)
 
         "Print results"
         for i in range(self._popsize):
@@ -288,12 +279,9 @@ class GA:
                 np.round(pool._weight.sum())))
         print("..............")
 
-        """"Plot results"
-        logger[0].plot(np.array())"""
-
     def get_fit(self):
         "Best fitness"
-        best_obj= max(self._pool, key=lambda x: x._fitness)
+        best_obj= min(self._pool, key=lambda x: x._fitness)
         return np.round(best_obj.fitness, 3)
 
     def _switch1(self, individual_pair, axis=0):
@@ -321,7 +309,7 @@ class GA:
         second._nodes[axis, 3] = tmp
 
     def _switch_A(self, individual_pair, axis=0):
-        # set switch values between 2 individuals
+        # set switch values between 2 individuals (node 3)
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 0]  # temporary
@@ -330,7 +318,8 @@ class GA:
 
     def crossover(self):
         probs = np.array([x._probability for x in self._pool])
-        sum_x = sum(np.array(x._probability for x in self._pool))
+        sum_x = sum(x._probability for x in self._pool)
+
         if (sum_x) != 1:
             probs = (probs / sum_x)
         print(probs)
@@ -352,33 +341,37 @@ class GA:
         self._switch_A(switch_a, 0)
 
         "Select the best member"
-        best= max(self._pool, key=lambda x: x._probability)
-        print(sum(probs))
+        for i in range(self._popsize):
+            all = self._pool[i]
+            best = np.argmax(all)
+
+        best = max(self._pool, key=lambda x: x._probability)
 
         "Best member stays in population"
         for i in range(0, 1):
             if (switch_x0[i]) == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
             if (switch_x1[i]) == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
             if (switch_x2[i]) == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
             if switch_a[i] == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
-
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
     def mutation(self, mutation_type):
         probs = np.array([x._probability for x in self._pool])
         sum_x = sum(x._probability for x in self._pool)
+
         if (sum_x) != 1:
             probs = (probs / sum_x)
-        print(sum(probs))
-        if sum(probs) != 1:
-            probs = (probs / sum(probs))
+        print(probs)
+
+        if sum(probs) !=1:
+            probs = np.array(probs)/sum(np.array(probs))
 
         "Pick a mutation candidate"
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
@@ -392,21 +385,22 @@ class GA:
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
                 mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
-            break
 
-        for i in range(len(self.mem_begin)):
-            if mutation_type == "a":
-                mutation_candidate.A[i] = mutation_candidate.A[i] * coef
-            break
+        if mutation_type == "a":
+            for i in range(rnd.randrange(len(self.mem_begin))):
+                cur_candidate = self._pool[i]
+                se = np.argmin(self._pool[i]._stress)
+                if cur_candidate.A[se] > 0.0001:
+                    continue
+                cur_candidate.A[se] = cur_candidate.A[se] * coef
+                break
 
         "Best member stays in population"
         for i in range(self._popsize):
-            best = np.argmax(self._pool[i])
             best = max(self._pool, key=lambda x: x._probability)
             if mutation_candidate == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
-
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
     def plot_stress(self):
         num_to_plot = 4

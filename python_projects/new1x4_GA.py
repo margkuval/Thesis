@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import new1x4_solver_ as slv
 from matplotlib.gridspec import GridSpec
 import datetime
+import logger
+import seaborn as sns
 
 # CH = change if implementing on a new structure
 
@@ -167,6 +169,66 @@ class GA:
     def fitness(self):
         fitnesses = []
 
+        """def fitness(self, problem=slv, seeds=np.array(12345), iter_log=-1):
+        fitnesses = []
+
+        # Create the logger object to store the data during the evolutionary process
+        seeds = np.array([seeds]) if not type(seeds) is np.ndarray else seeds
+        # Initialize veriables
+        logger = [logger(iter_log=iter_log) for i in range(len(seeds))]
+        bestt = [None] * len(seeds)
+        iteration = [None] *len(seeds)
+
+        Logger(-1).print_description({"Problem to solve:": GA},
+                                     {"Size of the population": self._popsize,
+                                      "Max. number of iterations": 20,
+                                      "Crossover probability": 0.05,
+                                      "Mutation probability": 0.05})
+
+        fitness_mean = np.array([])
+        fitness_std = np.array([])
+        fitness_worst = np.array([])
+        timeit = np.zeros(len(seeds))
+
+        for i in range(len(seeds)):
+
+            # Perform the evolutionary process
+            start = datetime.time()
+            logger[i], bestt[i], iteration[i] = _iterate(self, logger[i],seeds[i])
+            timeit[i] = datetime.time() - start
+
+            fitness_mean = np.append(fitness_mean, logger[i].get_log('mean')[-1])
+            fitness_worst = np.append(fitness_worst, logger[i].get_log('worst')[-1])
+            fitness_std = np.append(fitness_std, logger[i].get_log('std')[-1])
+
+            if len(bestt) > 0:
+                # Print the results
+                bestt[i]["Fitness mean:"] = fitness_mean[i]
+                bestt[i]["Fitness std:"] = fitness_std[i]
+                logger[i].print_description({"Seed:": seeds[i],
+                                             "Run": i + 1,
+                                             "Iteration:": iteration[i],
+                                             "Running time(s):": timeit[i]},
+                                            bestt[i])
+
+        # Plot the graph with all the results
+        logger[0].plot(np.array(['mean', 'worst', 'best']), GA, False)
+
+        succes = len([d['Fitness'] for d in bestt]) / len(seeds) * 100
+        Logger(-1).print_description({"Average iterations": np.mean(iteration),
+                                      "Std iterations": np.std(iteration),
+                                      "% Succes": succes,
+                                      "Average run time:": np.mean(timeit),
+                                      "Std run time:": np.std(timeit)})
+        plt.plot(fitness_mean, 'ro-')
+        plt.plot(fitness_std, 'bo-')
+        plt.title(GA)
+        plt.xlabel("Runs")
+        plt.legend(np.array(["Fitness_mean", "Fitness_std"]), loc='upper right')
+        plt.savefig('results/' + 'GA'+ '.pdf')
+        plt.clf()
+        plt.show()"""
+
         "Condition to disadvantage members with stress > E"
         # if the inner force is higher than member's strength, make its fitness much worse
         for x in self._pool:
@@ -224,6 +286,9 @@ class GA:
                 np.round(abs(pool._stress).sum()),
                 np.round(pool._weight.sum())))
         print("..............")
+
+        """"Plot results"
+        logger[0].plot(np.array())"""
 
     def _switch1(self, individual_pair, axis=0):
         # set switch values between 2 individuals (node 1)

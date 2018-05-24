@@ -329,7 +329,11 @@ class GA:
         second._nodes[axis, 0] = tmp
 
     def crossover(self):
-        probs = [x._probability for x in self._pool]
+        probs = np.array([x._probability for x in self._pool])
+        sum_x = sum(np.array(x._probability for x in self._pool))
+        if (sum_x) != 1:
+            probs = (probs / sum_x)
+        print(probs)
 
         "Nodes crossover"
         # choose 2 individuals that will crossover
@@ -366,20 +370,15 @@ class GA:
                 self._pool[-1] = best
                 self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
 
-        print(x._probability for x in self._pool)
-        print(sum(probs))
-        sum_x = sum(x._probability for x in self._pool)
-        if (1 - sum(x._probability for x in self._pool)) != 0:
-            #self._pool[-1].probability = np.round(self._pool[-1].probability, 5)
-            for i in range(len(self._pool)):
-                probs = probs / sum(probs)
 
     def mutation(self, mutation_type):
         probs = np.array([x._probability for x in self._pool])
         sum_x = sum(x._probability for x in self._pool)
-
-        probs = (probs / sum_x)
+        if (sum_x) != 1:
+            probs = (probs / sum_x)
         print(sum(probs))
+        if sum(probs) != 1:
+            probs = (probs / sum(probs))
 
         "Pick a mutation candidate"
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
@@ -395,14 +394,10 @@ class GA:
                 mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
             break
 
-        if mutation_type == "a":
-            for i in range(self._popsize):
-                cur_candidate = self._pool[i]
-                se = np.argmin(self._pool[i]._stress)
-                if cur_candidate.A[se] > 0.0001:
-                    continue
-                cur_candidate.A[se] = cur_candidate.A[se] * coef
-                break
+        for i in range(len(self.mem_begin)):
+            if mutation_type == "a":
+                mutation_candidate.A[i] = mutation_candidate.A[i] * coef
+            break
 
         "Best member stays in population"
         for i in range(self._popsize):

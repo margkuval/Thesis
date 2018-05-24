@@ -141,7 +141,7 @@ class GA:
             pool._probability = 0
 
             "STRESS"
-            # globbing, to "res" save everything that slv.stress returns (tuple of 11)
+            # globbing, to "res" save everything that slv.stress returns (tuple)
             res = slv.stress(pool._nodes[0], pool._nodes[1],
                              self.mem_begin, self.mem_end, pool.E, pool.A, F, dof, deflection)
             stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_x2, numnode, dof_x2, length = res
@@ -170,7 +170,6 @@ class GA:
         fitnesses = []
 
         """def fitness(self, problem=slv, seeds=np.array(12345), iter_log=-1):
-        fitnesses = []
 
         # Create the logger object to store the data during the evolutionary process
         seeds = np.array([seeds]) if not type(seeds) is np.ndarray else seeds
@@ -227,7 +226,7 @@ class GA:
         plt.legend(np.array(["Fitness_mean", "Fitness_std"]), loc='upper right')
         plt.savefig('results/' + 'GA'+ '.pdf')
         plt.clf()
-        plt.show()"""
+        plt.show()""" # logger.py
 
         "Condition to disadvantage members with stress > E"
         # if the inner force is higher than member's strength, make its fitness much worse
@@ -255,7 +254,9 @@ class GA:
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append(deflection_coef * deflection + stress_coef * stress + weight_coef * weight)
+                fitnesses.append((deflection_coef * deflection +
+                                 stress_coef * stress * (min(deflections)/min(stresses)) +
+                                 weight_coef * weight * (min(deflections)/min(weights))))
 
         sum_fit = sum(fitnesses)
 
@@ -289,6 +290,11 @@ class GA:
 
         """"Plot results"
         logger[0].plot(np.array())"""
+
+    def get_fit(self):
+        "Best fitness"
+        best_obj= min(self._pool, key=lambda x: x._fitness)
+        return np.round(best_obj.fitness, 3)
 
     def _switch1(self, individual_pair, axis=0):
         # set switch values between 2 individuals (node 1)
@@ -346,16 +352,24 @@ class GA:
             all = self._pool[i]
             best = np.argmax(all)
 
+        best= max(self._pool, key=lambda x: x._probability)
+
         "Best member stays in population"
         for i in range(0, 1):
             if (switch_x0[i]) == best:
                 self._pool[-1] = best
+                #self._pool[-1].fitness = 1 - sum(self._pool[:(len(self._pool)-1)].
+                                                 #fitness)
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
             if (switch_x1[i]) == best:
                 self._pool[-1] = best
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
             if (switch_x2[i]) == best:
                 self._pool[-1] = best
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
             if switch_a[i] == best:
                 self._pool[-1] = best
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
     def mutation(self, mutation_type):
         probs = []
@@ -388,8 +402,10 @@ class GA:
         "Best member stays in population"
         for i in range(self._popsize):
             best = np.argmax(self._pool[i])
+            best = max(self._pool, key=lambda x: x._probability)
             if mutation_candidate == best:
                 self._pool[-1] = best
+                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
     def plot_stress(self):
         num_to_plot = 4

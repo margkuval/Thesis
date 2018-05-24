@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 task = GA.GA(20)  # population size
-iter_and_fit = []
+list_fit = []
+list_weight = []
 
 task.initial()
 for i in range(30):  # number of computation cycles
@@ -20,21 +21,35 @@ for i in range(30):  # number of computation cycles
         task.mutation(mutation_type="a")
 
     task.get_fit()
-    iter_and_fit.append((i, task.get_fit()))
-    print(iter_and_fit)
+    list_fit.append((i, task.get_fit()))
+    task.get_weight()
+    list_weight.append((i, task.get_weight()))
+    print(list_fit)
 
 
 fig = plt.figure()
-iter_and_fit = np.array(iter_and_fit).transpose()
+list_fit = np.array(list_fit).transpose()
+x_fit = list_fit[[0]]
+y_fit = list_fit[[1]]
 
-x = iter_and_fit[[0]]
-print(x)
-y = iter_and_fit[[1]]
-plt.scatter(x, y, c='k', alpha=0.3, edgecolors='grey',label='best fitness ever')
+ax1 = plt.subplot(121)
+plt.scatter(x_fit, y_fit, c='k', alpha=0.5, edgecolors='grey',label='best fitness ever')
 plt.xlabel('Iterations')
 plt.ylabel('Fitness')
 plt.grid(True)
 plt.legend()
+
+list_weight = np.array(list_weight).transpose()
+x_weight = list_weight[[0]]
+y_weight = list_weight[[1]]
+
+ax2 = plt.subplot(122, sharex = ax1)
+plt.scatter(x_weight, y_weight, c='r', alpha=0.3, edgecolors='r',label='Weight evolution')
+plt.xlabel('Iterations')
+plt.ylabel('Construction weight')
+plt.grid(True)
+plt.legend()
+
 plt.show()
 
 

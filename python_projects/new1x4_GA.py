@@ -234,6 +234,11 @@ class GA:
         best_obj= max(self._pool, key=lambda x: x._fitness)
         return np.round(best_obj.fitness, 3)
 
+    def get_weight(self):
+        "Best fitness"
+        best_obj= max(self._pool, key=lambda x: x._fitness)
+        return np.round(sum(best_obj.weight), 3)
+
     def _switch1(self, individual_pair, axis=0):
         # set switch values between 2 individuals (node 1)
         first = individual_pair[0]

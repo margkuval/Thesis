@@ -267,7 +267,7 @@ class GA:
         second._nodes[axis, 0] = tmp
 
     def crossover(self):
-        probs = np.array([x._probability for x in self._pool])
+        probs = ([x._probability for x in self._pool])
 
         "Nodes crossover"
         # choose 2 individuals that will crossover
@@ -275,8 +275,6 @@ class GA:
         switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
-
-        best = max(self._pool, key=lambda x: x._probability)
 
         self._switch1(switch_x0, 0)
         self._switch2(switch_x1, 0)
@@ -288,16 +286,16 @@ class GA:
         self._switch_A(switch_a, 0)
 
         "Select the best member"
-        for i in range(self._popsize):
-            all = self._pool[i]
-            best = np.argmax(all)
+        "Best fitness"
+        best = max(self._pool, key=lambda x: x._probability)
+        best_p = best.probability
 
         "Best member stays in population"
         for i in range(0, 1):
             if (switch_x0[i]) or (switch_x1[i]) or (switch_x2[i]) or switch_a[i] == best:
                 self._pool[-1] = best
-                #self._pool[-1].probability = (x._probability for x in self._pool[-1])
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+                pp = 1 + best_p - sum(x._probability for x in self._pool)
+                self._pool[-1].probability = pp
 
     def mutation(self, mutation_type):
         probs = [x._probability for x in self._pool]
@@ -320,6 +318,7 @@ class GA:
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
                 mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
+            break
 
         if mutation_type == "a":
             for i in range(rnd.randrange(len(self.mem_begin))):
@@ -331,11 +330,10 @@ class GA:
                 break
 
         "Best member stays in population"
-        for i in range(self._popsize):
-            best = max(self._pool, key=lambda x: x._probability)
-            if mutation_candidate == best:
-                self._pool[-1] = best
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+        best = max(self._pool, key=lambda x: x._fitness)
+        if mutation_candidate == best:
+            self._pool[-1] = best
+            self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
     def plot_stress(self):
         num_to_plot = 4

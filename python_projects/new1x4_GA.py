@@ -271,7 +271,7 @@ class GA:
 
         "Sort members based on probability"
         # sorting in Python is ascending (if "-x._fitness", would be descending)
-        self._pool.sort(key=lambda x: -x._fitness)
+        self._pool.sort(key=lambda x: -x._probability)
 
         "Print results"
         for i in range(self._popsize):
@@ -321,7 +321,7 @@ class GA:
         second._nodes[axis, 3] = tmp
 
     def _switch_A(self, individual_pair, axis=0):
-        # set switch values between 2 individuals (node 3)
+        # set switch values between 2 individuals
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 0]  # temporary
@@ -367,12 +367,18 @@ class GA:
                 self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
 
         print(x._probability for x in self._pool)
-        if sum(x._probability for x in self._pool) != 1:
+        print(sum(probs))
+        sum_x = sum(x._probability for x in self._pool)
+        if (1 - sum(x._probability for x in self._pool)) != 0:
+            #self._pool[-1].probability = np.round(self._pool[-1].probability, 5)
             for i in range(len(self._pool)):
-                self._pool[i].probability = self._pool[i].probability / max(x._probability for x in self._pool)
+                probs = probs / sum(probs)
 
     def mutation(self, mutation_type):
-        probs = [x._probability for x in self._pool]
+        probs = np.array([x._probability for x in self._pool])
+        sum_x = sum(x._probability for x in self._pool)
+
+        probs = (probs / sum_x)
         print(sum(probs))
 
         "Pick a mutation candidate"
@@ -387,6 +393,7 @@ class GA:
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
                 mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
+            break
 
         if mutation_type == "a":
             for i in range(self._popsize):
@@ -395,6 +402,7 @@ class GA:
                 if cur_candidate.A[se] > 0.0001:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
+                break
 
         "Best member stays in population"
         for i in range(self._popsize):
@@ -403,6 +411,7 @@ class GA:
             if mutation_candidate == best:
                 self._pool[-1] = best
                 self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
+
 
     def plot_stress(self):
         num_to_plot = 4

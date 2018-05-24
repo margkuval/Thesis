@@ -249,6 +249,26 @@ class GA:
         best_obj= max(self._pool, key=lambda x: x._fitness)
         return best_obj.deflection
 
+    def get_avg_fit(self):
+        "Best fitness"
+        best_obj= np.average(self._pool, key=lambda x: x._fitness)
+        return np.round(best_obj.fitness, 3)
+
+    def get_best_weight(self):
+        "Best fitness - weight"
+        best_obj= max(self._pool, key=lambda x: x._fitness)
+        return np.round(sum(best_obj.weight), 3)
+
+    def get_best_stress(self):
+        "Best fitness - stress"
+        best_obj= max(self._pool, key=lambda x: x._fitness)
+        return np.round(sum(abs(best_obj.stress)), 3)
+
+    def get_best_defl(self):
+        "Best fitness - deflections"
+        best_obj= max(self._pool, key=lambda x: x._fitness)
+        return best_obj.deflection
+
     def _switch1(self, individual_pair, axis=0):
         # set switch values between 2 individuals (node 1)
         first = individual_pair[0]

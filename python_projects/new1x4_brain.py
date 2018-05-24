@@ -40,7 +40,7 @@ for i in range(10):  # number of computation cycles
 
 plotplot_best = plotplot.plot_best(list_iter, list_fit, list_stress, list_weight, list_defl)
 
-plotplot_mean = plotplot.plot_
+plotplot_mean = plotplot.plot_best(list_iter, list_fit, list_stress, list_weight, list_defl)
 
 
 """

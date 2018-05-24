@@ -13,10 +13,10 @@ for i in range(92):  # number of computation cycles
         task.plot_stress()
         task.plot_A()
     task.crossover()
-    if i % 190 == 0:
+    if i % 10 == 0:
         task.mutation(mutation_type="x")
 
-    if i % 590 == 0:
+    if i % 20 == 0:
         task.mutation(mutation_type="y")
         task.mutation(mutation_type="a")
 

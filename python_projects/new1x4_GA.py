@@ -254,7 +254,7 @@ class GA:
             if weight.sum() < 0:
                 print("Weight is negative!")
             else:
-                fitnesses.append((deflection_coef * deflection +
+                fitnesses.append(1/(deflection_coef * deflection +
                                  stress_coef * stress * (min(deflections)/min(stresses)) +
                                  weight_coef * weight * (min(deflections)/min(weights))))
 
@@ -267,11 +267,11 @@ class GA:
 
             "Probability record"
             # member with lower fit (= better) has a higher probability to be chosen for the crossover
-            self._pool[i]._probability = fitnesses[(len_sf - 1) - i] / sum_fit
+            self._pool[i]._probability = fitnesses[i] / sum_fit
 
         "Sort members based on probability"
         # sorting in Python is ascending (if "-x._fitness", would be descending)
-        self._pool.sort(key=lambda x: x._fitness)
+        self._pool.sort(key=lambda x: -x._fitness)
 
         "Print results"
         for i in range(self._popsize):
@@ -293,7 +293,7 @@ class GA:
 
     def get_fit(self):
         "Best fitness"
-        best_obj= min(self._pool, key=lambda x: x._fitness)
+        best_obj= max(self._pool, key=lambda x: x._fitness)
         return np.round(best_obj.fitness, 3)
 
     def _switch1(self, individual_pair, axis=0):
@@ -348,35 +348,32 @@ class GA:
         self._switch_A(switch_a, 0)
 
         "Select the best member"
-        for i in range(self._popsize):
-            all = self._pool[i]
-            best = np.argmax(all)
-
         best= max(self._pool, key=lambda x: x._probability)
+        print(sum(probs))
 
         "Best member stays in population"
         for i in range(0, 1):
             if (switch_x0[i]) == best:
                 self._pool[-1] = best
-                #self._pool[-1].fitness = 1 - sum(self._pool[:(len(self._pool)-1)].
-                                                 #fitness)
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
             if (switch_x1[i]) == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
             if (switch_x2[i]) == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
             if switch_a[i] == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
+
+        print(x._probability for x in self._pool)
+        if sum(x._probability for x in self._pool) != 1:
+            for i in range(len(self._pool)):
+                self._pool[i].probability = self._pool[i].probability / max(x._probability for x in self._pool)
 
     def mutation(self, mutation_type):
-        probs = []
-
-        "Append rule"
-        for individual in self._pool:
-            probs.append(individual._probability)  # append = add to the end
+        probs = [x._probability for x in self._pool]
+        print(sum(probs))
 
         "Pick a mutation candidate"
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
@@ -405,7 +402,7 @@ class GA:
             best = max(self._pool, key=lambda x: x._probability)
             if mutation_candidate == best:
                 self._pool[-1] = best
-                self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+                self._pool[-1].probability = 1 + self._pool[-1].probability - sum(x._probability for x in self._pool)
 
     def plot_stress(self):
         num_to_plot = 4

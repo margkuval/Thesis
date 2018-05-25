@@ -103,7 +103,8 @@ def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
 
 def plot_fits_3(list_iter, list_iter_2, list_iter_3,
                 list_fit, list_fit_2, list_fit_3,
-                population_1, population_2, population_3):
+                population_1, population_2, population_3,
+                mut_x_1, mut_x_2, mut_x_3, mut_yA_1, mut_yA_2, mut_yA_3):
 
     list_fit = np.array(list_fit).transpose()
     list_fit_2 = np.array(list_fit_2).transpose()
@@ -121,13 +122,17 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
 
     ax1 = fig.add_subplot(1, 1, 1)
 
-    ax1.plot(x_fit_1, y_fit_1, 'r', label='Pop %s' % population_1)
-    ax1.plot(x_fit_2, y_fit_2, 'navy',label='Pop %s' % population_2)
-    ax1.plot(x_fit_3, y_fit_3, 'gold', label='Pop %s' % population_3)
+    ax1.plot(x_fit_1, y_fit_1, 'r', label=('Population size: %s' % population_1, 'Mutation x: every %s' % mut_x_1, 'Mutation y, A: every %s' %mut_yA_1))
+    ax1.plot(x_fit_2, y_fit_2, 'navy',label=('Population size: %s' % population_2, 'Mutation x: every %s' % mut_x_2, 'Mutation y, A: every %s' %mut_yA_2))
+    ax1.plot(x_fit_3, y_fit_3, 'gold', label=('Population size: %s' % population_3, 'Mutation x: every %s' % mut_x_3, 'Mutation y, A: every %s' %mut_yA_3))
+
+    #ax1.plot(x_fit_1, y_fit_1, 'r', label='Mutation %s' % )
+    #ax1.plot(x_fit_2, y_fit_2, 'navy',label='Pop %s' % population_2)
+    #ax1.plot(x_fit_3, y_fit_3, 'gold', label='Pop %s' % population_3)
     ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
     plt.grid(b=True, which='both', axis='both')
     plt.legend()
 
-    plt.savefig(datetime.datetime.now().strftime('Fit2_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('Fit3_%Y%m%d_%H%M%S_') + ".pdf")

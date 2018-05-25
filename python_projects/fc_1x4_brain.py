@@ -4,18 +4,18 @@ import matplotlib.pyplot as plt
 
 population_1 = 30
 num_cycles_1 = 10
-mut_1_1 = 10
-mut_1_2 = 20
+mut_x_1 = 10
+mut_yA_1 = 20
 
 population_2 = 15
 num_cycles_2 = 10
-mut_2_1 = 10
-mut_2_2 = 20
+mut_x_2 = 10
+mut_yA_2 = 20
 
 population_3 = 15
 num_cycles_3 = 10
-mut_3_1 = 10
-mut_3_2 = 20
+mut_x_3 = 10
+mut_yA_3 = 20
 
 "Task number 1"
 task = GA.GA(population_1)  # population size
@@ -34,9 +34,9 @@ for i in range(num_cycles_1):  # number of computation cycles
     # task.plot_stress()
     # task.plot_A()
     task.crossover()
-    if i % mut_1_1 == 0:
+    if i % mut_x_1 == 0:
         task.mutation(mutation_type="x")
-    if i % mut_1_2 == 0:
+    if i % mut_yA_1== 0:
         task.mutation(mutation_type="y")
         task.mutation(mutation_type="a")
 
@@ -72,9 +72,9 @@ for r in range(num_cycles_2):  # number of computation cycles
     # task_2.plot_stress()
     # task_2.plot_A()
     task_2.crossover()
-    if i % mut_2_1 == 0:
+    if i % mut_x_2 == 0:
         task.mutation(mutation_type="x")
-    if i % mut_2_2 == 0:
+    if i % mut_yA_2 == 0:
         task.mutation(mutation_type="y")
         task.mutation(mutation_type="a")
 
@@ -102,20 +102,20 @@ list_stress_3 = []
 list_defl_3 = []
 
 task_3.initial()
-for r in range(num_cycles_3):  # number of computation cycles
+for k in range(num_cycles_3):  # number of computation cycles
     task_3.calculation()
     task_3.fitness()
     # if i % 20 == 0:
     # task_3.plot_stress()
     # task_3.plot_A()
     task_3.crossover()
-    if i % mut_3_1 == 0:
+    if i % mut_x_3 == 0:
         task.mutation(mutation_type="x")
-    if i % mut_3_2 == 0:
+    if i % mut_yA_3 == 0:
         task.mutation(mutation_type="y")
         task.mutation(mutation_type="a")
 
-    list_iter_3.append(r)
+    list_iter_3.append(k)
 
     task_3.get_best_fit()
     task_3.get_best_weight()
@@ -129,8 +129,9 @@ for r in range(num_cycles_3):  # number of computation cycles
 
 #plt_best = plt_uni.plot_best(list_iter, list_fit, list_stress, list_weight, list_defl)
 plt_fits_3 = plt_uni.plot_fits_3(list_iter, list_iter_2, list_iter_3,
-                                 list_fit, list_fit_2, list_fit_3,
-                                 population_1, population_2, population_3)
+                list_fit, list_fit_2, list_fit_3,
+                population_1, population_2, population_3,
+                mut_x_1, mut_x_2, mut_x_3, mut_yA_1, mut_yA_2, mut_yA_3)
 
 plt.show()
 

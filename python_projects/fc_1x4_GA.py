@@ -444,17 +444,15 @@ class GA:
         #plt.show()
 
     def plot_A(self):
-        # ziskej hodnoty z dictionary
         num_to_plot = 4
-
-        gs = GridSpec(1, 4)
+        gs = GridSpec(1, 4) # 1 column, 4 in row
         gs.update(left=0.05, right=0.95, wspace=0.2)
-        # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
+
         fig = plt.figure(figsize=(18, 5))
         fig.suptitle("Best members in generation - cross section")
 
         for index in range(num_to_plot):
-            # take num_to_plot best candidates, load data from saved dict
+            # take num_to_plot best candidates, load data from saved dictionary
             pool = self._pool[index]
             plot_dict = pool._plot_dict
             stress = pool._stress

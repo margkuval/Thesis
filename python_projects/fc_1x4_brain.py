@@ -42,6 +42,47 @@ plt_best = plt_uni.plot_best(list_iter, list_fit, list_stress, list_weight, list
 
 plt_mean = plt_uni.plot_best(list_iter, list_fit, list_stress, list_weight, list_defl)
 
+
+task_2 = GA.GA(25)  # population size
+
+list_iter_2 = []
+list_fit_2 = []
+list_weight_2 = []
+list_stress_2 = []
+list_defl_2 = []
+
+task_2.initial()
+for r in range(15):  # number of computation cycles
+    task_2.calculation()
+    task_2.fitness()
+    # if i % 20 == 0:
+    # task_2.plot_stress()
+    # task_2.plot_A()
+    task_2.crossover()
+    if i % 10 == 0:
+        task.mutation(mutation_type="x")
+    if i % 20 == 0:
+        task.mutation(mutation_type="y")
+        task.mutation(mutation_type="a")
+
+    list_iter_2.append(r)
+
+    task_2.get_best_fit()
+    task_2.get_best_weight()
+    task_2.get_best_stress()
+    task_2.get_best_defl()
+
+    list_fit_2.append(task_2.get_best_fit())
+    list_weight_2.append(task_2.get_best_weight())
+    list_stress_2.append(task_2.get_best_stress())
+    list_defl_2.append(task_2.get_best_defl())
+
+
+plt_fit1_2 = plt_uni.plot_fits(list_iter, list_iter_2, list_fit, list_fit_2)
+plt_fits_2 = plt_uni.plot_fits_2(list_iter, list_iter_2, list_fit, list_fit_2)
+
+plt.show()
+
 """
 def plot(list_iter, list_fit, list_stress, list_weight, list_defl):
 

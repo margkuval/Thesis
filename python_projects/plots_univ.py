@@ -59,5 +59,59 @@ def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
 
     plt.subplots_adjust(left=0.2, wspace=0.5, top=0.8, hspace=0.5)  # keep top
 
+    plt.savefig(datetime.datetime.now().strftime('F_s_w_d_%Y%m%d_%H%M%S_') + ".pdf")
+
+
+def plot_fits(list_iter, list_iter_2, list_fit, list_fit_2):
+    list_fit = np.array(list_fit).transpose()
+
+    "Fitness plot"
+    x_fit_1 = list_iter
+    x_fit_2 = list_iter_2
+    y_fit_1 = list_fit
+    y_fit_2 = list_fit_2
+    print(x_fit_1)
+    print(y_fit_1)
+    print(x_fit_2)
+    print(y_fit_2)
+
+    #plt.plot(x_fit_1, y_fit_1)
+    #plt.plot(x_fit_2, y_fit_2)
+    #plt.show()
+
+    fig = plt.figure(figsize=(10, 8))
+
+    "Fitness plot"
+
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax1.plot(x_fit_1, y_fit_1, c='k')
+    ax1.set_title('Fitness evolution')
+    ax1.set_xlabel('Iterations')
+    ax1.set_ylabel('Fitness')
+    plt.grid(b=True, which='both', axis='both')
+
+    ax2 = fig.add_subplot(1, 2, 2, sharex=ax1, sharey=ax1)
+    ax2.plot(x_fit_2, y_fit_2, c='navy')
+    ax2.set_title('Stress evolution')
+    ax2.set_xlabel('Iterations')
+    ax2.set_ylabel('Abs stress sum')
+    plt.grid(b=True, which='both', axis='both')
+
+    plt.subplots_adjust(left=0.2, wspace=0.5, top=0.8, hspace=0.5)  # keep top
+
     plt.savefig(datetime.datetime.now().strftime('Fit_%Y%m%d_%H%M%S_') + ".pdf")
-    plt.show()
+
+
+def plot_fits_2(list_iter, list_iter_2, list_fit, list_fit_2):
+    list_fit = np.array(list_fit).transpose()
+
+    "Fitness plot"
+    x_fit_1 = list_iter
+    x_fit_2 = list_iter_2
+    y_fit_1 = list_fit
+    y_fit_2 = list_fit_2
+
+
+    plt.plot(x_fit_1, y_fit_1, 'r--', x_fit_2, y_fit_2, 'bs')
+
+    plt.savefig(datetime.datetime.now().strftime('Fit2_%Y%m%d_%H%M%S_') + ".pdf")

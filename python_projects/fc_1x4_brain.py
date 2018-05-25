@@ -7,7 +7,7 @@ import datetime
 
 "Task number 1"
 
-task = GA.GA(15)  # population size
+task = GA.GA(30)  # population size
 
 list_iter = []
 list_fit = []
@@ -16,7 +16,7 @@ list_stress = []
 list_defl = []
 
 task.initial()
-for i in range(500):  # number of computation cycles
+for i in range(10):  # number of computation cycles
     task.calculation()
     task.fitness()
     # if i % 20 == 0:
@@ -46,7 +46,7 @@ plt_best = plt_uni.plot_best(list_iter, list_fit, list_stress, list_weight, list
 
 "Task number 2"
 
-task_2 = GA.GA(50)  # population size
+task_2 = GA.GA(15)  # population size
 
 list_iter_2 = []
 list_fit_2 = []
@@ -55,7 +55,7 @@ list_stress_2 = []
 list_defl_2 = []
 
 task_2.initial()
-for r in range(100):  # number of computation cycles
+for r in range(10):  # number of computation cycles
     task_2.calculation()
     task_2.fitness()
     # if i % 20 == 0:
@@ -84,7 +84,7 @@ for r in range(100):  # number of computation cycles
 
 "Task number 3"
 
-task_3 = GA.GA(500)  # population size
+task_3 = GA.GA(15)  # population size
 
 list_iter_3 = []
 list_fit_3 = []
@@ -93,7 +93,7 @@ list_stress_3 = []
 list_defl_3 = []
 
 task_3.initial()
-for r in range(15):  # number of computation cycles
+for r in range(10):  # number of computation cycles
     task_3.calculation()
     task_3.fitness()
     # if i % 20 == 0:
@@ -119,7 +119,7 @@ for r in range(15):  # number of computation cycles
     list_defl_3.append(task_3.get_best_defl())
 
 #plt_best = plt_uni.plot_best(list_iter, list_fit, list_stress, list_weight, list_defl)
-plt_fits_3 = plt_uni.plot_fits_2(list_iter, list_iter_2, list_iter_3, list_fit, list_fit_2, list_fit_3)
+plt_fits_3 = plt_uni.plot_fits_3(list_iter, list_iter_2, list_iter_3, list_fit, list_fit_2, list_fit_3)
 
 plt.show()
 

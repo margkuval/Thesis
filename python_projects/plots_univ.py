@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime
+import fc_1x4_GA as GA
+
 
 def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
     fig = plt.figure(figsize=(10, 8))
@@ -99,7 +101,9 @@ def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
     plt.savefig(datetime.datetime.now().strftime('Fit_%Y%m%d_%H%M%S_') + ".pdf")"""
 
 
-def plot_fits_3(list_iter, list_iter_2, list_iter_3, list_fit, list_fit_2, list_fit_3):
+def plot_fits_3(list_iter, list_iter_2, list_iter_3,
+                list_fit, list_fit_2, list_fit_3,
+                population_1, population_2, population_3):
 
     list_fit = np.array(list_fit).transpose()
     list_fit_2 = np.array(list_fit_2).transpose()
@@ -116,20 +120,14 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3, list_fit, list_fit_2, list_
     y_fit_3 = list_fit_3
 
     ax1 = fig.add_subplot(1, 1, 1)
-    fit1 = (x_fit_1, y_fit_1)
-    fit2 = (x_fit_2, y_fit_2)
-    fit3 = (x_fit_3, y_fit_3)
-    l1 = len(list_iter)
-    l2 = len(list_iter_2)
-    l3 = len(list_iter_3)
 
-    ax1.plot(fit1, ls='-', c='red', label='Population %s' % l1)
-    ax1.plot(fit2, ls='-', c='navy', label='Population %s' % l2)
-    ax1.plot(fit3, ls='-', c='gold', label='Population %s' % l3)
-
+    ax1.plot(x_fit_1, y_fit_1, 'r', label='Pop %s' % population_1)
+    ax1.plot(x_fit_2, y_fit_2, 'navy',label='Pop %s' % population_2)
+    ax1.plot(x_fit_3, y_fit_3, 'gold', label='Pop %s' % population_3)
     ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
     plt.grid(b=True, which='both', axis='both')
+    plt.legend()
 
     plt.savefig(datetime.datetime.now().strftime('Fit2_%Y%m%d_%H%M%S_') + ".pdf")

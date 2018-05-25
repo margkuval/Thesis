@@ -99,20 +99,23 @@ def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
     plt.savefig(datetime.datetime.now().strftime('Fit_%Y%m%d_%H%M%S_') + ".pdf")"""
 
 
-def plot_fits_2(list_iter, list_iter_2, list_fit, list_fit_2):
+def plot_fits_2(list_iter, list_iter_2, list_iter_3, list_fit, list_fit_2, list_fit_3):
     list_fit = np.array(list_fit).transpose()
     list_fit_2 = np.array(list_fit_2).transpose()
+    list_fit_3 = np.array(list_fit_3).transpose()
 
     fig = plt.figure(figsize=(10, 8))
 
     "Fitness plot"
     x_fit_1 = list_iter
-    x_fit_2 = list_iter_2
     y_fit_1 = list_fit
+    x_fit_2 = list_iter_2
     y_fit_2 = list_fit_2
+    x_fit_3 = list_iter_3
+    y_fit_3 = list_fit_3
 
     ax1 = fig.add_subplot(1, 1, 1)
-    ax1.plot(x_fit_1, y_fit_1, 'r', x_fit_2, y_fit_2, 'navy')
+    ax1.plot(x_fit_1, y_fit_1, 'r', x_fit_2, y_fit_2, 'navy',  x_fit_3, y_fit_3, 'gold')
     ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')

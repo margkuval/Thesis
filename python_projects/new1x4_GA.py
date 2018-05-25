@@ -37,9 +37,10 @@ class Individual:
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
         self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
 
-        "Material characteristic E=(MPa)"
-        # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa # CH
+        "Material characteristic E=(MPa), ro=kg/m3)"  # CH
+        # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
         self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 210000, 40000])
+        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])/1000
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -155,7 +156,7 @@ class GA:
             pool._plot_dict = plot_dict
 
             "WEIGHT"
-            pool._weight = slv.weight(xi, xj, yi, yj, pool.A, length)
+            pool._weight = slv.weight(pool.A, length, pool.ro)
 
             print("node_1:{} node_2:{} node_3:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
                 np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
@@ -249,7 +250,7 @@ class GA:
         best_obj= max(self._pool, key=lambda x: x._fitness)
         return best_obj.deflection
 
-    def get_avg_fit(self):
+    """def get_avg_fit(self):
         "Best fitness"
         best_obj= np.average(self._pool, key=lambda x: x._fitness)
         return np.round(best_obj.fitness, 3)
@@ -267,7 +268,7 @@ class GA:
     def get_best_defl(self):
         "Best fitness - deflections"
         best_obj= max(self._pool, key=lambda x: x._fitness)
-        return best_obj.deflection
+        return best_obj.deflection"""
 
     def _switch1(self, individual_pair, axis=0):
         # set switch values between 2 individuals (node 1)

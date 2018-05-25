@@ -24,7 +24,7 @@ def deflection(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
 
     for p in range(numelem):
         # takes p from the range of numelem 1 by 1 and creates multiple k1 (local) matrices
-        # at the end maps k1 matices on right places in glob_stiff matrix
+        # at the end maps k1 matrices on right places in glob_stiff matrix
         n = ij[p]
         cc = c[p] * c[p]
         cs = c[p] * s[p]
@@ -69,7 +69,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, E, A, F, dof, deflection):
     dof_x2 = dof.reshape(numnode, 2)  # reshape for plotting
 
     """Stress calculation"""
-    "Deflections in x,y directions"
+    "Deflections in x, y directions"
     # using mem_end and mem_begin to calculate new nodes location
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members length
     k = E * A / length
@@ -98,11 +98,11 @@ def stress(xcoord, ycoord, mem_begin, mem_end, E, A, F, dof, deflection):
     return stress, stress_normed, xi, xj, yi, yj, xinew, xjnew, yinew, yjnew, F_x2, numnode, dof_x2, length
 
 
-def weight(A, xi, xj, yi, yj, length):
+def weight(A, length, ro):
 
     "Density of each element (1000 kg/m3)"""
     # reinforced concrete = 2500 kg/m3, steel = 7700 kg/m3
-    ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])/1000
+    # defined in GA
 
     "Weigth calculation"
     weight = length * A * ro

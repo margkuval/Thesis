@@ -1,5 +1,5 @@
-import new1x4_GA as GA
-import new1x4_plot as plotplot
+import DNTUSE_new1x4_GA as GA
+import DNTUSE_new1x4_plot as plotplot
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime

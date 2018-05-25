@@ -1,7 +1,7 @@
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
-import new1x4_solver_ as slv
+import DNTUSE_new1x4_solver_ as slv
 from matplotlib.gridspec import GridSpec
 import datetime
 

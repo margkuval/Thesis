@@ -1,4 +1,4 @@
-import new1x4_GA as GA
+import DNTUSE_new1x4_GA as GA
 import matplotlib as plt
 
 task = GA.GA(10)  # num of different results

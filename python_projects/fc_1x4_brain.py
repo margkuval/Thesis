@@ -2,8 +2,8 @@ import fc_1x4_GA as GA
 import plots_univ as plt_uni
 import matplotlib.pyplot as plt
 
-population_1 = 30
-num_cycles_1 = 10
+population_1 = 30  # population size
+num_cycles_1 = 10  # number of computation cycles
 mut_x_1 = 10
 mut_yA_1 = 20
 
@@ -18,7 +18,7 @@ mut_x_3 = 10
 mut_yA_3 = 20
 
 "Task number 1"
-task = GA.GA(population_1)  # population size
+task = GA.GA(population_1)
 
 list_iter = []
 list_fit = []
@@ -27,7 +27,7 @@ list_stress = []
 list_defl = []
 
 task.initial()
-for i in range(num_cycles_1):  # number of computation cycles
+for i in range(num_cycles_1):
     task.calculation()
     task.fitness()
     # if i % 20 == 0:

@@ -112,6 +112,9 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
 
     fig = plt.figure(figsize=(10, 8))
 
+    fig.suptitle('Fitness evolution', horizontalalignment='center', verticalalignment='center')
+    fig.subplots_adjust(wspace=0.5, hspace=0.6)
+
     "Fitness plot"
     x_fit_1 = list_iter
     y_fit_1 = list_fit
@@ -129,10 +132,10 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
     #ax1.plot(x_fit_1, y_fit_1, 'r', label='Mutation %s' % )
     #ax1.plot(x_fit_2, y_fit_2, 'navy',label='Pop %s' % population_2)
     #ax1.plot(x_fit_3, y_fit_3, 'gold', label='Pop %s' % population_3)
-    ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
     plt.grid(b=True, which='both', axis='both')
-    plt.legend()
+    plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3,
+               ncol=1, mode="expand", borderaxespad=0.)
 
     plt.savefig(datetime.datetime.now().strftime('Fit3_%Y%m%d_%H%M%S_') + ".pdf")

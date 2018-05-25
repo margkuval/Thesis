@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime
-import fc_1x4_GA as GA
 
 
 def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
@@ -61,7 +60,7 @@ def plot_best(list_iter, list_fit, list_stress, list_weight, list_defl):
 
     plt.subplots_adjust(left=0.2, wspace=0.5, top=0.8, hspace=0.5)  # keep top
 
-    plt.savefig(datetime.datetime.now().strftime('F_s_w_d_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('F_s_w_d_1x4_%Y%m%d_%H%M%S_') + ".pdf")
 
 
 """def plot_fits(list_iter, list_iter_2, list_fit, list_fit_2):
@@ -125,9 +124,12 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
 
     ax1 = fig.add_subplot(1, 1, 1)
 
-    ax1.plot(x_fit_1, y_fit_1, 'r', label=('Population size: %s' % population_1, 'Mutation x: every %s' % mut_x_1, 'Mutation y, A: every %s' %mut_yA_1))
-    ax1.plot(x_fit_2, y_fit_2, 'navy',label=('Population size: %s' % population_2, 'Mutation x: every %s' % mut_x_2, 'Mutation y, A: every %s' %mut_yA_2))
-    ax1.plot(x_fit_3, y_fit_3, 'gold', label=('Population size: %s' % population_3, 'Mutation x: every %s' % mut_x_3, 'Mutation y, A: every %s' %mut_yA_3))
+    ax1.plot(x_fit_1, y_fit_1, 'r', label=('Population size: %s' % population_1,
+                                           'Mutation x: every %s' % mut_x_1, 'Mutation y, A: every %s' %mut_yA_1))
+    ax1.plot(x_fit_2, y_fit_2, 'navy',label=('Population size: %s' % population_2,
+                                             'Mutation x: every %s' % mut_x_2, 'Mutation y, A: every %s' %mut_yA_2))
+    ax1.plot(x_fit_3, y_fit_3, 'gold', label=('Population size: %s' % population_3,
+                                              'Mutation x: every %s' % mut_x_3, 'Mutation y, A: every %s' %mut_yA_3))
 
     #ax1.plot(x_fit_1, y_fit_1, 'r', label='Mutation %s' % )
     #ax1.plot(x_fit_2, y_fit_2, 'navy',label='Pop %s' % population_2)
@@ -138,4 +140,4 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
     plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3,
                ncol=1, mode="expand", borderaxespad=0.)
 
-    plt.savefig(datetime.datetime.now().strftime('Fit3_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('Fit3_1x4_%Y%m%d_%H%M%S_') + ".pdf")

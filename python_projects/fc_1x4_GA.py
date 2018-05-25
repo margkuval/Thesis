@@ -33,12 +33,27 @@ class Individual:
 
         "Cross-section area (m)"
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
-        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
+        self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
+        self.A[1] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
+        self.A[2] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
+        self.A[3] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
+        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
 
         "Material characteristic E=(MPa), ro=kg/m3)"  # CH
         # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
         self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 210000, 40000])
+        self.E[0] = 210000
+        self.E[1] = 210000
+        self.E[2] = 210000
+        self.E[3] = 210000
+        self.E[11] = 210000
+
         self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])/1000
+        self.ro[0] = 7700
+        self.ro[1] = 7700
+        self.ro[2] = 7700
+        self.ro[3] = 7700
+        self.ro[11] = 7700
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -174,7 +189,7 @@ class GA:
             for i in range(len(self.mem_begin)):
                 for strength in self._pool[i].E:
                     if strength < abs(x._stress[i]):
-                        x._stress[i] = x._stress[i] * 100
+                        x._stress[i] = x._stress[i] * 200
 
         """Rate / give fitness to each member"""
         print("fitness")  # lower fitness = better fitness
@@ -347,7 +362,7 @@ class GA:
         coef = np.random.choice(possible_coefficients, 1)
 
         "Mutate"
-        for i in range(rnd.randrange(1, 2, 3)):  # CH
+        for i in range(rnd.randrange(1, 2, 3)):  # CH - 3 nodes for 1x4
             if mutation_type == "x":
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
@@ -400,7 +415,7 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 11)  # CH
+            ax.set_xlim(-1, 11)   # CH
             ax.set_ylim(-2.5, 5)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
@@ -439,7 +454,8 @@ class GA:
                 if np.array_equal(dof_x2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
-        plt.savefig(datetime.datetime.now().strftime('stress_%Y%m%d_%H%M%S_') + ".png", DPI=1200)
+        plt.savefig(datetime.datetime.now().
+                    strftime('stress_1x4_%Y%m%d_%H%M%S_pop300_cyc150_mx50_myA_45') + ".pdf")
 
         #plt.show()
 
@@ -512,6 +528,7 @@ class GA:
 
         # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
-        plt.savefig(datetime.datetime.now().strftime('cross section_%Y%m%d_%H%M%S_') + ".png", DPI=1200)
+        plt.savefig(datetime.datetime.now().
+                    strftime('cross section_1x4_%Y%m%d_%H%M%S_pop300_cyc150_mx50_myA_45') + ".pdf")
 
         #plt.show()

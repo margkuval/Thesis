@@ -2,20 +2,23 @@ import fc_1x4_GA as GA
 import plots_univ as plt_uni
 import matplotlib.pyplot as plt
 
-population_1 = 30  # population size
-num_cycles_1 = 10  # number of computation cycles
-mut_x_1 = 10
-mut_yA_1 = 20
+population_1 = 300  # population size
+num_cycles_1 = 200  # number of computation cycles
+mut_x_1 = 50
+mut_yA_1 = 45
+plt_s_A_1 = 200
 
-population_2 = 15
-num_cycles_2 = 10
-mut_x_2 = 10
-mut_yA_2 = 20
+population_2 = 300
+num_cycles_2 = 200
+mut_x_2 = 50
+mut_yA_2 = 45
+plt_s_A_2 = 200
 
-population_3 = 15
-num_cycles_3 = 10
-mut_x_3 = 10
-mut_yA_3 = 20
+population_3 = 300
+num_cycles_3 = 200
+mut_x_3 = 50
+mut_yA_3 = 45
+plt_s_A_3 = 200
 
 "Task number 1"
 task = GA.GA(population_1)
@@ -30,9 +33,9 @@ task.initial()
 for i in range(num_cycles_1):
     task.calculation()
     task.fitness()
-    # if i % 20 == 0:
-    # task.plot_stress()
-    # task.plot_A()
+    if i % plt_s_A_1 == 0:
+     task.plot_stress()
+     task.plot_A()
     task.crossover()
     if i % mut_x_1 == 0:
         task.mutation(mutation_type="x")
@@ -68,9 +71,9 @@ task_2.initial()
 for r in range(num_cycles_2):  # number of computation cycles
     task_2.calculation()
     task_2.fitness()
-    # if i % 20 == 0:
-    # task_2.plot_stress()
-    # task_2.plot_A()
+    if i % plt_s_A_2 == 0:
+        task_2.plot_stress()
+        task_2.plot_A()
     task_2.crossover()
     if i % mut_x_2 == 0:
         task.mutation(mutation_type="x")
@@ -105,9 +108,9 @@ task_3.initial()
 for k in range(num_cycles_3):  # number of computation cycles
     task_3.calculation()
     task_3.fitness()
-    # if i % 20 == 0:
-    # task_3.plot_stress()
-    # task_3.plot_A()
+    if i % plt_s_A_3 == 0:
+        task_3.plot_stress()
+        task_3.plot_A()
     task_3.crossover()
     if i % mut_x_3 == 0:
         task.mutation(mutation_type="x")

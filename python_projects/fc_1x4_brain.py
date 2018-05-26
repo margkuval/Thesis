@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 "Initial values - population, number of iterations, mutation 1, mutation 2, iteration of plotting"
-inp_task_1 = np.array([30, 50, 20, 15, 50])
+inp_task_1 = np.array([30, 20, 50, 45, 50])
 
 population_1 = inp_task_1[0]  # population size
 num_cycles_1 = inp_task_1[1] # number of computation cycles
@@ -13,7 +13,7 @@ mut_x_1 = inp_task_1[2]
 mut_yA_1 = inp_task_1[3]
 plt_s_A_1 = inp_task_1[4]
 
-inp_task_2 = np.array([30, 50, 20, 15, 50])
+inp_task_2 = np.array([30, 20, 50, 45, 50])
 
 population_2 = inp_task_2[0]  # population size
 num_cycles_2 = inp_task_2[1] # number of computation cycles
@@ -21,7 +21,7 @@ mut_x_2 = inp_task_2[2]
 mut_yA_2 = inp_task_2[3]
 plt_s_A_2 = inp_task_2[4]
 
-inp_task_3 = np.array([30, 50, 20, 15, 50])
+inp_task_3 = np.array([30, 20, 50, 45, 50])
 
 population_3 = inp_task_3[0]  # population size
 num_cycles_3 = inp_task_3[1] # number of computation cycles
@@ -42,6 +42,7 @@ list_defl = []
 
 task.initial()
 for i in range(num_cycles_1):
+    print("New task")
     task.calculation()
     task.fitness()
     if i % plt_s_A_1 == 0:
@@ -85,6 +86,7 @@ list_defl_2 = []
 
 task_2.initial()
 for r in range(num_cycles_2):  # number of computation cycles
+    print("New task")
     task_2.calculation()
     task_2.fitness()
     if r % plt_s_A_2 == 0:
@@ -128,6 +130,7 @@ list_defl_3 = []
 
 task_3.initial()
 for k in range(num_cycles_3):  # number of computation cycles
+    print("New task")
     task_3.calculation()
     task_3.fitness()
     if k % plt_s_A_3 == 0:

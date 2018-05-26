@@ -295,32 +295,36 @@ class GA:
         best_obj= max(self._pool, key=lambda x: x._fitness)
         return best_obj.deflection"""
 
-    def _switch1(self, individual_pair, axis=0):
-        # set switch values between 2 individuals (node 1)
+    def _switch_x3(self, individual_pair, axis=0):
+        # set switch values between 2 individuals
         first = individual_pair[0]
         second = individual_pair[1]
-        tmp = first._nodes[axis, 1]  # = temporary
-        first._nodes[axis, 1] = second._nodes[axis, 1]
-        second._nodes[axis, 1] = tmp
+        tmp = first._nodes[axis, 3]  # = temporary
+        first._nodes[axis, 3] = second._nodes[axis, 3]
+        second._nodes[axis, 3] = tmp
 
-    def _switch2(self, individual_pair, axis=0):
-        # set switch values between 2 individuals (node 2)
+    def _switch_x7(self, individual_pair, axis=0):
         first = individual_pair[0]
         second = individual_pair[1]
-        tmp = first._nodes[axis, 2]  # temporary
-        first._nodes[axis, 2] = second._nodes[axis, 2]
-        second._nodes[axis, 2] = tmp
+        tmp = first._nodes[axis, 7]  # temporary
+        first._nodes[axis, 7] = second._nodes[axis, 7]
+        second._nodes[axis, 7] = tmp
 
-    def _switch3(self, individual_pair, axis=0):
-        # set switch values between 2 individuals (node 3)
+    def _switch_y3(self, individual_pair, axis=1):
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 3]  # temporary
         first._nodes[axis, 3] = second._nodes[axis, 3]
         second._nodes[axis, 3] = tmp
 
+    def _switch_y7(self, individual_pair, axis=1):
+        first = individual_pair[0]
+        second = individual_pair[1]
+        tmp = first._nodes[axis, 7]  # temporary
+        first._nodes[axis, 7] = second._nodes[axis, 7]
+        second._nodes[axis, 7] = tmp
+
     def _switch_A(self, individual_pair, axis=0):
-        # set switch values between 2 individuals (node 3)
         first = individual_pair[0]
         second = individual_pair[1]
         tmp = first._nodes[axis, 0]  # temporary
@@ -332,15 +336,15 @@ class GA:
 
         "Nodes crossover"
         # choose 2 individuals that will crossover
-        switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
-        switch_x1 = np.random.choice(self._pool, 2, replace=False, p=probs)
-        switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
-        #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_x3 = np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_x7 = np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_y3 = np.random.choice(self._pool, 2, replace=False, p=probs)
+        switch_y7 = np.random.choice(self._pool, 2, replace=False, p=probs)
 
-        self._switch1(switch_x0, 0)
-        self._switch2(switch_x1, 0)
-        self._switch3(switch_x2, 0)
-        #self._switch2(switch_y, 1)
+        self._switch_x3(switch_x3, 0)
+        self._switch_x7(switch_x7, 0)
+        self._switch_y3(switch_y3, 1)
+        self._switch_y7(switch_y7, 1)
 
         "Areas Crossover"
         switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
@@ -353,7 +357,7 @@ class GA:
 
         "Best member stays in population"
         for i in range(0, 1):
-            if (switch_x0[i]) or (switch_x1[i]) or (switch_x2[i]) or switch_a[i] == best:
+            if switch_x3[i] or switch_x7[i] or switch_y3[i] or switch_y7[i] or switch_a[i] == best:
                 self._pool[-1] = best
                 pp = 1 + best_p - sum(x._probability for x in self._pool)
                 self._pool[-1].probability = pp

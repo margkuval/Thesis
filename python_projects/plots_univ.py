@@ -72,7 +72,7 @@ def plot_best_1(list_iter, list_fit, list_stress_positive, list_stress_negative,
    # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
     plt.subplots_adjust(wspace=0.5, hspace=0.5)  # keep top
-    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_I1_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_I1_%Y%m%d_%H%M%S_') + ".pdf")
 
 
 def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_negative_2, list_weight_2, list_defl_2):
@@ -142,7 +142,7 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
    # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
     plt.subplots_adjust(wspace=0.5, hspace=0.5)  # keep top
-    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_I2_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_I2_%Y%m%d_%H%M%S_') + ".pdf")
 
 
 def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_negative_3, list_weight_3, list_defl_3):
@@ -213,7 +213,7 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
    # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
     plt.subplots_adjust(wspace=0.5, hspace=0.5)  # keep top
-    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_I3_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_I3_%Y%m%d_%H%M%S_') + ".pdf")
 
 
 """
@@ -364,4 +364,4 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
     plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3,
                ncol=1, mode="expand", borderaxespad=0.)
 
-    plt.savefig(datetime.datetime.now().strftime('Fit3_1x4_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('Fit3_%Y%m%d_%H%M%S_') + ".pdf")

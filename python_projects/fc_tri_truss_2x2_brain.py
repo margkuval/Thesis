@@ -2,23 +2,23 @@ import fc_tri_truss_2x2_GA as GA
 import plots_univ as plt_uni
 import matplotlib.pyplot as plt
 
-population_1 = 30  # population size
-num_cycles_1 = 20 # number of computation cycles
-mut_x_1 = 8
-mut_yA_1 = 7
-plt_s_A_1 = 20
+population_1 = 100  # population size
+num_cycles_1 = 200 # number of computation cycles
+mut_x_1 = 30
+mut_yA_1 = 40
+plt_s_A_1 = 50
 
-population_2 = 30
-num_cycles_2 = 20
-mut_x_2 = 8
-mut_yA_2 = 7
-plt_s_A_2 = 20
+population_2 = 100
+num_cycles_2 = 200
+mut_x_2 = 30
+mut_yA_2 = 40
+plt_s_A_2 = 50
 
-population_3 = 30
-num_cycles_3 = 20
-mut_x_3 = 8
-mut_yA_3 = 7
-plt_s_A_3 = 20
+population_3 = 100
+num_cycles_3 = 200
+mut_x_3 = 30
+mut_yA_3 = 40
+plt_s_A_3 = 50
 
 "Task number 1"
 task = GA.GA(population_1)

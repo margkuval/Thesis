@@ -22,10 +22,10 @@ class Individual:
         #y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
         x7GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
-        y7GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
+        y7GA = rnd.randrange(np.round((ycoord[1] - 0.7) * 100), np.round((ycoord[1] + 0.7) * 100)) / 100
 
         x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
-        y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
+        y3GA = rnd.randrange(np.round((ycoord[3] - 0.7) * 100), np.round((ycoord[3] + 0.7) * 100)) / 100
 
         "New coordinates"
         xcoord = np.array([0, a, 2 * a, x3GA, 2 * a, a, 0, x7GA])  # CH
@@ -167,10 +167,9 @@ class GA:
             "WEIGHT"
             pool._weight = slv.weight(pool.A, length, pool.ro)
 
-            print("node_1:{} node_2:{} node_3:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
-                np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
+            print("node_3:{} node_7:{} |def| sum:{} |stress| sum:{} |weight| sum:{}".format(
                 np.round([pool._nodes[0, 3], pool._nodes[1, 3]], 3),
+                np.round([pool._nodes[0, 7], pool._nodes[1, 7]], 3),
                 np.round(abs(pool._deflection).sum(), 3),
                 np.round(abs(pool._stress).sum()),
                 np.round(pool._weight.sum())))
@@ -221,7 +220,7 @@ class GA:
             self._pool[i]._probability = fitnesses[i] / sum_fit
 
         "Sort members based on probability"
-        # sorting in Python is ascending (if "-x._fitness", would be descending)
+        # sorting in Python is ascending (if "-x._fitness", is descending)
         self._pool.sort(key=lambda x: -x._fitness)
 
         "Print results"
@@ -403,7 +402,7 @@ class GA:
         gs = GridSpec(1, 4)
         gs.update(left=0.05, right=0.95, wspace=0.2)
         # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
-        fig = plt.figure(figsize=(18, 8))
+        fig = plt.figure(figsize=(18, 6))
         fig.suptitle("Best members in generation - stress")
 
         for index in range(num_to_plot):
@@ -428,8 +427,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 9)   # CH
-            ax.set_ylim(-2.5, 5)  # CH
+            ax.set_xlim(-2, 5)   # CH
+            ax.set_ylim(-1, 6)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
 
@@ -468,7 +467,7 @@ class GA:
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
         plt.savefig(datetime.datetime.now().
-            strftime('stress_1x4_%Y%m%d_%H%M%S_pop300_cyc200_mx50_myA_45') + ".pdf")
+            strftime('stress_tri_truss)2x2_%Y%m%d_%H%M%S_pop100_cyc200_mx30_myA40') + ".pdf")
 
         #plt.show()
 
@@ -477,7 +476,7 @@ class GA:
         gs = GridSpec(1, 4) # 1 column, 4 in row
         gs.update(left=0.05, right=0.95, wspace=0.2)
 
-        fig = plt.figure(figsize=(18, 8))
+        fig = plt.figure(figsize=(18, 6))
         fig.suptitle("Best members in generation - cross section")
 
         for index in range(num_to_plot):
@@ -502,8 +501,8 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 9)  # CH
-            ax.set_ylim(-2.5, 5)  # CH
+            ax.set_xlim(-2, 5)  # CH
+            ax.set_ylim(-1, 6)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
 
@@ -542,6 +541,6 @@ class GA:
         # can use Textbox if needed
         # plt.subplots(1, 2,sharex=True, sharey=True)
         plt.savefig(datetime.datetime.now().
-                    strftime('cross section_1x4_%Y%m%d_%H%M%S_pop300_cyc200_mx50_myA_45') + ".pdf")
+                    strftime('cross section_tri_truss_2x2_%Y%m%d_%H%M%S_pop100_cyc200_mx30_myA40') + ".pdf")
 
         #plt.show()

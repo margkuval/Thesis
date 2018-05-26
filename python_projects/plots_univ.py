@@ -3,7 +3,7 @@ import numpy as np
 import datetime
 
 
-def plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl):
+def plot_best_1(list_iter, list_fit, list_stress_positive, list_stress_negative, list_weight, list_defl):
     fig = plt.figure(figsize=(10, 8))
     fig.suptitle('Individual 1: the fittest individual development in time',
                  horizontalalignment='center', verticalalignment='center')
@@ -12,8 +12,6 @@ def plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl):
     list_fit = np.array(list_fit).transpose()
     x_fit = list_iter
     y_fit = list_fit
-    print(list_iter)
-    print(list_fit)
 
     ax1 = fig.add_subplot(2, 2, 1)
     ax1.plot(x_fit, y_fit, c='r')
@@ -21,17 +19,30 @@ def plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl):
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
     plt.grid(b=True, which='both', axis='both')
+    print(list_stress_positive)
+    print(list_stress_negative)
 
     "Stress plot"
-    list_stress = np.array(list_stress).transpose()
-    x_stress = list_iter
-    y_stress = list_stress
+    list_stress_positive = np.array(list_stress_positive)
+    x_stress_positive = list_iter
+    y_stress_positive = list_stress_positive
+    stress_positive = (x_stress_positive, y_stress_positive)
+
+    list_stress_negative = np.array(list_stress_negative)
+    x_stress_negative = list_iter
+    y_stress_negative = list_stress_negative
+
+    stress_negative = (x_stress_negative, y_stress_negative)
 
     ax2 = fig.add_subplot(2, 2, 2)
-    ax2.plot(x_stress, y_stress, c='coral')
     ax2.set_title('Stress evolution')
     ax2.set_xlabel('Iterations')
-    ax2.set_ylabel('Abs stress sum (MPa)')
+    ax2.plot(x_stress_negative, y_stress_negative, c='coral')
+    ax2.set_ylabel('Negative(r) stress sum (MPa)')
+
+    ax2_t = ax2.twinx()
+    ax2_t.plot(x_stress_positive, y_stress_positive, c='cyan')
+    ax2_t.set_ylabel('Positive stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
 
     "Weight plot"
@@ -63,38 +74,45 @@ def plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl):
 
     plt.subplots_adjust(wspace=0.5, top=0.8, hspace=0.5)  # keep top
 
-    plt.savefig(datetime.datetime.now().strftime('F_s_w_d_1x4_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_%Y%m%d_%H%M%S_') + ".pdf")
 
+"""
 def plot_best_1_alter(list_iter, list_fit, list_stress, list_weight, list_defl):
     fig = plt.figure(figsize=(10, 8))
 
     fig.suptitle('Individual 1: the fittest individual development in time',
                  horizontalalignment='center', verticalalignment='center')
 
-    "Fitness plot"
+    "Positive stress plot"
     list_fit = np.array(list_fit).transpose()
     x_fit = list_iter
     y_fit = list_fit
-    print(list_iter)
-    print(list_fit)
+
+    list_iter = []
+    list_fit = []
+    list_weight = []
+    list_stress = []
+    list_stress_positive = []
+    list_stress_negative = []
+    list_defl = []
 
     ax1 = fig.add_subplot(2, 2, 1)
-    ax1.plot(x_fit, y_fit, c='r')
-    ax1.set_title('Fitness evolution')
+    ax1.plot(x_fit, y_fit, c='orange')
+    ax1.set_title('Positive stress evolution')
     ax1.set_xlabel('Iterations')
-    ax1.set_ylabel('Fitness')
+    ax1.set_ylabel('Positive stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
 
-    "Stress plot"
+    "Negative stress plot"
     list_stress = np.array(list_stress).transpose()
     x_stress = list_iter
     y_stress = list_stress
 
     ax2 = fig.add_subplot(2, 2, 2)
     ax2.plot(x_stress, y_stress, c='coral')
-    ax2.set_title('Stress evolution')
+    ax2.set_title('Negative stress evolution')
     ax2.set_xlabel('Iterations')
-    ax2.set_ylabel('Abs stress sum (MPa)')
+    ax2.set_ylabel('Negative stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
 
     "Weight plot"
@@ -126,7 +144,7 @@ def plot_best_1_alter(list_iter, list_fit, list_stress, list_weight, list_defl):
 
     plt.subplots_adjust(wspace=0.5, top=0.8, hspace=0.5)  # keep top
 
-    plt.savefig(datetime.datetime.now().strftime('F_s_w_d_1x4_%Y%m%d_%H%M%S_') + ".pdf")
+    plt.savefig(datetime.datetime.now().strftime('F_s_w_d_1x4_%Y%m%d_%H%M%S_') + ".pdf")"""
 
 
 """def plot_fits(list_iter, list_iter_2, list_fit, list_fit_2):

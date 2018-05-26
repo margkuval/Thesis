@@ -2,20 +2,20 @@ import fc_1x4_GA as GA
 import plots_univ as plt_uni
 import matplotlib.pyplot as plt
 
-population_1 = 300  # population size
-num_cycles_1 = 200  # number of computation cycles
+population_1 = 30  # population size
+num_cycles_1 = 20  # number of computation cycles
 mut_x_1 = 50
 mut_yA_1 = 45
 plt_s_A_1 = 200
 
-population_2 = 300
-num_cycles_2 = 200
+population_2 = 30
+num_cycles_2 = 20
 mut_x_2 = 50
 mut_yA_2 = 45
 plt_s_A_2 = 200
 
-population_3 = 300
-num_cycles_3 = 200
+population_3 = 30
+num_cycles_3 = 20
 mut_x_3 = 50
 mut_yA_3 = 45
 plt_s_A_3 = 200
@@ -61,9 +61,9 @@ for i in range(num_cycles_1):
     list_stress_negative.append(task.get_best_stress_negative())
     list_defl.append(task.get_best_defl())
 
-plt_best_1 = plt_uni.plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl)
+plt_best_1 = plt_uni.plot_best_1(list_iter, list_fit,list_stress_positive, list_stress_negative, list_weight, list_defl)
 
-plt_best_1_alter = plt_uni.plot_best_1_alter(list_iter, list_fit, list_stress, list_weight, list_defl)
+#plt_best_1_alter = plt_uni.plot_best_1_alter(list_iter, list_fit, list_stress, list_weight, list_defl)
 
 
 "Task number 2"

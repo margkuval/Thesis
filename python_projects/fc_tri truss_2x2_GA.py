@@ -14,46 +14,46 @@ class Individual:
         h = a  # triangle height  # CH
 
         "Original coordinates"
-        xcoord = np.array([0, a, 2.5 * a, 4 * a, 5 * a, a, 2.5 * a, 4 * a])  # CH
-        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # CH
+        xcoord = np.array([0, a, 2 * a, 1.5 * a, 2 * a, a, 0, 0.5 * a])  # CH
+        ycoord = np.array([0, 0, 0, h, 2 * h, 2 * h, 2 * h, h])          # CH
 
         "Choose a random number in range +- (m) from the original coordinate"
-        x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100  # CH
+        #x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100  # CH
         #y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
-        x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
-        #y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
+        x7GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
+        y7GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
 
         x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
-        #y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
+        y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
 
         "New coordinates"
-        xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
-        ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # can use np.ix_?    # CH
+        xcoord = np.array([0, a, 2 * a, x3GA, 2 * a, a, 0, x7GA])  # CH
+        ycoord = np.array([0, 0, 0, y3GA, 2 * h, 2 * h, 2 * h, y7GA])  # can use np.ix_?    # CH
 
         "Cross-section area (m)"
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
-        self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
+        """self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
         self.A[1] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[2] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[3] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
-        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
+        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000"""
 
         "Material characteristic E=(MPa), ro=kg/m3)"  # CH
         # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
-        self.E[0] = 210000
+        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
+        """self.E[0] = 210000
         self.E[1] = 210000
         self.E[2] = 210000
         self.E[3] = 210000
-        self.E[11] = 210000
+        self.E[11] = 210000"""
 
-        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
-        self.ro[0] = 7700
+        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
+        """self.ro[0] = 7700
         self.ro[1] = 7700
         self.ro[2] = 7700
         self.ro[3] = 7700
-        self.ro[11] = 7700
+        self.ro[11] = 7700"""
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])

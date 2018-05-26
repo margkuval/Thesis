@@ -2,23 +2,23 @@ import fc_1x4_GA as GA
 import plots_univ as plt_uni
 import matplotlib.pyplot as plt
 
-population_1 = 14  # population size
-num_cycles_1 = 20 # number of computation cycles
-mut_x_1 = 15
-mut_yA_1 = 20
-plt_s_A_1 = 40
+population_1 = 300  # population size
+num_cycles_1 = 200 # number of computation cycles
+mut_x_1 = 50
+mut_yA_1 = 45
+plt_s_A_1 = 50
 
-population_2 = 14
-num_cycles_2 = 20
-mut_x_2 = 15
-mut_yA_2 = 20
-plt_s_A_2 = 40
+population_2 = 300
+num_cycles_2 = 200
+mut_x_2 = 50
+mut_yA_2 = 45
+plt_s_A_2 = 50
 
-population_3 = 14
-num_cycles_3 = 20
-mut_x_3 = 15
-mut_yA_3 = 20
-plt_s_A_3 = 40
+population_3 = 300
+num_cycles_3 = 200
+mut_x_3 = 50
+mut_yA_3 = 45
+plt_s_A_3 = 50
 
 "Task number 1"
 task = GA.GA(population_1)

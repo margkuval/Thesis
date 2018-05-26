@@ -98,14 +98,14 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
     y_stress_positive_2 = list_stress_positive_2
     stress_positive = (x_stress_positive_2, y_stress_positive_2)
 
-    list_stress_negative = np.array(list_stress_negative_2)
-    x_stress_negative = list_iter_2
-    y_stress_negative = list_stress_negative
-    stress_negative = (x_stress_negative, y_stress_negative)
+    x_stress_negative_2 = list_iter_2
+    y_stress_negative_2 = np.array(list_stress_negative_2)
+    stress_negative = (x_stress_negative_2, y_stress_negative_2)
 
     ax2 = fig.add_subplot(2, 2, 2)
     ax2.set_title('Stress evolution')
     ax2.set_xlabel('Iterations')
+    ax2.plot(x_stress_negative_2, y_stress_negative_2, c='coral')
     ax2.set_ylabel('Negative stress sum (MPa)')
     ax2.yaxis.label.set_color('coral')
 

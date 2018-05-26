@@ -69,6 +69,7 @@ def stress(xcoord, ycoord, mem_begin, mem_end, E, A, F, dof, deflection):
     dof_x2 = dof.reshape(numnode, 2)  # reshape for plotting
 
     """Stress calculation"""
+
     "Deflections in x, y directions"
     # using mem_end and mem_begin to calculate new nodes location
     length = np.sqrt(pow((xj - xi), 2) + pow((yj - yi), 2))  # members length

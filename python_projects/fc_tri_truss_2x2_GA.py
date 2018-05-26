@@ -21,8 +21,8 @@ class Individual:
         #x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100  # CH
         #y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
-        x7GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
-        y7GA = rnd.randrange(np.round((ycoord[1] - 0.5) * 100), np.round((ycoord[1] + 0.5) * 100)) / 100
+        x7GA = rnd.randrange(np.round((xcoord[7] - 0.7) * 100), np.round((xcoord[7] + 0.7) * 100)) / 100
+        y7GA = rnd.randrange(np.round((ycoord[7] - 0.5) * 100), np.round((ycoord[7] + 0.5) * 100)) / 100
 
         x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
         y3GA = rnd.randrange(np.round((ycoord[3] - 0.5) * 100), np.round((ycoord[3] + 0.5) * 100)) / 100
@@ -334,6 +334,10 @@ class GA:
     def crossover(self):
         probs = ([x._probability for x in self._pool])
 
+        "Select the best member"
+        best = max(self._pool, key=lambda x: x._fitness)
+        worst = min(self._pool, key=lambda x: x._probability)
+
         "Nodes crossover"
         # choose 2 individuals that will crossover
         switch_x3 = np.random.choice(self._pool, 2, replace=False, p=probs)
@@ -341,26 +345,17 @@ class GA:
         switch_y3 = np.random.choice(self._pool, 2, replace=False, p=probs)
         switch_y7 = np.random.choice(self._pool, 2, replace=False, p=probs)
 
+        "Areas Crossover"
+        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
+
         self._switch_x3(switch_x3, 0)
         self._switch_x7(switch_x7, 0)
         self._switch_y3(switch_y3, 1)
         self._switch_y7(switch_y7, 1)
-
-        "Areas Crossover"
-        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
         self._switch_A(switch_a, 0)
 
-        "Select the best member"
-        "Best fitness"
-        best = max(self._pool, key=lambda x: x._probability)
-        best_p = best.probability
-
-        "Best member stays in population"
-        for i in range(0, 1):
-            if switch_x3[i] or switch_x7[i] or switch_y3[i] or switch_y7[i] or switch_a[i] == best:
-                self._pool[-1] = best
-                pp = 1 + best_p - sum(x._probability for x in self._pool)
-                self._pool[-1].probability = pp
+        self._pool.remove(worst)
+        self._pool.append(best)
 
     def mutation(self, mutation_type):
         probs = [x._probability for x in self._pool]
@@ -370,6 +365,10 @@ class GA:
 
         if sum(probs) !=1:
             probs = abs(np.array(fits))/sum_f
+
+        "Select the best member"
+        best = max(self._pool, key=lambda x: x._fitness)
+        worst = min(self._pool, key=lambda x: x._probability)
 
         "Pick a mutation candidate"
         mutation_candidate = np.random.choice(self._pool, 1, p=probs)[0]
@@ -394,11 +393,8 @@ class GA:
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
                 break
 
-        "Best member stays in population"
-        best = max(self._pool, key=lambda x: x._fitness)
-        if mutation_candidate == best:
-            self._pool[-1] = best
-            self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+        self._pool.remove(worst)
+        self._pool.append(best)
 
     def plot_stress(self):
         num_to_plot = 4

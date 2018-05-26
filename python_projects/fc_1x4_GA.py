@@ -337,7 +337,6 @@ class GA:
         probs = ([x._probability for x in self._pool])
 
         "Select the best member"
-        "Best fitness"
         best = max(self._pool, key=lambda x: x._fitness)
         worst = min(self._pool, key=lambda x: x._probability)
 

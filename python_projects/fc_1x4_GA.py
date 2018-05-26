@@ -338,12 +338,8 @@ class GA:
 
         "Select the best member"
         "Best fitness"
-        best = max(self._pool, key=lambda x: x._probability)
+        best = max(self._pool, key=lambda x: x._fitness)
         worst = min(self._pool, key=lambda x: x._probability)
-        worst = best
-        best_p = best.probability
-        new_p = 1 + best_p - sum(x._probability for x in self._pool)
-        self._pool[-1].probability = new_p
 
         "Nodes crossover"
         # choose 2 individuals that will crossover
@@ -352,8 +348,9 @@ class GA:
         switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
-        "Areas Crossover"
-        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
+        """"Areas Crossover"
+        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)"""
+
 
         """ "Best member stays in population"
         for i in range(0, 1):
@@ -366,7 +363,10 @@ class GA:
         self._switch2(switch_x1, 0)
         self._switch3(switch_x2, 0)
         #self._switch2(switch_y, 1)
-        self._switch_A(switch_a, 0)
+        #self._switch_A(switch_a, 0)
+
+        self._pool.remove(worst)
+        self._pool.append(best)
 
     def mutation(self, mutation_type):
         probs = [x._probability for x in self._pool]
@@ -386,9 +386,6 @@ class GA:
         "Best member stays in population"
         best = max(self._pool, key=lambda x: x._fitness)
         worst = min(self._pool, key=lambda x: x._fitness)
-        if mutation_candidate == best:
-            worst = best
-            self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
         "Mutate"
         for i in range(rnd.randrange(1, 2, 3)):  # CH - 3 nodes for 1x4
@@ -409,6 +406,9 @@ class GA:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
                 break
+
+        self._pool.remove(worst)
+        self._pool.append(best)
 
     def plot_stress(self):
         num_to_plot = 4

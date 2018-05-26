@@ -1,24 +1,33 @@
 import fc_1x4_GA as GA
 import plots_univ as plt_uni
+import numpy as np
 import matplotlib.pyplot as plt
 
-population_1 = 300  # population size
-num_cycles_1 = 200 # number of computation cycles
-mut_x_1 = 50
-mut_yA_1 = 45
-plt_s_A_1 = 50
 
-population_2 = 300
-num_cycles_2 = 200
-mut_x_2 = 50
-mut_yA_2 = 45
-plt_s_A_2 = 50
+"Initial values - population, number of iterations, mutation 1, mutation 2, iteration of plotting"
+inp_task_1 = np.array([30, 50, 20, 15, 50])
 
-population_3 = 300
-num_cycles_3 = 200
-mut_x_3 = 50
-mut_yA_3 = 45
-plt_s_A_3 = 50
+population_1 = inp_task_1[0]  # population size
+num_cycles_1 = inp_task_1[1] # number of computation cycles
+mut_x_1 = inp_task_1[2]
+mut_yA_1 = inp_task_1[3]
+plt_s_A_1 = inp_task_1[4]
+
+inp_task_2 = np.array([30, 50, 20, 15, 50])
+
+population_2 = inp_task_2[0]  # population size
+num_cycles_2 = inp_task_2[1] # number of computation cycles
+mut_x_2 = inp_task_2[2]
+mut_yA_2 = inp_task_2[3]
+plt_s_A_2 = inp_task_2[4]
+
+inp_task_3 = np.array([30, 50, 20, 15, 50])
+
+population_3 = inp_task_3[0]  # population size
+num_cycles_3 = inp_task_3[1] # number of computation cycles
+mut_x_3 = inp_task_3[2]
+mut_yA_3 = inp_task_3[3]
+plt_s_A_3 = inp_task_3[4]
 
 "Task number 1"
 task = GA.GA(population_1)

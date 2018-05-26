@@ -336,6 +336,11 @@ class GA:
     def crossover(self):
         probs = ([x._probability for x in self._pool])
 
+        "Select the best member"
+        "Best fitness"
+        best = max(self._pool, key=lambda x: x._probability)
+        best_p = best.probability
+
         "Nodes crossover"
         # choose 2 individuals that will crossover
         switch_x0 = np.random.choice(self._pool, 2, replace=False, p=probs)
@@ -343,26 +348,21 @@ class GA:
         switch_x2 = np.random.choice(self._pool, 2, replace=False, p=probs)
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
+        "Areas Crossover"
+        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
+
+        "Best member stays in population"
+        for i in range(0, 1):
+            if switch_x0[i] or switch_x1[i] or switch_x2[i] or switch_a[i] == best:
+                self._pool[-1] = best
+                pp = 1 + best_p - sum(x._probability for x in self._pool)
+                self._pool[-1].probability = pp
+
         self._switch1(switch_x0, 0)
         self._switch2(switch_x1, 0)
         self._switch3(switch_x2, 0)
         #self._switch2(switch_y, 1)
-
-        "Areas Crossover"
-        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
         self._switch_A(switch_a, 0)
-
-        "Select the best member"
-        "Best fitness"
-        best = max(self._pool, key=lambda x: x._probability)
-        best_p = best.probability
-
-        "Best member stays in population"
-        for i in range(0, 1):
-            if (switch_x0[i]) or (switch_x1[i]) or (switch_x2[i]) or switch_a[i] == best:
-                self._pool[-1] = best
-                pp = 1 + best_p - sum(x._probability for x in self._pool)
-                self._pool[-1].probability = pp
 
     def mutation(self, mutation_type):
         probs = [x._probability for x in self._pool]
@@ -379,6 +379,12 @@ class GA:
         possible_coefficients = [0.9, 0.9, 0.9, 1.1, 1.1, 1.1, 0.8, 0.85, 0.75, 1.3, 1.2, 1.2]
         coef = np.random.choice(possible_coefficients, 1)
 
+        "Best member stays in population"
+        best = max(self._pool, key=lambda x: x._fitness)
+        if mutation_candidate == best:
+            self._pool[-1] = best
+            self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
+
         "Mutate"
         for i in range(rnd.randrange(1, 2, 3)):  # CH - 3 nodes for 1x4
             if mutation_type == "x":
@@ -390,17 +396,14 @@ class GA:
         if mutation_type == "a":
             for i in range(rnd.randrange(len(self.mem_begin))):
                 cur_candidate = self._pool[i]
+                if cur_candidate == best:
+                    self._pool[-1] = best
+                    self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
                 se = np.argmin(self._pool[i]._stress)
                 if cur_candidate.A[se] > 0.0001:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
                 break
-
-        "Best member stays in population"
-        best = max(self._pool, key=lambda x: x._fitness)
-        if mutation_candidate == best:
-            self._pool[-1] = best
-            self._pool[-1].probability = 1 - sum(x._probability for x in self._pool[:(len(self._pool))])
 
     def plot_stress(self):
         num_to_plot = 4

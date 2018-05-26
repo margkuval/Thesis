@@ -22,10 +22,10 @@ class Individual:
         #y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
 
         x7GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
-        y7GA = rnd.randrange(np.round((ycoord[1] - 0.7) * 100), np.round((ycoord[1] + 0.7) * 100)) / 100
+        y7GA = rnd.randrange(np.round((ycoord[1] - 0.5) * 100), np.round((ycoord[1] + 0.5) * 100)) / 100
 
         x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
-        y3GA = rnd.randrange(np.round((ycoord[3] - 0.7) * 100), np.round((ycoord[3] + 0.7) * 100)) / 100
+        y3GA = rnd.randrange(np.round((ycoord[3] - 0.5) * 100), np.round((ycoord[3] + 0.5) * 100)) / 100
 
         "New coordinates"
         xcoord = np.array([0, a, 2 * a, x3GA, 2 * a, a, 0, x7GA])  # CH

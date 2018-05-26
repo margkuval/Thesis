@@ -154,8 +154,6 @@ plt_fits_3 = plt_uni.plot_fits_3(list_iter, list_iter_2, list_iter_3,
                 population_1, population_2, population_3,
                 mut_x_1, mut_x_2, mut_x_3, mut_yA_1, mut_yA_2, mut_yA_3)
 
-
-
 """plot(x, y, ylim, cex.points = 0.7,
      col = c("green3", "dodgerblue3",  adjustcolor("green3", alpha.f = 0.1)),
      pch = c(16, 1), lty = c(1,2), legend = TRUE, grid = graphics:::grid, ...)"""

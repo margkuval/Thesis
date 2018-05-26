@@ -36,12 +36,14 @@ def plot_best_1(list_iter, list_fit, list_stress_positive, list_stress_negative,
     ax2.set_title('Stress evolution')
     ax2.set_xlabel('Iterations')
     ax2.plot(x_stress_negative, y_stress_negative, c='coral')
-    ax2.set_ylabel('Negative (red) stress sum (MPa)')
+    ax2.set_ylabel('Negative stress sum (MPa)')
+    ax2.yaxis.label.set_color('coral')
 
     ax2_t = ax2.twinx()
     ax2_t.plot(x_stress_positive, y_stress_positive, c='darkslateblue')
-    ax2_t.set_ylabel('Positive (blue) stress sum (MPa)')
+    ax2_t.set_ylabel('Positive stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
+    ax2_t.yaxis.label.set_color('darkslateblue')
 
     "Weight plot"
     list_weight = np.array(list_weight).transpose()
@@ -69,7 +71,7 @@ def plot_best_1(list_iter, list_fit, list_stress_positive, list_stress_negative,
 
    # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
-    plt.subplots_adjust(wspace=0.5, top=0.8, hspace=0.5)  # keep top
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)  # keep top
     plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_I1_%Y%m%d_%H%M%S_') + ".pdf")
 
 
@@ -84,17 +86,17 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
     y_fit = list_fit_2
 
     ax1 = fig.add_subplot(2, 2, 1)
-    ax1.plot(x_fit, y_fit, c='r')
+    ax1.plot(x_fit, y_fit, c='navy')
     ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
     plt.grid(b=True, which='both', axis='both')
 
     "Stress plot"
-    list_stress_positive = np.array(list_stress_positive_2)
-    x_stress_positive = list_iter_2
-    y_stress_positive = list_stress_positive
-    stress_positive = (x_stress_positive, y_stress_positive)
+    list_stress_positive_2 = np.array(list_stress_positive_2)
+    x_stress_positive_2 = list_iter_2
+    y_stress_positive_2 = list_stress_positive_2
+    stress_positive = (x_stress_positive_2, y_stress_positive_2)
 
     list_stress_negative = np.array(list_stress_negative_2)
     x_stress_negative = list_iter_2
@@ -104,13 +106,14 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
     ax2 = fig.add_subplot(2, 2, 2)
     ax2.set_title('Stress evolution')
     ax2.set_xlabel('Iterations')
-    ax2.plot(x_stress_negative, y_stress_negative, c='coral')
-    ax2.set_ylabel('Negative (red) stress sum (MPa)')
+    ax2.set_ylabel('Negative stress sum (MPa)')
+    ax2.yaxis.label.set_color('coral')
 
     ax2_t = ax2.twinx()
-    ax2_t.plot(x_stress_positive, y_stress_positive, c='darkslateblue')
-    ax2_t.set_ylabel('Positive (blue) stress sum (MPa)')
+    ax2_t.plot(x_stress_positive_2, y_stress_positive_2, c='darkslateblue')
+    ax2_t.set_ylabel('Positive stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
+    ax2_t.yaxis.label.set_color('darkslateblue')
 
     "Weight plot"
     list_weight = np.array(list_weight_2).transpose()
@@ -118,7 +121,7 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
     y_weight = list_weight
 
     ax3 = fig.add_subplot(2, 2, 3)
-    ax3.plot(x_weight, y_weight, c='firebrick')
+    ax3.plot(x_weight, y_weight, c='cornflowerblue')
     ax3.set_title('Weight evolution')
     ax3.set_xlabel('Iterations')
     ax3.set_ylabel('Construction weight (1000kg)')
@@ -130,7 +133,7 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
     y_defl = np.round(sum(abs(list_defl[0])), 3)
 
     ax4 = fig.add_subplot(2, 2, 4)
-    ax4.plot(x_defl, y_defl, c='lightcoral')
+    ax4.plot(x_defl, y_defl, c='mediumblue')
     ax4.set_title('Deflection evolution')
     ax4.set_xlabel('Iterations')
     ax4.set_ylabel('Abs deflection sum (m)')
@@ -138,7 +141,7 @@ def plot_best_2(list_iter_2, list_fit_2, list_stress_positive_2, list_stress_neg
 
    # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
-    plt.subplots_adjust(wspace=0.5, top=0.8, hspace=0.5)  # keep top
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)  # keep top
     plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_I2_%Y%m%d_%H%M%S_') + ".pdf")
 
 
@@ -153,7 +156,7 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
     y_fit = list_fit_3
 
     ax1 = fig.add_subplot(2, 2, 1)
-    ax1.plot(x_fit, y_fit, c='r')
+    ax1.plot(x_fit, y_fit, c='gold')
     ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
@@ -174,12 +177,14 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
     ax2.set_title('Stress evolution')
     ax2.set_xlabel('Iterations')
     ax2.plot(x_stress_negative, y_stress_negative, c='coral')
-    ax2.set_ylabel('Negative (red) stress sum (MPa)')
+    ax2.set_ylabel('Negative stress sum (MPa)')
+    ax2.yaxis.label.set_color('coral')
 
     ax2_t = ax2.twinx()
     ax2_t.plot(x_stress_positive, y_stress_positive, c='darkslateblue')
-    ax2_t.set_ylabel('Positive (blue) stress sum (MPa)')
+    ax2_t.set_ylabel('Positive stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
+    ax2_t.yaxis.label.set_color('darkslateblue')
 
     "Weight plot"
     list_weight = np.array(list_weight_3).transpose()
@@ -187,7 +192,7 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
     y_weight = list_weight
 
     ax3 = fig.add_subplot(2, 2, 3)
-    ax3.plot(x_weight, y_weight, c='firebrick')
+    ax3.plot(x_weight, y_weight, c='goldenrod')
     ax3.set_title('Weight evolution')
     ax3.set_xlabel('Iterations')
     ax3.set_ylabel('Construction weight (1000kg)')
@@ -199,7 +204,7 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
     y_defl = np.round(sum(abs(list_defl[0])), 3)
 
     ax4 = fig.add_subplot(2, 2, 4)
-    ax4.plot(x_defl, y_defl, c='lightcoral')
+    ax4.plot(x_defl, y_defl, c='y')
     ax4.set_title('Deflection evolution')
     ax4.set_xlabel('Iterations')
     ax4.set_ylabel('Abs deflection sum (m)')
@@ -207,7 +212,7 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
 
    # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
-    plt.subplots_adjust(wspace=0.5, top=0.8, hspace=0.5)  # keep top
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)  # keep top
     plt.savefig(datetime.datetime.now().strftime('F_snp_w_d_1x4_I3_%Y%m%d_%H%M%S_') + ".pdf")
 
 

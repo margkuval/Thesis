@@ -40,7 +40,7 @@ class Individual:
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # can use np.ix_?      # CH
 
         "Cross-section area (m)"
-        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))    # area between 12x12 and 23x23cm  # CH
+        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))    # area between 12x12 and 23x23cm       # CH
         self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel elements # CH
         self.A[1] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[2] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000

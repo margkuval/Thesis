@@ -38,11 +38,11 @@ def plot_best_1(list_iter, list_fit, list_stress_positive, list_stress_negative,
     ax2.set_title('Stress evolution')
     ax2.set_xlabel('Iterations')
     ax2.plot(x_stress_negative, y_stress_negative, c='coral')
-    ax2.set_ylabel('Negative(r) stress sum (MPa)')
+    ax2.set_ylabel('Negative (red) stress sum (MPa)')
 
     ax2_t = ax2.twinx()
-    ax2_t.plot(x_stress_positive, y_stress_positive, c='cyan')
-    ax2_t.set_ylabel('Positive stress sum (MPa)')
+    ax2_t.plot(x_stress_positive, y_stress_positive, c='darkslateblue')
+    ax2_t.set_ylabel('Positive (blue) stress sum (MPa)')
     plt.grid(b=True, which='both', axis='both')
 
     "Weight plot"
@@ -69,8 +69,7 @@ def plot_best_1(list_iter, list_fit, list_stress_positive, list_stress_negative,
     ax4.set_ylabel('Abs deflection sum (m)')
     plt.grid(b=True, which='both', axis='both')
 
-    plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3,
-               ncol=1, mode="expand", borderaxespad=0.)
+   # plt.legend(bbox_to_anchor=(0., 1.007, 1., .101), loc=3, ncol=1, mode="expand", borderaxespad=0.)
 
     plt.subplots_adjust(wspace=0.5, top=0.8, hspace=0.5)  # keep top
 

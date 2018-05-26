@@ -473,7 +473,7 @@ class GA:
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
         plt.savefig(datetime.datetime.now().
-                    strftime('stress_1x4_%Y%m%d_%H%M%S_pop300_cyc150_mx50_myA_45') + ".pdf")
+            strftime('stress_1x4_%Y%m%d_%H%M%S_pop300_cyc150_mx50_myA_45') + ".pdf")
 
         #plt.show()
 

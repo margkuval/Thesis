@@ -41,14 +41,14 @@ class Individual:
 
         "Material characteristic E=(MPa), ro=kg/m3)"  # CH
         # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
+        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
         """self.E[0] = 210000
         self.E[1] = 210000
         self.E[2] = 210000
         self.E[3] = 210000
         self.E[11] = 210000"""
 
-        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
+        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
         """self.ro[0] = 7700
         self.ro[1] = 7700
         self.ro[2] = 7700
@@ -106,8 +106,8 @@ class Individual:
 
 class GA:
     def __init__(self, pop):
-        self.mem_begin = np.array([0, 1, 2, 3, 4, 7, 6, 5, 1, 5, 6, 2, 7])  # beginning of an edge   # CH
-        self.mem_end = np.array([1, 2, 3, 4, 7, 6, 5, 0, 5, 2, 2, 7, 3])    # end of an edge         # CH
+        self.mem_begin = np.array([0, 1, 2, 3, 4, 5, 6, 7, 7, 1, 3, 5, 7])  # beginning of an edge   # CH
+        self.mem_end = np.array([1, 2, 3, 4, 5, 6, 7, 0, 1, 3, 5, 7, 3])    # end of an edge         # CH
 
         self._pool = list()
         self._popsize = pop
@@ -116,10 +116,8 @@ class GA:
         for i in range(self._popsize):
             self._pool.append(Individual())
             print(
-                "node_1:{} node_2:{} node_3:{}".format(
-                                                 np.round([self._pool[i]._nodes[0, 1], self._pool[i]._nodes[1, 1]], 3),
-                                                 np.round([self._pool[i]._nodes[0, 2], self._pool[i]._nodes[1, 2]], 3),
-                                                 np.round([self._pool[i]._nodes[0, 3], self._pool[i]._nodes[1, 3]], 3)))
+                "node_3:{} node_7:{}".format(np.round([self._pool[i]._nodes[0, 3], self._pool[i]._nodes[1, 3]], 3),
+                                             np.round([self._pool[i]._nodes[0, 7], self._pool[i]._nodes[1, 7]], 3)))
         print("......................")
 
     def calculation(self):
@@ -131,15 +129,13 @@ class GA:
         dof = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # dof vector  # CH
         dof[0] = 1  # 1 = fixed
         dof[1] = 1
-        dof[9] = 1
+        dof[5] = 1
 
         "Outside Forces [kN]"
         F = np.zeros((2 * len(np.unique(self.mem_begin)), 1))  # forces vector  # CH
         F[10] = 10
         F[11] = -15
-        F[13] = -5
-        F[14] = 10
-        F[15] = -15
+        F[14] = 15
 
         print("calculation ")
 
@@ -231,11 +227,10 @@ class GA:
         "Print results"
         for i in range(self._popsize):
             pool = self._pool[i]
-            print("node_1:{} node_2:{} node_3:{} fit:{}  prob:{} "
+            print("node_3:{} node_7:{} fit:{}  prob:{} "
                   "|def(mm)| sum:{} |stress(kPa)| sum:{} |weight(t)| sum:{}".format(
-                np.round([pool._nodes[0, 1], pool._nodes[1, 1]], 3),
-                np.round([pool._nodes[0, 2], pool._nodes[1, 2]], 3),
                 np.round([pool._nodes[0, 3], pool._nodes[1, 3]], 3),
+                np.round([pool._nodes[0, 7], pool._nodes[1, 7]], 3),
                 np.round(pool._fitness, 3),
                 np.round(pool._probability, 3),
                 np.round(abs(pool._deflection).sum(), 3),
@@ -380,7 +375,7 @@ class GA:
         coef = np.random.choice(possible_coefficients, 1)
 
         "Mutate"
-        for i in range(rnd.randrange(1, 2, 3)):  # CH - 3 nodes for 1x4
+        for i in range(rnd.randrange(3, 7)):  # CH - 2 nodes
             if mutation_type == "x":
                 mutation_candidate._nodes[0, i] = mutation_candidate._nodes[0, i] * coef
             if mutation_type == "y":
@@ -408,7 +403,7 @@ class GA:
         gs = GridSpec(1, 4)
         gs.update(left=0.05, right=0.95, wspace=0.2)
         # fig, ax = plt.subplots(figsize=(10, 3), sharey='col')
-        fig = plt.figure(figsize=(18, 5))
+        fig = plt.figure(figsize=(18, 8))
         fig.suptitle("Best members in generation - stress")
 
         for index in range(num_to_plot):
@@ -433,7 +428,7 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 11)   # CH
+            ax.set_xlim(-1, 9)   # CH
             ax.set_ylim(-2.5, 5)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))
@@ -482,7 +477,7 @@ class GA:
         gs = GridSpec(1, 4) # 1 column, 4 in row
         gs.update(left=0.05, right=0.95, wspace=0.2)
 
-        fig = plt.figure(figsize=(18, 5))
+        fig = plt.figure(figsize=(18, 8))
         fig.suptitle("Best members in generation - cross section")
 
         for index in range(num_to_plot):
@@ -507,7 +502,7 @@ class GA:
             ax = fig.add_subplot(gs[0, index], aspect="equal")
 
             ax.grid(True)
-            ax.set_xlim(-1, 11)  # CH
+            ax.set_xlim(-1, 9)  # CH
             ax.set_ylim(-2.5, 5)  # CH
             # ax.axis('equal') solved by adding equal to "ax = "
             ax.set_title("Candidate {}".format(index + 1))

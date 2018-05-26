@@ -253,6 +253,11 @@ class GA:
         best_obj= max(self._pool, key=lambda x: x._fitness)
         return np.round(sum(best_obj.weight), 3)
 
+    def get_best_stress(self):
+        "Best fitness - sum stress"
+        best_obj= max(self._pool, key=lambda x: x._fitness)
+        return np.round(sum(abs(best_obj.stress)), 3)
+
     def get_best_stress_negative(self):
         "Best fitness - negative stress"
         best_obj = max(self._pool, key=lambda x: x._fitness)

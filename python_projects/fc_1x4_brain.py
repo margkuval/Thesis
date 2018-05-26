@@ -26,6 +26,7 @@ task = GA.GA(population_1)
 list_iter = []
 list_fit = []
 list_weight = []
+list_stress = []
 list_stress_positive = []
 list_stress_negative = []
 list_defl = []
@@ -49,11 +50,15 @@ for i in range(num_cycles_1):
     task.get_best_fit()
     task.get_best_weight()
     task.get_best_stress()
+    task.get_best_stress_positive()
+    task.get_best_stress_negative()
     task.get_best_defl()
 
     list_fit.append(task.get_best_fit())
     list_weight.append(task.get_best_weight())
     list_stress.append(task.get_best_stress())
+    list_stress_positive.append(task.get_best_stress_positive())
+    list_stress_negative.append(task.get_best_stress_negative())
     list_defl.append(task.get_best_defl())
 
 plt_best_1 = plt_uni.plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl)

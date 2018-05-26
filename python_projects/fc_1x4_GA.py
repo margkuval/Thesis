@@ -11,9 +11,10 @@ import solver_univ as slv
 from matplotlib.gridspec import GridSpec
 import datetime
 
-"""Genetic Algorithm 1x4 truss"""
+"""GENETIC ALGORITHM 1x4 TRUSS"""
 
 # CH = change if implementing on a new structure
+
 
 class Individual:
     def __init__(self):

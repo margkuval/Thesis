@@ -8,7 +8,7 @@ import fc_1x4_GA as GA
 import plots_univ as plt_uni
 import numpy as np
 
-"""Brain for the Genetic Algorithm 1x4 truss"""
+"""BRAIN FOR GENETIC ALGORITHM 1x4 TRUSS"""
 
 "Initial values - population, number of iterations, mutation 1, mutation 2, iteration of plotting"
 inp_task_1 = np.array([17, 6, 12, 15, 50])

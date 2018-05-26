@@ -1,3 +1,11 @@
+"""
+    @Author: Margarita Kuvaldina
+    @https://github.com/margkuval/Thesis
+    @date: May 2018
+"""
+
+"""SOLVER FOR GENETIC ALGORITHM ANY TRUSS - deflections, stress, weight"""
+
 import numpy as np
 
 

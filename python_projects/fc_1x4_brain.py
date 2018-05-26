@@ -55,7 +55,9 @@ for i in range(num_cycles_1):
     list_stress.append(task.get_best_stress())
     list_defl.append(task.get_best_defl())
 
-plt_best = plt_uni.plot_best(list_iter, list_fit, list_stress, list_weight, list_defl)
+plt_best_1 = plt_uni.plot_best_1(list_iter, list_fit, list_stress, list_weight, list_defl)
+
+plt_best_1_alter = plt_uni.plot_best_1_alter(list_iter, list_fit, list_stress, list_weight, list_defl)
 
 
 "Task number 2"

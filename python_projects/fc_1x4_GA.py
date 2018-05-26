@@ -33,27 +33,27 @@ class Individual:
 
         "Cross-section area (m)"
         self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
-        self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
+        """self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
         self.A[1] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[2] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[3] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
-        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
+        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000"""
 
         "Material characteristic E=(MPa), ro=kg/m3)"  # CH
         # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 210000, 40000])
-        self.E[0] = 210000
+        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
+        """self.E[0] = 210000
         self.E[1] = 210000
         self.E[2] = 210000
         self.E[3] = 210000
-        self.E[11] = 210000
+        self.E[11] = 210000"""
 
-        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 7700, 2500])/1000
-        self.ro[0] = 7700
+        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
+        """self.ro[0] = 7700
         self.ro[1] = 7700
         self.ro[2] = 7700
         self.ro[3] = 7700
-        self.ro[11] = 7700
+        self.ro[11] = 7700"""
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])

@@ -253,27 +253,27 @@ class GA:
         best_obj= max(self._pool, key=lambda x: x._fitness)
         return np.round(sum(best_obj.weight), 3)
 
-    def get_best_negative_stress(self):
+    def get_best_stress_negative(self):
         "Best fitness - negative stress"
-        best_obj= max(self._pool, key=lambda x: x._fitness)
-        best_negative_sum = 0
+        best_obj = max(self._pool, key=lambda x: x._fitness)
+        best_stress_negative_sum = 0
         for num in best_obj.stress:
             if num < 0:
-                best_negative_sum += num
-        return np.round(best_negative_sum, 3)
+                best_stress_negative_sum += num
+        return np.round(best_stress_negative_sum, 3)
 
-    def get_best_positive_stress(self):
+    def get_best_stress_positive(self):
         "Best fitness - positive stress"
-        best_obj= max(self._pool, key=lambda x: x._fitness)
-        best_positive_sum = 0
+        best_obj = max(self._pool, key=lambda x: x._fitness)
+        best_stress_positive_sum = 0
         for num in best_obj.stress:
             if num > 0:
-                best_positive_sum += num
-        return np.round(best_positive_sum, 3)
+                best_stress_positive_sum += num
+        return np.round(best_stress_positive_sum, 3)
 
     def get_best_defl(self):
         "Best fitness - deflections"
-        best_obj= max(self._pool, key=lambda x: x._fitness)
+        best_obj = max(self._pool, key=lambda x: x._fitness)
         return best_obj.deflection
 
     """def get_avg_fit(self):

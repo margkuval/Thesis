@@ -26,7 +26,8 @@ task = GA.GA(population_1)
 list_iter = []
 list_fit = []
 list_weight = []
-list_stress = []
+list_stress_positive = []
+list_stress_negative = []
 list_defl = []
 
 task.initial()

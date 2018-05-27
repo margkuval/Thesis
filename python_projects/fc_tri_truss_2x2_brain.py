@@ -47,6 +47,7 @@ list_stress_negative = []
 list_defl = []
 
 task.initial()
+print("New task 1")
 for i in range(num_cycles_1):
     task.calculation()
     task.fitness()
@@ -90,6 +91,7 @@ list_stress_negative_2 = []
 list_defl_2 = []
 
 task_2.initial()
+print("New task 1")
 for r in range(num_cycles_2):  # number of computation cycles
     task_2.calculation()
     task_2.fitness()
@@ -133,6 +135,7 @@ list_stress_negative_3 = []
 list_defl_3 = []
 
 task_3.initial()
+print("New task 3")
 for k in range(num_cycles_3):  # number of computation cycles
     task_3.calculation()
     task_3.fitness()

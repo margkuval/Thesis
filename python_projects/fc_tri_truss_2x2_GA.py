@@ -1,3 +1,9 @@
+"""
+    @Author: Margarita Kuvaldina
+    @https://github.com/margkuval
+    @date: May 2018
+"""
+
 import numpy as np
 import random as rnd
 import matplotlib.pyplot as plt
@@ -5,7 +11,10 @@ import solver_univ as slv
 from matplotlib.gridspec import GridSpec
 import datetime
 
+"""GENETIC ALGORITHM TRI TRUSS"""
+
 # CH = change if implementing on a new structure
+
 
 class Individual:
     def __init__(self):
@@ -32,7 +41,7 @@ class Individual:
         ycoord = np.array([0, 0, 0, y3GA, 2 * h, 2 * h, 2 * h, y7GA])  # can use np.ix_?    # CH
 
         "Cross-section area (m)"
-        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))  # area between 12x12 and 23x23cm # CH
+        self.A = np.random.uniform(low=0.0144, high=0.0529, size=(13,))  # area between 12x12 and 23x23cm # CH
         self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel element # CH
         self.A[1] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[9] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
@@ -40,20 +49,20 @@ class Individual:
         #self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
 
         "Material characteristic E=(MPa), ro=kg/m3)"  # CH
-        # modulus of elasticity for each member, E_concrete = 40 000 MPa, E_steel = 210 000 MPa
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
+        # modulus of elasticity for each member, E_reinforced_concrete C30/37 = 33 000 MPa, E_steel S235 = 210 000 MPa
+        self.E = np.array([33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000])
         self.E[0] = 210000
         self.E[1] = 210000
         self.E[9] = 210000
         self.E[7] = 210000
         #self.E[11] = 210000
 
-        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
-        self.ro[0] = 7700
-        self.ro[1] = 7700
-        self.ro[9] = 7700
-        self.ro[7] = 7700
-        #self.ro[11] = 7700
+        self.ro = np.array([2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600])/1000
+        self.ro[0] = 7850
+        self.ro[1] = 7850
+        self.ro[9] = 7850
+        self.ro[7] = 7850
+        #self.ro[11] = 7850
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -539,8 +548,6 @@ class GA:
                 if np.array_equal(dof_x2[r], np.array([1, 1])):
                     plt.plot([xi[r]], [yi[r] - 0.2], '^', c='k', markersize=8)
 
-        # can use Textbox if needed
-        # plt.subplots(1, 2,sharex=True, sharey=True)
         plt.savefig(datetime.datetime.now().
                     strftime('cross section_tri_truss_2x2_%Y%m%d_%H%M%S_pop100_cyc200_mx30_myA40') + ".pdf")
 

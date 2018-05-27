@@ -1,6 +1,14 @@
+"""
+    @Author: Margarita Kuvaldina
+    @https://github.com/margkuval
+    @date: May 2018
+"""
+
 import fc_tri_truss_2x2_GA as GA
 import plots_univ as plt_uni
 import numpy as np
+
+"""BRAIN FOR GENETIC ALGORITHM TRI TRUSS"""
 
 "Initial values - population, number of iterations, mutation 1, mutation 2, iteration of plotting"
 inp_task_1 = np.array([80, 100, 20, 15, 25])
@@ -160,9 +168,3 @@ plt_fits_3 = plt_uni.plot_fits_3(list_iter, list_iter_2, list_iter_3,
                 list_fit, list_fit_2, list_fit_3,
                 population_1, population_2, population_3,
                 mut_x_1, mut_x_2, mut_x_3, mut_yA_1, mut_yA_2, mut_yA_3)
-
-
-
-"""plot(x, y, ylim, cex.points = 0.7,
-     col = c("green3", "dodgerblue3",  adjustcolor("green3", alpha.f = 0.1)),
-     pch = c(16, 1), lty = c(1,2), legend = TRUE, grid = graphics:::grid, ...)"""

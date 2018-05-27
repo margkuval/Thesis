@@ -1,6 +1,6 @@
 """
     @Author: Margarita Kuvaldina
-    @https://github.com/margkuval/Thesis
+    @https://github.com/margkuval
     @date: May 2018
 """
 
@@ -47,8 +47,8 @@ list_stress_negative = []
 list_defl = []
 
 task.initial()
+print("New task 1")
 for i in range(num_cycles_1):
-    print("New task")
     task.calculation()
     task.fitness()
     if i % plt_s_A_1 == 0:
@@ -91,8 +91,8 @@ list_stress_negative_2 = []
 list_defl_2 = []
 
 task_2.initial()
+print("New task 2")
 for r in range(num_cycles_2):  # number of computation cycles
-    print("New task")
     task_2.calculation()
     task_2.fitness()
     if r % plt_s_A_2 == 0:
@@ -135,8 +135,8 @@ list_stress_negative_3 = []
 list_defl_3 = []
 
 task_3.initial()
+print("New task 3")
 for k in range(num_cycles_3):  # number of computation cycles
-    print("New task")
     task_3.calculation()
     task_3.fitness()
     if k % plt_s_A_3 == 0:

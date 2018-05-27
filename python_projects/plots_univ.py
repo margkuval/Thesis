@@ -156,7 +156,7 @@ def plot_best_3(list_iter_3, list_fit_3, list_stress_positive_3, list_stress_neg
     y_fit = list_fit_3
 
     ax1 = fig.add_subplot(2, 2, 1)
-    ax1.plot(x_fit, y_fit, c='gold')
+    ax1.plot(x_fit, y_fit, c='darkgreen')
     ax1.set_title('Fitness evolution')
     ax1.set_xlabel('Iterations')
     ax1.set_ylabel('Fitness')
@@ -352,7 +352,7 @@ def plot_fits_3(list_iter, list_iter_2, list_iter_3,
                                            'Mutation x: every %s' % mut_x_1, 'Mutation y, A: every %s' %mut_yA_1))
     ax1.plot(x_fit_2, y_fit_2, 'navy',label=('Population size: %s' % population_2,
                                              'Mutation x: every %s' % mut_x_2, 'Mutation y, A: every %s' %mut_yA_2))
-    ax1.plot(x_fit_3, y_fit_3, 'gold', label=('Population size: %s' % population_3,
+    ax1.plot(x_fit_3, y_fit_3, 'darkgreen', label=('Population size: %s' % population_3,
                                               'Mutation x: every %s' % mut_x_3, 'Mutation y, A: every %s' %mut_yA_3))
 
     #ax1.plot(x_fit_1, y_fit_1, 'r', label='Mutation %s' % )

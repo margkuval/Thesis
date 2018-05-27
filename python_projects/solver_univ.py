@@ -54,9 +54,7 @@ def deflection(xcoord, ycoord, mem_begin, mem_end, numelem, E, A, F, dof):
     u1 = np.linalg.solve(glob_stif[np.ix_(dof_active, dof_active)],
                          F[np.ix_(dof_active)]) # solve equation glob_stif*u = F
     u[np.ix_(dof_active)] = u1  # map back to the empty deflection matrix
-
-    u = np.round(u, 3)
-    deflection = u
+    deflection = np.round(u, 3)
 
     return deflection
 

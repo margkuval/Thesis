@@ -19,6 +19,7 @@ import datetime
 class Individual:
     def __init__(self):
         "Structural dimentions (m)"""
+        # CH = change if implementing on a new structure
         a = 2  # CH
         h = a  # triangle height  # CH
 
@@ -28,42 +29,42 @@ class Individual:
 
         "Choose a random number in range +- (m) from the original coordinate"
         x2GA = rnd.randrange(np.round((xcoord[2] - 0.7) * 100), np.round((xcoord[2] + 0.7) * 100)) / 100  # CH
-        #y2GA = rnd.randrange(np.round((ycoord[2] - 1) * 100), np.round((ycoord[2] + 1.3) * 100)) / 100
-
         x1GA = rnd.randrange(np.round((xcoord[1] - 0.7) * 100), np.round((xcoord[1] + 0.7) * 100)) / 100
-        #y1GA = rnd.randrange(np.round((ycoord[1] - 2) * 100), np.round((ycoord[1] + 1.3) * 100)) / 100
-
         x3GA = rnd.randrange(np.round((xcoord[3] - 0.7) * 100), np.round((xcoord[3] + 0.7) * 100)) / 100
-        #y3GA = rnd.randrange(np.round((ycoord[3] - 1) * 100), np.round((ycoord[3] + 1.3) * 100)) / 100
 
         "New coordinates"
         xcoord = np.array([0, x1GA, x2GA, x3GA, 5 * a, a, 2.5 * a, 4 * a])  # CH
         ycoord = np.array([0, 0, 0, 0, 0, h, h, h])  # can use np.ix_?      # CH
 
         "Cross-section area (m)"
-        self.A = np.random.uniform(low=0.0144, high=0.0539, size=(13,))    # area between 12x12 and 23x23cm       # CH
-        self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel elements # CH
+        self.A = np.random.uniform(low=0.0400, high=0.0400, size=(13,))    # area between 12x12 and 23x23cm       # CH
+        """self.A[0] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000  # special condition for steel elements # CH
         self.A[1] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[2] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
         self.A[3] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
-        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000
+        self.A[11] = rnd.randrange(0.0004 * 10000, 0.0064 * 10000) / 10000"""
+        self.A[0] = 0.0064                         # special condition for steel elements # CH
+        self.A[1] = 0.00640
+        self.A[2] = 0.0064
+        self.A[3] = 0.0064
+        self.A[11] = 0.0064
 
         "Material characteristic E=(MPa), ro=kg/m3)"  # CH
-        # modulus of elasticity for each member, E_reinforced_concrete = 40 000 MPa, E_steel = 210 000 MPa
-        self.E = np.array([40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000, 40000])
+        # modulus of elasticity for each member, E_reinforced_concrete C30/37 = 33 000 MPa, E_steel S235 = 210 000 MPa
+        self.E = np.array([33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000, 33000])
         self.E[0] = 210000
         self.E[1] = 210000
         self.E[2] = 210000
         self.E[3] = 210000
         self.E[11] = 210000
 
-        # density for each member, ro_reinforced_concrete = 2 500 kg/m3, ro_steel = 7700 kg/m3
-        self.ro = np.array([2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500])/1000
-        self.ro[0] = 7700
-        self.ro[1] = 7700
-        self.ro[2] = 7700
-        self.ro[3] = 7700
-        self.ro[11] = 7700
+        # density for each member, ro_reinforced_concrete C30/37 = 2 600 kg/m3, ro_steel S235= 7850 kg/m3
+        self.ro = np.array([2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600, 2600])/1000
+        self.ro[0] = 7850
+        self.ro[1] = 7850
+        self.ro[2] = 7850
+        self.ro[3] = 7850
+        self.ro[11] = 7850
 
         self._plot_dict = None
         self._nodes = np.array([xcoord, ycoord])
@@ -188,7 +189,8 @@ class GA:
                 np.round(abs(pool._deflection).sum(), 3),
                 np.round(abs(pool._stress).sum()),
                 np.round(pool._weight.sum())))
-        print("......................")
+            print("......................")
+
 
     def fitness(self):
         fitnesses = []
@@ -250,7 +252,11 @@ class GA:
                 np.round(abs(pool._deflection).sum(), 3),
                 np.round(abs(pool._stress).sum()),
                 np.round(pool._weight.sum())))
+            print("________")
+            print(np.round(abs(pool._stress)))
+
         print("______________________")
+
 
     def get_best_fit(self):
         "Best fitness"
@@ -357,12 +363,12 @@ class GA:
         #switch_y = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         "Areas Crossover"
-        switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
+        #switch_a = np.random.choice(self._pool, 2, replace=False, p=probs)
 
         self._switch1(switch_x0, 0)
         self._switch2(switch_x1, 0)
         self._switch3(switch_x2, 0)
-        self._switch_A(switch_a, 0)
+        #self._switch_A(switch_a, 0)
         #self._switch2(switch_y, 1)
 
         self._pool.remove(worst)
@@ -394,7 +400,7 @@ class GA:
                 mutation_candidate._nodes[1, i] = mutation_candidate._nodes[1, i] * coef
             break
 
-        if mutation_type == "a":
+        """if mutation_type == "a":
             for i in range(rnd.randrange(len(self.mem_begin))):
                 cur_candidate = self._pool[i]
                 if cur_candidate == best:
@@ -404,7 +410,7 @@ class GA:
                 if cur_candidate.A[se] > 0.0001:
                     continue
                 cur_candidate.A[se] = cur_candidate.A[se] * coef
-                break
+                break"""
 
         self._pool.remove(worst)
         self._pool.append(best)

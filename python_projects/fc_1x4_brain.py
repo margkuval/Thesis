@@ -11,7 +11,7 @@ import numpy as np
 """BRAIN FOR GENETIC ALGORITHM 1x4 TRUSS"""
 
 "Initial values - population, number of iterations, mutation 1, mutation 2, iteration of plotting"
-inp_task_1 = np.array([17, 6, 12, 15, 50])
+inp_task_1 = np.array([40, 50, 10, 8, 25])
 
 population_1 = inp_task_1[0]  # population size
 num_cycles_1 = inp_task_1[1]  # number of computation cycles
